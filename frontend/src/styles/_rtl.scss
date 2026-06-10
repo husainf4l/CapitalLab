@@ -1,0 +1,32 @@
+@use 'variables' as *;
+
+[dir='rtl'] {
+  font-family: $font-family-ar;
+  text-align: right;
+
+  // Flip icons and directional elements
+  .flip-rtl {
+    transform: scaleX(-1);
+  }
+
+  // Sidebar
+  .sidebar {
+    right: 0;
+    left: auto;
+  }
+
+  .main-content {
+    margin-right: $sidebar-width;
+    margin-left: 0;
+  }
+
+  // Form fields
+  .mat-mdc-form-field {
+    direction: rtl;
+  }
+
+  // Snackbar
+  .mat-mdc-snack-bar-container {
+    direction: rtl;
+  }
+}

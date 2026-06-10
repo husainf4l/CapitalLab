@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>CapitalLab.Contracts</AssemblyName>
+    <RootNamespace>CapitalLab.Contracts</RootNamespace>
+  </PropertyGroup>
+  <!-- Contracts has ZERO dependencies — shared DTOs only -->
+</Project>

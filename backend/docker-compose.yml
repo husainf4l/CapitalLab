@@ -1,0 +1,127 @@
+name: capitallab
+
+services:
+
+  # ─── Capital Lab API ─────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: capitallab-api
+    restart: unless-stopped
+    ports:
+      - "5001:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: >-
+        Host=postgres;Port=5432;Database=capitallab;
+        Username=capitallab;Password=${POSTGRES_PASSWORD:-capitallab_dev};
+        Pooling=true;MinPoolSize=5;MaxPoolSize=50;
+      ConnectionStrings__Redis: "redis:6379,abortConnect=false"
+      Jwt__Issuer: "https://localhost:5001"
+      Jwt__Audience: "https://localhost:4200"
+      Jwt__PrivateKeyBase64: "${JWT_PRIVATE_KEY_BASE64}"
+      Jwt__PublicKeyBase64: "${JWT_PUBLIC_KEY_BASE64}"
+      Encryption__Key: "${ENCRYPTION_KEY}"
+      Storage__LocalRootPath: "/app/uploads"
+      Storage__BaseUrl: "http://localhost:5001/files"
+    volumes:
+      - api-uploads:/app/uploads
+      - api-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - capitallab-network
+
+  # ─── PostgreSQL ──────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: capitallab-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: capitallab
+      POSTGRES_USER: capitallab
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-capitallab_dev}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U capitallab -d capitallab"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - capitallab-network
+
+  # ─── Redis ───────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: capitallab-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --save 60 1
+      --loglevel warning
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - capitallab-network
+
+  # ─── pgAdmin (Development only) ──────────────────────────────────────────────
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: capitallab-pgadmin
+    profiles: ["dev-tools"]
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@capitallab.io
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - capitallab-network
+
+# ─── Volumes ─────────────────────────────────────────────────────────────────
+volumes:
+  postgres-data:
+    name: capitallab-postgres-data
+  redis-data:
+    name: capitallab-redis-data
+  api-uploads:
+    name: capitallab-api-uploads
+  api-logs:
+    name: capitallab-api-logs
+  pgadmin-data:
+    name: capitallab-pgadmin-data
+
+# ─── Networks ─────────────────────────────────────────────────────────────────
+networks:
+  capitallab-network:
+    name: capitallab-network
+    driver: bridge

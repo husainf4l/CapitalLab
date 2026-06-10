@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <AssemblyName>CapitalLab.Api</AssemblyName>
+    <RootNamespace>CapitalLab.Api</RootNamespace>
+    <UserSecretsId>capitallab-api-secrets</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CapitalLab.Application\CapitalLab.Application.csproj" />
+    <ProjectReference Include="..\CapitalLab.Infrastructure\CapitalLab.Infrastructure.csproj" />
+    <ProjectReference Include="..\CapitalLab.Contracts\CapitalLab.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Swagger -->
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" />
+    <!-- API Versioning -->
+    <PackageReference Include="Asp.Versioning.Mvc" />
+    <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
+    <!-- Health Checks -->
+    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" />
+    <PackageReference Include="AspNetCore.HealthChecks.Redis" />
+    <PackageReference Include="AspNetCore.HealthChecks.System" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <!-- Logging -->
+    <PackageReference Include="Serilog.AspNetCore" />
+  </ItemGroup>
+</Project>

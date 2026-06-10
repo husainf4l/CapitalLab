@@ -1,0 +1,81 @@
+@use 'variables' as *;
+
+// Responsive
+@mixin mobile {
+  @media (max-width: #{$breakpoint-md - 1px}) { @content; }
+}
+@mixin tablet {
+  @media (min-width: $breakpoint-md) and (max-width: #{$breakpoint-lg - 1px}) { @content; }
+}
+@mixin desktop {
+  @media (min-width: $breakpoint-lg) { @content; }
+}
+@mixin tablet-up {
+  @media (min-width: $breakpoint-md) { @content; }
+}
+
+// Flex helpers
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+@mixin flex-start {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+// Card
+@mixin card($padding: $spacing-lg) {
+  background: $bg-surface;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  padding: $padding;
+  border: 1px solid $border-color;
+}
+
+// Truncate text
+@mixin truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Scrollbar
+@mixin scrollbar($width: 6px) {
+  &::-webkit-scrollbar { width: $width; height: $width; }
+  &::-webkit-scrollbar-track { background: $gray-100; border-radius: 3px; }
+  &::-webkit-scrollbar-thumb { background: $gray-300; border-radius: 3px; }
+  &::-webkit-scrollbar-thumb:hover { background: $gray-400; }
+}
+
+// RTL aware margin/padding
+@mixin margin-start($val) {
+  [dir='ltr'] & { margin-left: $val; }
+  [dir='rtl'] & { margin-right: $val; }
+}
+@mixin margin-end($val) {
+  [dir='ltr'] & { margin-right: $val; }
+  [dir='rtl'] & { margin-left: $val; }
+}
+@mixin padding-start($val) {
+  [dir='ltr'] & { padding-left: $val; }
+  [dir='rtl'] & { padding-right: $val; }
+}
+
+// Button reset
+@mixin button-reset {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  font-family: inherit;
+}
