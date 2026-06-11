@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, afterNextRender, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, afterNextRender, DestroyRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -177,28 +177,60 @@ import { MEDIA } from '../../../core/config/media';
 <!-- ══════════════════════════════════════════════════════ SERVICES ══ -->
 <section class="services-section page-section">
   <div class="container">
-    <div class="section-header reveal">
-      <div>
-        <p class="section-label">Our Services</p>
-        <h2 class="section-title">Comprehensive Laboratory Testing</h2>
-      </div>
-      <a mat-stroked-button routerLink="/tests" color="primary">View All Tests</a>
-    </div>
-    <div class="services-grid">
-      @for (s of services; track s.title; let i = $index) {
-        <div class="service-card reveal" [style.transition-delay]="(i * 0.08) + 's'"
-             routerLink="/tests">
-          <div class="service-icon-wrap" [style.background]="s.bg">
-            <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
-          </div>
-          <h4 class="service-title">{{ s.title }}</h4>
-          <p class="service-desc">{{ s.desc }}</p>
-          <div class="service-learn">
-            <span>Learn More</span>
-            <mat-icon>arrow_forward</mat-icon>
-          </div>
+    <div class="srv-wrapper reveal">
+
+      <!-- Header -->
+      <div class="srv-header">
+        <div class="srv-header-left">
+          <p class="section-label">Our Services</p>
+          <h2 class="srv-title">Comprehensive<br>Laboratory Testing</h2>
         </div>
-      }
+        <p class="srv-header-desc">
+          From routine blood panels to advanced molecular diagnostics —
+          every test performed with precision, speed, and clinical expertise.
+        </p>
+      </div>
+
+      <!-- Controls: filters + nav -->
+      <div class="srv-controls">
+        <div class="srv-filters">
+          @for (f of serviceFilters; track f; let i = $index) {
+            <button class="srv-filter" [class.srv-filter-active]="activeFilter() === i"
+                    (click)="setFilter(i)">{{ f }}</button>
+          }
+        </div>
+        <div class="srv-nav">
+          <button class="srv-nav-btn" (click)="prevService()" aria-label="Previous">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <button class="srv-nav-btn" (click)="nextService()" aria-label="Next">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- Card track -->
+      <div class="srv-track-wrap">
+        <div class="srv-track">
+          @for (s of filteredServices(); track s.title) {
+            <div class="srv-card" [class]="'srv-size-' + s.size" routerLink="/tests">
+              <div class="srv-card-bg" [style.background]="s.gradient"></div>
+              <div class="srv-card-overlay"></div>
+              <div class="srv-card-content">
+                <div class="srv-card-icon-wrap">
+                  <mat-icon>{{ s.icon }}</mat-icon>
+                </div>
+                <h4 class="srv-card-title">{{ s.title }}</h4>
+                <p class="srv-card-desc">{{ s.desc }}</p>
+              </div>
+              <div class="srv-card-arrow">
+                <mat-icon>north_east</mat-icon>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
@@ -1077,38 +1109,131 @@ import { MEDIA } from '../../../core/config/media';
     }
 
     // ══════════════════════════════════════════════════════ SERVICES ══════════
-    .services-section { background: white; }
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    .service-card {
+    .services-section { background: #f1f5f9; }
+
+    .srv-wrapper {
       background: white;
+      border-radius: 32px;
+      padding: 52px 52px 0;
+      overflow: hidden;
+    }
+
+    .srv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      gap: 40px;
+    }
+    .srv-header-left { flex-shrink: 0; }
+    .srv-title {
+      font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+      font-weight: 800; line-height: 1.2;
+      letter-spacing: -0.5px; color: $text-primary;
+      margin: 6px 0 0;
+    }
+    .srv-header-desc {
+      max-width: 380px;
+      font-size: 0.95rem; color: $text-secondary;
+      line-height: 1.7; padding-top: 8px; margin: 0;
+    }
+
+    .srv-controls {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px; gap: 16px; flex-wrap: wrap;
+    }
+
+    .srv-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+    .srv-filter {
+      padding: 9px 22px; border-radius: 100px;
+      font-size: 0.84rem; font-weight: 600;
       border: 1.5px solid $border-color;
-      border-radius: $border-radius-xl;
-      padding: 28px 24px;
-      cursor: pointer;
-      transition: transform $transition-normal, box-shadow $transition-normal, border-color $transition-normal;
-      &:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        border-color: transparent;
+      background: transparent; color: $text-secondary;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.22s ease;
+      &:hover { border-color: $primary; color: $primary; background: rgba($primary, 0.04); }
+      &.srv-filter-active {
+        background: $primary; border-color: $primary; color: white;
+        box-shadow: 0 4px 16px rgba($primary, 0.28);
       }
     }
-    .service-icon-wrap {
-      width: 52px; height: 52px;
-      border-radius: 14px;
+
+    .srv-nav { display: flex; gap: 10px; flex-shrink: 0; }
+    .srv-nav-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 1.5px solid $border-color; background: transparent;
       display: flex; align-items: center; justify-content: center;
-      margin-bottom: 18px;
-      mat-icon { font-size: 26px; width: 26px; height: 26px; }
+      cursor: pointer; transition: all 0.22s ease;
+      mat-icon { color: $text-secondary; font-size: 20px; width: 20px; height: 20px; transition: color 0.22s; }
+      &:hover { background: $primary; border-color: $primary; mat-icon { color: white; } }
     }
-    .service-title { font-size: 1rem; font-weight: 700; color: $text-primary; margin-bottom: 8px; }
-    .service-desc  { font-size: 0.875rem; color: $text-secondary; line-height: 1.6; margin: 0 0 16px; }
-    .service-learn {
-      display: flex; align-items: center; gap: 4px;
-      color: $primary; font-size: 0.875rem; font-weight: 600;
-      mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+    .srv-track-wrap {
+      overflow-x: auto; scrollbar-width: none;
+      padding-bottom: 52px;
+      margin: 0 -52px; padding-left: 52px; padding-right: 52px;
+      &::-webkit-scrollbar { display: none; }
+    }
+    .srv-track {
+      display: flex; gap: 16px;
+      align-items: flex-end;
+      min-width: max-content;
+    }
+
+    .srv-card {
+      position: relative; border-radius: 28px; overflow: hidden;
+      flex-shrink: 0; cursor: pointer;
+      transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.38s ease;
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 40px 80px rgba(0,0,0,0.22);
+        .srv-card-bg { transform: scale(1.07); }
+        .srv-card-arrow { opacity: 1; transform: translate(0,0) scale(1); }
+      }
+      &.srv-size-lg { width: 330px; height: 460px; }
+      &.srv-size-md { width: 280px; height: 390px; }
+      &.srv-size-sm { width: 248px; height: 330px; }
+    }
+
+    .srv-card-bg {
+      position: absolute; inset: 0;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
+    }
+    .srv-card-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.32) 48%, rgba(0,0,0,0.04) 100%);
+    }
+    .srv-card-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 28px; z-index: 2;
+    }
+    .srv-card-icon-wrap {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255,255,255,0.15); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: rgba(255,255,255,0.92); }
+    }
+    .srv-card-title {
+      font-size: 1.1rem; font-weight: 700; color: white;
+      margin-bottom: 6px; line-height: 1.25;
+    }
+    .srv-card-desc {
+      font-size: 0.78rem; color: rgba(255,255,255,0.6);
+      line-height: 1.55; margin: 0;
+    }
+    .srv-card-arrow {
+      position: absolute; top: 20px; right: 20px;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,0.18); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.28);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 3; opacity: 0;
+      transform: translate(6px,-6px) scale(0.82);
+      transition: all 0.32s ease;
+      mat-icon { color: white; font-size: 17px; width: 17px; height: 17px; }
     }
 
     // ══════════════════════════════════════════════════════ PACKAGES ═════════
@@ -1729,7 +1854,10 @@ import { MEDIA } from '../../../core/config/media';
       .features-grid   { grid-template-columns: 1fr; }
       .about-grid      { grid-template-columns: 1fr; }
       .about-image-wrap { display: none; }
-      .services-grid   { grid-template-columns: repeat(2, 1fr); }
+      .srv-wrapper     { padding: 36px 28px 0; border-radius: 24px; }
+      .srv-header      { flex-direction: column; gap: 12px; }
+      .srv-header-desc { max-width: 100%; padding-top: 0; }
+      .srv-track-wrap  { margin: 0 -28px; padding-left: 28px; padding-right: 28px; }
       .packages-grid   { grid-template-columns: repeat(2, 1fr); }
       .tracker-grid    { grid-template-columns: 1fr; }
       .programs-grid   { grid-template-columns: 1fr; }
@@ -1749,7 +1877,9 @@ import { MEDIA } from '../../../core/config/media';
       .hfc-status     { display: none; }
       .hsb-grid       { grid-template-columns: repeat(2,1fr); gap: 14px; }
       .features-grid  { grid-template-columns: 1fr; }
-      .services-grid  { grid-template-columns: 1fr; }
+      .srv-card.srv-size-lg { width: 280px; height: 400px; }
+      .srv-card.srv-size-md { width: 240px; height: 340px; }
+      .srv-card.srv-size-sm { width: 210px; height: 290px; }
       .packages-grid  { grid-template-columns: 1fr; }
       .programs-grid  { grid-template-columns: 1fr; }
       .stats-grid     { grid-template-columns: 1fr; }
@@ -1807,13 +1937,30 @@ export class HomeComponent implements OnInit {
   ];
 
   services = [
-    { icon: 'water_drop', title: 'Blood Tests', desc: 'Complete blood count, blood chemistry, and specialized hematology panels.', color: '#dc2626', bg: '#fef2f2' },
-    { icon: 'science', title: 'Hormone Tests', desc: 'Thyroid, reproductive, adrenal, and growth hormone profiling.', color: '#7c3aed', bg: '#ede9fe' },
-    { icon: 'analytics', title: 'Diabetes Monitoring', desc: 'HbA1c, fasting glucose, insulin resistance, and diabetic risk panels.', color: '#0284c7', bg: '#e0f2fe' },
-    { icon: 'medication', title: 'Vitamin Screening', desc: 'Vitamin D, B12, folate, and micronutrient deficiency assessment.', color: '#d97706', bg: '#fffbeb' },
-    { icon: 'favorite', title: 'Cardiac Diagnostics', desc: 'Lipid profiles, troponin, BNP, and advanced cardiovascular risk markers.', color: '#e11d48', bg: '#fff1f2' },
-    { icon: 'spa', title: 'Wellness Packages', desc: 'Comprehensive annual checkup bundles tailored to your age and lifestyle.', color: '#059669', bg: '#ecfdf5' },
+    { icon: 'water_drop',  title: 'Blood Tests',          desc: 'Complete blood count, blood chemistry, and specialized hematology panels.', color: '#dc2626', bg: '#fef2f2', gradient: 'linear-gradient(145deg,#1a0505 0%,#7f1d1d 45%,#dc2626 100%)',           size: 'lg', category: 'Diagnostics' },
+    { icon: 'science',     title: 'Hormone Tests',         desc: 'Thyroid, reproductive, adrenal, and growth hormone profiling.',            color: '#7c3aed', bg: '#ede9fe', gradient: 'linear-gradient(145deg,#1e0a40 0%,#6d28d9 50%,#a78bfa 100%)',           size: 'sm', category: 'Diagnostics' },
+    { icon: 'analytics',   title: 'Diabetes Monitoring',   desc: 'HbA1c, fasting glucose, insulin resistance, and diabetic risk panels.',    color: '#0284c7', bg: '#e0f2fe', gradient: 'linear-gradient(145deg,#0a1628 0%,#1a56a0 48%,#3b82f6 100%)',           size: 'md', category: 'Monitoring' },
+    { icon: 'medication',  title: 'Vitamin Screening',     desc: 'Vitamin D, B12, folate, and micronutrient deficiency assessment.',         color: '#d97706', bg: '#fffbeb', gradient: 'linear-gradient(145deg,#1c0f00 0%,#92400e 48%,#f59e0b 100%)',           size: 'sm', category: 'Monitoring' },
+    { icon: 'favorite',    title: 'Cardiac Diagnostics',   desc: 'Lipid profiles, troponin, BNP, and advanced cardiovascular risk markers.', color: '#e11d48', bg: '#fff1f2', gradient: 'linear-gradient(145deg,#1a0010 0%,#9f1239 48%,#f43f5e 100%)',           size: 'lg', category: 'Preventive' },
+    { icon: 'spa',         title: 'Wellness Packages',     desc: 'Comprehensive annual checkup bundles tailored to your age and lifestyle.',  color: '#059669', bg: '#ecfdf5', gradient: 'linear-gradient(145deg,#021a10 0%,#065f46 48%,#10b981 100%)',           size: 'md', category: 'Preventive' },
   ];
+
+  serviceFilters = ['All', 'Diagnostics', 'Monitoring', 'Preventive'];
+  activeFilter = signal(0);
+  filteredServices = computed(() => {
+    const idx = this.activeFilter();
+    if (idx === 0) return this.services;
+    const cat = this.serviceFilters[idx];
+    return this.services.filter(s => s.category === cat);
+  });
+
+  setFilter(i: number): void { this.activeFilter.set(i); }
+  prevService(): void {
+    (document.querySelector('.srv-track-wrap') as HTMLElement | null)?.scrollBy({ left: -340, behavior: 'smooth' });
+  }
+  nextService(): void {
+    (document.querySelector('.srv-track-wrap') as HTMLElement | null)?.scrollBy({ left: 340, behavior: 'smooth' });
+  }
 
   packageGradients = [
     'linear-gradient(135deg, #1a73e8, #4f8ef7)',
