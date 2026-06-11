@@ -1172,28 +1172,28 @@ import { MEDIA } from '../../../core/config/media';
     .srv-track-wrap {
       overflow-x: auto; scrollbar-width: none;
       padding-bottom: 52px;
-      margin: 0 -52px; padding-left: 52px; padding-right: 52px;
+      margin: 0 -52px; padding-left: 52px; padding-right: 0;
       &::-webkit-scrollbar { display: none; }
     }
     .srv-track {
-      display: flex; gap: 16px;
+      display: flex; gap: 12px;
       align-items: flex-end;
       min-width: max-content;
     }
 
     .srv-card {
-      position: relative; border-radius: 28px; overflow: hidden;
+      position: relative; border-radius: 24px; overflow: hidden;
       flex-shrink: 0; cursor: pointer;
       transition: transform 0.38s cubic-bezier(0.25,0.46,0.45,0.94), box-shadow 0.38s ease;
       &:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 40px 80px rgba(0,0,0,0.22);
+        transform: translateY(-8px);
+        box-shadow: 0 32px 64px rgba(0,0,0,0.22);
         .srv-card-bg { transform: scale(1.07); }
         .srv-card-arrow { opacity: 1; transform: translate(0,0) scale(1); }
       }
-      &.srv-size-lg { width: 330px; height: 460px; }
-      &.srv-size-md { width: 280px; height: 390px; }
-      &.srv-size-sm { width: 248px; height: 330px; }
+      &.srv-size-lg { width: 250px; height: 350px; }
+      &.srv-size-md { width: 212px; height: 300px; }
+      &.srv-size-sm { width: 185px; height: 258px; }
     }
 
     .srv-card-bg {
@@ -1877,9 +1877,9 @@ import { MEDIA } from '../../../core/config/media';
       .hfc-status     { display: none; }
       .hsb-grid       { grid-template-columns: repeat(2,1fr); gap: 14px; }
       .features-grid  { grid-template-columns: 1fr; }
-      .srv-card.srv-size-lg { width: 280px; height: 400px; }
-      .srv-card.srv-size-md { width: 240px; height: 340px; }
-      .srv-card.srv-size-sm { width: 210px; height: 290px; }
+      .srv-card.srv-size-lg { width: 200px; height: 290px; }
+      .srv-card.srv-size-md { width: 170px; height: 248px; }
+      .srv-card.srv-size-sm { width: 150px; height: 215px; }
       .packages-grid  { grid-template-columns: 1fr; }
       .programs-grid  { grid-template-columns: 1fr; }
       .stats-grid     { grid-template-columns: 1fr; }
