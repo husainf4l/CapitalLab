@@ -8,7 +8,7 @@ import { ApiResponse, PaginatedResponse, PaginationParams } from '../models/api.
 @Injectable({ providedIn: 'root' })
 export class PackageApiService {
   private http = inject(HttpClient);
-  private url = `${environment.apiUrl}/health-packages`;
+  private url = `${environment.apiUrl}/packages`;
 
   getAll(params?: PaginationParams): Observable<ApiResponse<PaginatedResponse<HealthPackage>>> {
     let httpParams = new HttpParams();

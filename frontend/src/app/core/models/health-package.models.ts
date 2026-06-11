@@ -1,13 +1,17 @@
 export interface HealthPackage {
   id: string;
+  code?: string;
   name: string;
   nameAr?: string;
   description?: string;
   descriptionAr?: string;
-  price: number;
-  originalPrice?: number;
-  tests: PackageTest[];
+  price: number;           // base price before discount
+  discountPercentage?: number;
+  effectivePrice?: number; // price after discount (use this for display)
+  originalPrice?: number;  // alias kept for legacy usage
+  tests?: PackageTest[];
   testsCount?: number;
+  testCount?: number;      // backend summary uses testCount
   isPopular: boolean;
   isActive: boolean;
   imageUrl?: string;

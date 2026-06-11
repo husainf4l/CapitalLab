@@ -3,6 +3,7 @@ using CapitalLab.Application.Features.Packages.Queries;
 using CapitalLab.Contracts.Catalog;
 using CapitalLab.Contracts.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
@@ -10,6 +11,7 @@ namespace CapitalLab.Api.Controllers.V1;
 public class PackagesController(IMediator mediator) : BaseController(mediator)
 {
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,
         [FromQuery] bool? isActive,
@@ -20,7 +22,17 @@ public class PackagesController(IMediator mediator) : BaseController(mediator)
         return OkPaged(result.Value!);
     }
 
+    [HttpGet("popular")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetPopular([FromQuery] int count = 6, CancellationToken ct = default)
+    {
+        var pagination = new PaginationRequest { PageSize = count };
+        var result = await Mediator.Send(new GetHealthPackagesQuery(pagination, IsActive: true, IsPopular: true), ct);
+        return OkResponse(result.Value!.Items);
+    }
+
     [HttpGet("{id:guid}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
     {
         var result = await Mediator.Send(new GetHealthPackageByIdQuery(id), ct);

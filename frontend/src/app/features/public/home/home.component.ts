@@ -258,17 +258,17 @@ import { MEDIA } from '../../../core/config/media';
             </div>
             <div class="pkg-body">
               <h4 class="pkg-name">{{ pkg.name }}</h4>
-              <p class="pkg-tests">{{ pkg.testsCount }} Tests Included</p>
-              @if (pkg.originalPrice && pkg.originalPrice > pkg.price) {
+              <p class="pkg-tests">{{ pkg.testCount ?? pkg.testsCount ?? 0 }} Tests Included</p>
+              @if ((pkg.discountPercentage ?? 0) > 0) {
                 <div class="pkg-savings">
-                  Save SAR {{ (pkg.originalPrice - pkg.price) | number:'1.0-0' }}
+                  Save SAR {{ (pkg.price - (pkg.effectivePrice ?? pkg.price)) | number:'1.0-0' }}
                 </div>
               }
               <div class="pkg-price-row">
-                @if (pkg.originalPrice && pkg.originalPrice > pkg.price) {
-                  <span class="pkg-original">SAR {{ pkg.originalPrice | number }}</span>
+                @if ((pkg.discountPercentage ?? 0) > 0) {
+                  <span class="pkg-original">SAR {{ pkg.price | number }}</span>
                 }
-                <span class="pkg-price">SAR {{ pkg.price | number }}</span>
+                <span class="pkg-price">SAR {{ (pkg.effectivePrice ?? pkg.price) | number }}</span>
               </div>
               <a mat-flat-button color="primary" class="pkg-cta"
                  [routerLink]="['/packages', pkg.id]">
