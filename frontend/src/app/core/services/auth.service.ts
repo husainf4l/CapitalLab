@@ -12,6 +12,7 @@ import {
   ResetPasswordRequest,
   RefreshTokenRequest,
   ChangePasswordRequest,
+  RegisterPatientRequest,
 } from '../models/auth.models';
 import { ApiResponse } from '../models/api.models';
 
@@ -43,6 +44,18 @@ export class AuthService {
         this.isAuthenticated.set(true);
       }
     }
+  }
+
+  register(request: RegisterPatientRequest): Observable<ApiResponse<LoginResponse>> {
+    return this.http.post<ApiResponse<LoginResponse>>(`${this.baseUrl}/register`, request).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          this.tokenStorage.setTokens(response.data.accessToken, response.data.refreshToken);
+          this.currentUser.set(response.data.user);
+          this.isAuthenticated.set(true);
+        }
+      })
+    );
   }
 
   login(request: LoginRequest): Observable<ApiResponse<LoginResponse>> {

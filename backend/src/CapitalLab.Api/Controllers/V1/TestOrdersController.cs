@@ -1,16 +1,29 @@
+using CapitalLab.Application.Common.Interfaces;
+using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Application.Features.TestOrders.Commands;
 using CapitalLab.Application.Features.TestOrders.Queries;
 using CapitalLab.Contracts.Common;
 using CapitalLab.Contracts.TestOrders;
 using DomainTestOrderStatus = CapitalLab.Domain.Enums.TestOrderStatus;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
 [Route("api/v{version:apiVersion}/test-orders")]
-public class TestOrdersController(IMediator mediator) : BaseController(mediator)
+public class TestOrdersController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpGet("my")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyTestOrders([FromQuery] PaginationRequest pagination, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkPaged(PagedResult<TestOrderSummaryResponse>.Empty(pagination.Page, pagination.PageSize));
+        var result = await Mediator.Send(new GetTestOrdersQuery(pagination, patientIdResult.Value.Value), ct);
+        return OkPaged(result.Value!);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,

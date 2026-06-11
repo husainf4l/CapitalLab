@@ -1,3 +1,4 @@
+using CapitalLab.Application.Common.Interfaces;
 using CapitalLab.Application.Features.Patients.Commands;
 using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Application.Features.PatientHistory.Queries;
@@ -5,12 +6,56 @@ using CapitalLab.Contracts.Common;
 using CapitalLab.Contracts.Patients;
 using CapitalLab.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
-public class PatientsController(IMediator mediator) : BaseController(mediator)
+public class PatientsController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    // ── Patient self-service (JWT-scoped) ────────────────────────────────────
+
+    [HttpGet("profile")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyProfile(CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return NotFound();
+        var result = await Mediator.Send(new GetPatientByIdQuery(patientIdResult.Value.Value), ct);
+        return OkResponse(result.Value);
+    }
+
+    [HttpPut("profile")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> UpdateMyProfile([FromBody] UpdatePatientRequest request, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return NotFound();
+        await Mediator.Send(new UpdatePatientCommand(
+            patientIdResult.Value.Value,
+            request.FirstName, request.LastName, request.NameAr,
+            (Gender)request.Gender, request.DateOfBirth,
+            request.NationalId, request.PassportNumber,
+            request.Phone, request.Email,
+            request.Address, request.City, request.Area,
+            request.EmergencyContactName, request.EmergencyContactPhone,
+            request.InsuranceProvider, request.InsuranceNumber,
+            request.MedicalHistory, request.Allergies), ct);
+        return NoContentResponse();
+    }
+
+    [HttpGet("family-members")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyFamilyMembers(CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkResponse(Array.Empty<object>());
+        var result = await Mediator.Send(new GetPatientFamilyMembersQuery(patientIdResult.Value.Value), ct);
+        return OkResponse(result.Value);
+    }
+
+    // ── Admin / staff ─────────────────────────────────────────────────────────
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,

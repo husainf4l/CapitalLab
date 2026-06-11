@@ -10,4 +10,5 @@ public interface IAuthService
     Task<Result> LogoutAsync(Guid userId, CancellationToken ct = default);
     Task<Result<AuthUserResponse>> GetCurrentUserAsync(Guid userId, CancellationToken ct = default);
     Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken ct = default);
+    Task<Result<LoginResponse>> RegisterPatientAsync(string firstName, string lastName, string email, string phone, int gender, DateOnly dateOfBirth, string password, CancellationToken ct = default);
 }

@@ -1,15 +1,29 @@
+using CapitalLab.Application.Common.Interfaces;
+using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Application.Features.Reports.Commands;
+using CapitalLab.Application.Features.Reports.Commands.Pdf;
 using CapitalLab.Application.Features.Reports.Queries;
 using CapitalLab.Contracts.Common;
 using CapitalLab.Contracts.Laboratory;
 using CapitalLab.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
-public class ReportsController(IMediator mediator) : BaseController(mediator)
+public class ReportsController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpGet("my")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyReports([FromQuery] PaginationRequest pagination, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkPaged(PagedResult<ReportSummaryResponse>.Empty(pagination.Page, pagination.PageSize));
+        var result = await Mediator.Send(new GetReportsQuery(pagination, patientIdResult.Value.Value, null, null), ct);
+        return OkPaged(result.Value!);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,
@@ -41,5 +55,20 @@ public class ReportsController(IMediator mediator) : BaseController(mediator)
     {
         await Mediator.Send(new ReleaseReportCommand(id), ct);
         return NoContentResponse();
+    }
+
+    [HttpPost("{id:guid}/generate-pdf")]
+    public async Task<IActionResult> GeneratePdf(Guid id, CancellationToken ct)
+    {
+        var result = await Mediator.Send(new GenerateReportPdfCommand(id), ct);
+        return result.IsSuccess ? OkResponse(new { path = result.Value }) : FailResponse(result.ErrorMessage!);
+    }
+
+    [HttpGet("{id:guid}/pdf")]
+    public async Task<IActionResult> GetPdf(Guid id, CancellationToken ct)
+    {
+        var result = await Mediator.Send(new GetReportPdfQuery(id), ct);
+        if (!result.IsSuccess) return NotFound();
+        return File(result.Value!, "application/pdf", $"report-{id}.pdf");
     }
 }

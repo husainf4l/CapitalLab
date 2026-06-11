@@ -27,6 +27,7 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     children: [
       { path: 'login', loadComponent: () => import('./features/public/login/login.component').then(m => m.LoginComponent) },
+      { path: 'register', loadComponent: () => import('./features/public/register/register.component').then(m => m.RegisterComponent) },
       { path: 'forgot-password', loadComponent: () => import('./features/public/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent) },
       { path: 'reset-password', loadComponent: () => import('./features/public/reset-password/reset-password.component').then(m => m.ResetPasswordComponent) },
     ],
@@ -103,6 +104,11 @@ export const routes: Routes = [
       { path: 'billing', loadComponent: () => import('./features/admin/billing/admin-billing.component').then(m => m.AdminBillingComponent) },
       { path: 'payments', loadComponent: () => import('./features/admin/payments/admin-payments.component').then(m => m.AdminPaymentsComponent) },
       { path: 'insurance', loadComponent: () => import('./features/admin/insurance/admin-insurance.component').then(m => m.AdminInsuranceComponent) },
+      { path: 'notifications', loadComponent: () => import('./features/admin/notifications/admin-notifications.component').then(m => m.AdminNotificationsComponent) },
+      { path: 'audit', loadComponent: () => import('./features/admin/audit/admin-audit.component').then(m => m.AdminAuditComponent) },
+      { path: 'analyzers', loadComponent: () => import('./features/admin/analyzers/admin-analyzers.component').then(m => m.AdminAnalyzersComponent) },
+      { path: 'settings', loadComponent: () => import('./features/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent) },
+      { path: 'system-health', loadComponent: () => import('./features/admin/system-health/admin-system-health.component').then(m => m.AdminSystemHealthComponent) },
     ],
   },
 
@@ -121,6 +127,7 @@ export const routes: Routes = [
       { path: 'patients', loadComponent: () => import('./features/owner/patients/owner-patients.component').then(m => m.OwnerPatientsComponent) },
       { path: 'inventory', loadComponent: () => import('./features/owner/inventory/owner-inventory.component').then(m => m.OwnerInventoryComponent) },
       { path: 'insurance', loadComponent: () => import('./features/owner/insurance/owner-insurance.component').then(m => m.OwnerInsuranceComponent) },
+      { path: 'executive', loadComponent: () => import('./features/owner/executive/owner-executive.component').then(m => m.OwnerExecutiveComponent) },
     ],
   },
 

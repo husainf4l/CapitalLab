@@ -17,7 +17,7 @@ export interface BarDatum { label: string; value: number; }
           @for (d of data(); track $index) {
             <div class="bar-row">
               <span class="bar-label">{{ d.label }}</span>
-              <div class="bar-track"><div class="bar-fill" [style.width.%]="pct(d.value)" [style.background]="color()"></div></div>
+              <div class="bar-track" [style.color]="color()"><div class="bar-fill" [style.width.%]="pct(d.value)"></div></div>
               <span class="bar-value">{{ prefix() }}{{ d.value.toLocaleString() }}</span>
             </div>
           }
@@ -27,15 +27,19 @@ export interface BarDatum { label: string; value: number; }
   `,
   styles: [`
     @use '../../../../styles/variables' as *;
-    .chart { background: white; border: 1px solid $border-color; border-radius: $border-radius-lg; padding: 20px; }
-    .chart-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 16px; }
-    .no-data { padding: 30px; text-align: center; color: $text-secondary; font-size: 0.85rem; }
-    .bars { display: flex; flex-direction: column; gap: 12px; }
-    .bar-row { display: flex; align-items: center; gap: 12px; }
-    .bar-label { width: 130px; font-size: 0.8rem; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bar-track { flex: 1; height: 10px; background: $gray-100; border-radius: 999px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 999px; transition: width 0.4s ease; }
-    .bar-value { width: 90px; text-align: right; font-size: 0.8rem; font-weight: 700; color: $text-secondary; flex-shrink: 0; }
+    .chart {
+      background: var(--background); border: 1px solid var(--border);
+      border-radius: $border-radius-xl; padding: $spacing-xl; box-shadow: $shadow-md; height: 100%;
+      display: flex; flex-direction: column;
+    }
+    .chart-title { font-weight: $font-weight-semibold; font-size: $font-size-md; color: var(--foreground); margin-bottom: $spacing-lg; }
+    .no-data { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--muted-foreground); font-size: $font-size-sm; }
+    .bars { display: flex; flex-direction: column; gap: $spacing-md; flex: 1; justify-content: center; }
+    .bar-row { display: flex; align-items: center; gap: $spacing-sm; }
+    .bar-label { width: 120px; font-size: $font-size-xs; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--foreground); font-weight: $font-weight-medium; }
+    .bar-track { flex: 1; height: 8px; background: var(--card); border-radius: $border-radius-full; overflow: hidden; border: 1px solid var(--border); }
+    .bar-fill { height: 100%; border-radius: $border-radius-full; transition: width 0.5s ease; background: currentColor; }
+    .bar-value { width: 80px; text-align: right; font-size: $font-size-xs; font-weight: $font-weight-semibold; color: var(--muted-foreground); flex-shrink: 0; }
   `]
 })
 export class OwnerBarChartComponent {

@@ -10,7 +10,7 @@ using MediatR;
 
 namespace CapitalLab.Application.Features.HomeCollections.Queries;
 
-public record GetHomeCollectionRequestsQuery(PaginationRequest Pagination, HomeCollectionStatus? Status = null, Guid? AssignedStaffId = null) : IRequest<Result<PagedResult<HomeCollectionResponse>>>;
+public record GetHomeCollectionRequestsQuery(PaginationRequest Pagination, HomeCollectionStatus? Status = null, Guid? AssignedStaffId = null, Guid? PatientId = null) : IRequest<Result<PagedResult<HomeCollectionResponse>>>;
 public record GetHomeCollectionByIdQuery(Guid Id) : IRequest<Result<HomeCollectionResponse>>;
 
 public class GetHomeCollectionRequestsQueryHandler(IRepository<HomeCollectionRequest> repo)
@@ -21,6 +21,7 @@ public class GetHomeCollectionRequestsQueryHandler(IRepository<HomeCollectionReq
         var query = repo.Query();
         if (request.Status.HasValue) query = query.Where(h => h.Status == request.Status);
         if (request.AssignedStaffId.HasValue) query = query.Where(h => h.AssignedStaffId == request.AssignedStaffId);
+        if (request.PatientId.HasValue) query = query.Where(h => h.PatientId == request.PatientId);
         if (!string.IsNullOrWhiteSpace(request.Pagination.Search))
         {
             var s = request.Pagination.Search.ToLowerInvariant();

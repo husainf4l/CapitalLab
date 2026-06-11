@@ -1,16 +1,29 @@
+using CapitalLab.Application.Common.Interfaces;
 using CapitalLab.Application.Features.HomeCollections.Commands;
 using CapitalLab.Application.Features.HomeCollections.Queries;
+using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Contracts.Common;
 using CapitalLab.Contracts.HomeCollections;
 using DomainHomeCollectionStatus = CapitalLab.Domain.Enums.HomeCollectionStatus;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
 [Route("api/v{version:apiVersion}/home-collections")]
-public class HomeCollectionsController(IMediator mediator) : BaseController(mediator)
+public class HomeCollectionsController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpGet("my")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyHomeCollections([FromQuery] PaginationRequest pagination, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkPaged(PagedResult<HomeCollectionResponse>.Empty(pagination.Page, pagination.PageSize));
+        var result = await Mediator.Send(new GetHomeCollectionRequestsQuery(pagination, PatientId: patientIdResult.Value.Value), ct);
+        return OkPaged(result.Value!);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,

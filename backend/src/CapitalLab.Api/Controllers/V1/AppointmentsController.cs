@@ -1,16 +1,29 @@
+using CapitalLab.Application.Common.Interfaces;
 using CapitalLab.Application.Features.Appointments.Commands;
 using CapitalLab.Application.Features.Appointments.Queries;
+using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Contracts.Appointments;
 using CapitalLab.Contracts.Common;
 using DomainAppointmentStatus = CapitalLab.Domain.Enums.AppointmentStatus;
 using DomainAppointmentType = CapitalLab.Domain.Enums.AppointmentType;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
-public class AppointmentsController(IMediator mediator) : BaseController(mediator)
+public class AppointmentsController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpGet("my")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyAppointments([FromQuery] PaginationRequest pagination, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkPaged(PagedResult<AppointmentSummaryResponse>.Empty(pagination.Page, pagination.PageSize));
+        var result = await Mediator.Send(new GetAppointmentsQuery(pagination, patientIdResult.Value.Value, null, null, null, null, null), ct);
+        return OkPaged(result.Value!);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,

@@ -1,16 +1,29 @@
+using CapitalLab.Application.Common.Interfaces;
+using CapitalLab.Application.Features.Patients.Queries;
 using CapitalLab.Application.Features.Results.Commands;
 using CapitalLab.Application.Features.Results.Queries;
 using CapitalLab.Contracts.Common;
 using CapitalLab.Contracts.Laboratory;
 using CapitalLab.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
 [Route("api/v{version:apiVersion}/results")]
-public class ResultsController(IMediator mediator) : BaseController(mediator)
+public class ResultsController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpGet("my")]
+    [Authorize(Roles = "Patient")]
+    public async Task<IActionResult> GetMyResults([FromQuery] PaginationRequest pagination, CancellationToken ct)
+    {
+        var patientIdResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+        if (patientIdResult.Value is null) return OkPaged(PagedResult<ResultSummaryResponse>.Empty(pagination.Page, pagination.PageSize));
+        var result = await Mediator.Send(new GetResultsQuery(pagination, null, patientIdResult.Value.Value, null, null, null), ct);
+        return OkPaged(result.Value!);
+    }
+
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] PaginationRequest pagination,

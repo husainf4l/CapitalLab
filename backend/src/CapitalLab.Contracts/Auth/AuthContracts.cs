@@ -2,6 +2,16 @@ namespace CapitalLab.Contracts.Auth;
 
 // ── Requests ─────────────────────────────────────────────────────────────────
 
+public record RegisterPatientRequest(
+    string FirstName,
+    string LastName,
+    string Email,
+    string Phone,
+    int Gender,
+    DateOnly DateOfBirth,
+    string Password,
+    string ConfirmPassword);
+
 public record LoginRequest(
     string Email,
     string Password,

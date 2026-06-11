@@ -1,3 +1,14 @@
+export interface RegisterPatientRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  gender: number;
+  dateOfBirth: string;
+  password: string;
+  confirmPassword: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

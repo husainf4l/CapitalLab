@@ -43,12 +43,11 @@ import { AuthService } from '../../core/services/auth.service';
             @if (authService.isAuthenticated()) {
               <a routerLink="/patient" class="btn-cta">
                 <mat-icon>person</mat-icon>
-                Portal
+                My Portal
               </a>
             } @else {
-              <a routerLink="/login" class="btn-cta">
-                Book Now
-              </a>
+              <a routerLink="/login" class="btn-outline">Sign In</a>
+              <a routerLink="/register" class="btn-cta">Sign Up</a>
             }
 
             <button class="hamburger" (click)="mobileMenuOpen.set(!mobileMenuOpen())" aria-label="Menu">
@@ -65,7 +64,14 @@ import { AuthService } from '../../core/services/auth.service';
             <a routerLink="/about"    routerLinkActive="active" (click)="mobileMenuOpen.set(false)">About</a>
             <a routerLink="/contact"  routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Contact</a>
             <div class="drawer-footer">
-              <a routerLink="/login" class="drawer-cta" (click)="mobileMenuOpen.set(false)">Book Now</a>
+              @if (authService.isAuthenticated()) {
+                <a routerLink="/patient" class="drawer-cta" (click)="mobileMenuOpen.set(false)">
+                  <mat-icon>person</mat-icon> My Portal
+                </a>
+              } @else {
+                <a routerLink="/login" class="drawer-signin" (click)="mobileMenuOpen.set(false)">Sign In</a>
+                <a routerLink="/register" class="drawer-cta" (click)="mobileMenuOpen.set(false)">Sign Up</a>
+              }
             </div>
           </nav>
         }
@@ -311,6 +317,27 @@ import { AuthService } from '../../core/services/auth.service';
       flex-shrink: 0;
     }
 
+    .btn-outline {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      border: 1.5px solid rgba(0, 0, 0, 0.14);
+      border-radius: 14px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: -0.1px;
+      color: #334155;
+      white-space: nowrap;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+
+      &:hover {
+        border-color: rgba(0, 0, 0, 0.28);
+        background: #f8fafc;
+        color: #0f172a;
+      }
+    }
+
     .btn-cta {
       display: flex;
       align-items: center;
@@ -394,12 +421,31 @@ import { AuthService } from '../../core/services/auth.service';
       .drawer-footer {
         padding: 14px 16px;
         border-top: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .drawer-signin {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid rgba(0, 0, 0, 0.14);
+        border-radius: 14px;
+        padding: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #334155;
+        text-decoration: none;
+        transition: background 0.18s, border-color 0.18s;
+        &:hover { background: #f8fafc; border-color: rgba(0,0,0,0.24); }
       }
 
       .drawer-cta {
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 6px;
         background: #0f172a;
         color: white;
         text-decoration: none;
@@ -408,6 +454,7 @@ import { AuthService } from '../../core/services/auth.service';
         font-size: 0.9rem;
         font-weight: 600;
         transition: background 0.18s;
+        mat-icon { font-size: 16px; width: 16px; height: 16px; }
         &:hover { background: #1e293b; }
       }
     }
@@ -608,7 +655,7 @@ import { AuthService } from '../../core/services/auth.service';
     @media (max-width: $breakpoint-lg) {
       .desktop-nav { display: none; }
       .hamburger { display: flex !important; }
-      .btn-cta { display: none; }
+      .btn-cta, .btn-outline { display: none; }
     }
 
     @media (max-width: $breakpoint-md) {

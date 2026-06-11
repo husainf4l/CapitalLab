@@ -10,6 +10,27 @@ namespace CapitalLab.Api.Controllers.V1;
 
 public class AuthController(IMediator mediator, ICurrentUserService currentUser) : BaseController(mediator)
 {
+    [HttpPost("register")]
+    [AllowAnonymous]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> Register([FromBody] RegisterPatientRequest request, CancellationToken ct)
+    {
+        var result = await Mediator.Send(new RegisterPatientCommand(
+            request.FirstName, request.LastName,
+            request.Email, request.Phone,
+            request.Gender, request.DateOfBirth,
+            request.Password, request.ConfirmPassword), ct);
+
+        if (result.IsFailure)
+            return result.ErrorCode switch
+            {
+                "AUTH_EMAIL_TAKEN" => Conflict(new { result.ErrorCode, result.ErrorMessage }),
+                _ => FailResponse(result.ErrorMessage!, result.Errors)
+            };
+
+        return OkResponse(result.Value, "Registration successful.");
+    }
+
     [HttpPost("login")]
     [AllowAnonymous]
     [EnableRateLimiting("auth")]
