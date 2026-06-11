@@ -74,11 +74,14 @@ import { MEDIA } from '../../../core/config/media';
     <!-- Dot grid texture (visible only when no photo loaded) -->
     <div class="hr-dots"></div>
 
-    <!-- Hero photo — drop lab-photo.jpg into public/images/hero/ to activate -->
-    <img [src]="MEDIA.hero.labPhoto"
-         alt="Capital Lab — Professional Laboratory"
-         class="hero-photo"
-         (error)="onHeroImgError($event)" />
+    <!-- Hero photo: WebP served to modern browsers, JPG fallback for the rest -->
+    <picture class="hero-picture">
+      <source [srcset]="MEDIA.hero.labPhotoWebp" type="image/webp" />
+      <img [src]="MEDIA.hero.labPhoto"
+           alt="Capital Lab — Professional Laboratory"
+           class="hero-photo"
+           (error)="onHeroImgError($event)" />
+    </picture>
 
     <!-- Overlay darkens photo slightly for card readability -->
     <div class="hero-photo-overlay"></div>
@@ -873,11 +876,14 @@ import { MEDIA } from '../../../core/config/media';
     }
 
     // Real hero photo (shown when file exists, hides on error)
+    .hero-picture {
+      position: absolute; inset: 0; z-index: 2;
+      display: block; width: 100%; height: 100%;
+    }
     .hero-photo {
-      position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover; object-position: center;
-      z-index: 2;
+      display: block;
     }
     .hero-photo-overlay {
       position: absolute; inset: 0; z-index: 3;

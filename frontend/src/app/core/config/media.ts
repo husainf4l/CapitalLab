@@ -32,8 +32,8 @@ export const MEDIA = {
 
   // ── Hero section ───────────────────────────────────────────────────────────
   hero: {
-    // Replace with your lab photo — ideal size: 1400 × 900 px, JPG/WebP
-    labPhoto:         '/images/hero/lab-photo.jpg',
+    labPhotoWebp:     '/images/hero/hero.webp',   // 283 KB — served to modern browsers
+    labPhoto:         '/images/hero/hero.jpg',    // 1.2 MB  — fallback for older browsers
 
     // Optional: full-screen background video behind hero (MP4 / WebM)
     bgVideo:          '/videos/hero-bg.mp4',
