@@ -16,109 +16,181 @@ import { Router } from '@angular/router';
 
 <!-- ══════════════════════════════════════════════════════════ HERO ══ -->
 <section class="hero-section">
-  <div class="hero-blob blob-a"></div>
-  <div class="hero-blob blob-b"></div>
-  <div class="hero-blob blob-c"></div>
 
-  <div class="container hero-grid">
+  <!-- Ambient bg blobs -->
+  <div class="hbg hbg-1"></div>
+  <div class="hbg hbg-2"></div>
 
-    <!-- Left: Content -->
-    <div class="hero-content">
-      <div class="hero-badge">
-        <span class="badge-pulse"></span>
-        <mat-icon>verified</mat-icon>
-        <span>ISO 15189 Certified Laboratory</span>
-      </div>
+  <!-- ── LEFT 40% ─────────────────────────────────────────── -->
+  <div class="hero-left">
 
-      <h1 class="hero-headline">
-        Precision Diagnostics<br>
-        for a <span class="headline-gradient">Healthier</span><br>
-        Tomorrow
-      </h1>
+    <div class="hero-eyebrow">
+      <span class="ew-pulse"></span>
+      Advanced Diagnostics
+    </div>
 
-      <p class="hero-desc">
-        Capital Lab provides advanced laboratory diagnostics, personalized health
-        insights, home sample collection, and fast digital reporting.
-      </p>
+    <h1 class="hero-h1">
+      Precision<br>
+      Diagnostics for<br>
+      a <span class="h1-hl">Healthier</span><br>
+      Tomorrow
+    </h1>
 
-      <div class="hero-ctas">
-        <a mat-flat-button color="primary" class="cta-primary" routerLink="/login">
-          <mat-icon>calendar_today</mat-icon>
-          Book Appointment
-        </a>
-        <a mat-stroked-button class="cta-secondary" routerLink="/patient/results">
-          <mat-icon>description</mat-icon>
-          View Test Results
-        </a>
-      </div>
+    <p class="hero-p">
+      Capital Lab provides advanced laboratory testing, personalized health
+      insights, digital reports, and home collection services designed around
+      patient convenience and accuracy.
+    </p>
 
-      <div class="hero-trust">
-        @for (t of trustItems; track t.label) {
-          <div class="trust-chip">
-            <mat-icon>{{ t.icon }}</mat-icon>
-            <span>{{ t.label }}</span>
+    <div class="hero-actions">
+      <a routerLink="/login" class="hbtn hbtn-dark">
+        <mat-icon>calendar_today</mat-icon>
+        Book Appointment
+      </a>
+      <a routerLink="/patient/results" class="hbtn hbtn-ghost">
+        <mat-icon>description</mat-icon>
+        View Test Results
+      </a>
+    </div>
+
+    <div class="trust-grid">
+      @for (t of trustFeatures; track t.title) {
+        <div class="trust-item">
+          <div class="ti-icon"><mat-icon>{{ t.icon }}</mat-icon></div>
+          <div>
+            <div class="ti-title">{{ t.title }}</div>
+            <div class="ti-sub">{{ t.sub }}</div>
           </div>
-        }
+        </div>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── RIGHT 60% ─────────────────────────────────────────── -->
+  <div class="hero-right">
+
+    <!-- Dot grid texture -->
+    <div class="hr-dots"></div>
+
+    <!-- Lab visualization centerpiece -->
+    <div class="lab-center">
+      <div class="lp lp1"></div>
+      <div class="lp lp2"></div>
+      <div class="lp lp3"></div>
+
+      <svg class="lab-lines" viewBox="0 0 560 560" fill="none">
+        <line x1="280" y1="280" x2="100" y2="130" stroke="rgba(26,115,232,0.1)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="280" y1="280" x2="460" y2="130" stroke="rgba(26,115,232,0.1)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="280" y1="280" x2="70"  y2="400" stroke="rgba(13,148,136,0.1)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="280" y1="280" x2="490" y2="400" stroke="rgba(13,148,136,0.1)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <circle cx="280" cy="280" r="120" stroke="rgba(26,115,232,0.06)" stroke-width="1"/>
+        <circle cx="280" cy="280" r="192" stroke="rgba(26,115,232,0.04)" stroke-width="1"/>
+      </svg>
+
+      <!-- Central orb -->
+      <div class="lab-orb">
+        <mat-icon class="orb-icon">biotech</mat-icon>
+        <div class="orb-ring or1"></div>
+      </div>
+
+      <!-- Satellite nodes -->
+      <div class="snode sn1"><mat-icon>science</mat-icon></div>
+      <div class="snode sn2"><mat-icon>water_drop</mat-icon></div>
+      <div class="snode sn3"><mat-icon>analytics</mat-icon></div>
+      <div class="snode sn4"><mat-icon>favorite</mat-icon></div>
+
+      <!-- Molecule dots -->
+      <div class="mdot md1"></div>
+      <div class="mdot md2"></div>
+      <div class="mdot md3"></div>
+      <div class="mdot md4"></div>
+    </div>
+
+    <!-- FLOATING CARD — Happy Patients (top-right) -->
+    <div class="hfc hfc-patients">
+      <div class="hfc-icon hfc-blue"><mat-icon>groups</mat-icon></div>
+      <div class="hfc-body">
+        <div class="hfc-label">Happy Patients</div>
+        <div class="hfc-val">100,000+</div>
+      </div>
+      <div class="hfc-tag hfc-tag-green">
+        <mat-icon>trending_up</mat-icon>+12%
       </div>
     </div>
 
-    <!-- Right: Visual -->
-    <div class="hero-visual">
-      <div class="visual-wrap">
-        <!-- Pulse rings -->
-        <div class="pulse-ring pr-1"></div>
-        <div class="pulse-ring pr-2"></div>
-        <div class="pulse-ring pr-3"></div>
-
-        <!-- Medical sphere -->
-        <div class="med-sphere">
-          <div class="cell c1"></div>
-          <div class="cell c2"></div>
-          <div class="cell c3"></div>
-          <div class="cell c4"></div>
-          <div class="cell c5"></div>
+    <!-- FLOATING CARD — Health Status (mid-left) -->
+    <div class="hfc hfc-status">
+      <div class="hfc-cert">
+        <mat-icon>verified</mat-icon>
+        <span>ISO 15189 Certified</span>
+      </div>
+      <div class="hfc-ring-row">
+        <div class="hfc-ring">
+          <svg viewBox="0 0 60 60">
+            <circle cx="30" cy="30" r="24" fill="none" stroke="#e2e8f0" stroke-width="4"/>
+            <circle cx="30" cy="30" r="24" fill="none" stroke="#1a73e8" stroke-width="4"
+              stroke-dasharray="150.8" stroke-dashoffset="19.6"
+              stroke-linecap="round" transform="rotate(-90 30 30)"/>
+          </svg>
+          <span class="hfc-ring-num">99%</span>
         </div>
-        <!-- Sphere center icon (outside sphere to avoid clip) -->
-        <div class="sphere-icon">
-          <mat-icon>biotech</mat-icon>
-        </div>
-
-        <!-- Floating cards -->
-        <div class="fc-card fc-doctor">
-          <div class="fc-avatar">👨‍⚕️</div>
-          <div>
-            <div class="fc-title">Dr. Al-Rashid</div>
-            <div class="fc-sub">Chief Pathologist</div>
-          </div>
-          <div class="fc-online"></div>
-        </div>
-
-        <div class="fc-card fc-result">
-          <div class="fc-icon-wrap"><mat-icon>science</mat-icon></div>
-          <div>
-            <div class="fc-title">HbA1c Results</div>
-            <div class="fc-sub">5.4% — Normal</div>
-          </div>
-          <span class="fc-badge-good">Normal</span>
-        </div>
-
-        <div class="fc-card fc-stat">
-          <div class="fc-big">98.7%</div>
-          <div class="fc-sub-center">Accuracy Rate</div>
-        </div>
-
-        <div class="fc-card fc-home">
-          <div class="fc-icon-wrap fc-home-icon"><mat-icon>home</mat-icon></div>
-          <div>
-            <div class="fc-title">Home Collection</div>
-            <div class="fc-sub">Available Today</div>
-          </div>
+        <div>
+          <div class="hfc-ring-label">Accuracy Rate</div>
+          <div class="hfc-ring-sub">Globally Certified</div>
         </div>
       </div>
+    </div>
+
+    <!-- FLOATING CARD — 24/7 Support (bottom-right) -->
+    <div class="hfc hfc-support">
+      <div class="hfc-icon hfc-green"><mat-icon>support_agent</mat-icon></div>
+      <div class="hfc-body">
+        <div class="hfc-label">24/7 Support</div>
+        <div class="hfc-val">Always Available</div>
+      </div>
+      <span class="live-dot"></span>
+    </div>
+
+    <!-- Vertical social strip (far right) -->
+    <div class="hero-socials">
+      <a class="hs-btn" href="#" aria-label="Twitter">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+      <a class="hs-btn" href="#" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+        </svg>
+      </a>
+      <a class="hs-btn" href="#" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+        </svg>
+      </a>
     </div>
 
   </div>
 </section>
+
+<!-- ══════════════════════════════════════════ HERO STATS BAR ══ -->
+<div class="hero-stats-bar">
+  <div class="container hsb-grid">
+    @for (s of heroStats; track s.label; let i = $index) {
+      <div class="hsb-card reveal" [style.transition-delay]="(i * 0.09) + 's'">
+        <div class="hsb-icon" [style.background]="s.bg">
+          <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
+        </div>
+        <div class="hsb-num" [attr.data-count]="s.value" [attr.data-suffix]="s.suffix">
+          {{ s.value }}{{ s.suffix }}
+        </div>
+        <div class="hsb-label">{{ s.label }}</div>
+        <div class="hsb-sub">{{ s.sub }}</div>
+      </div>
+    }
+  </div>
+</div>
 
 <!-- ══════════════════════════════════════════════════════ FEATURES ══ -->
 <section class="features-section">
@@ -683,243 +755,266 @@ import { Router } from '@angular/router';
     }
 
     // ══════════════════════════════════════════════════════════════ HERO ══════════
+    @keyframes fadeInL { from { opacity:0; transform:translateX(-28px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes fadeInR { from { opacity:0; transform:translateX(28px);  } to { opacity:1; transform:translateX(0); } }
+    @keyframes ewpulse { 0%,100% { box-shadow: 0 0 0 3px rgba(26,115,232,0.2); } 50% { box-shadow: 0 0 0 7px rgba(26,115,232,0.04); } }
+    @keyframes livePulse { 0%,100% { box-shadow: 0 0 0 3px rgba(22,163,74,0.22); } 50% { box-shadow: 0 0 0 7px rgba(22,163,74,0.04); } }
+    @keyframes lpulse { 0% { opacity:0.7; transform:translate(-50%,-50%) scale(0.88); } 100% { opacity:0; transform:translate(-50%,-50%) scale(1.08); } }
+
     .hero-section {
       position: relative;
-      overflow: hidden;
-      background: linear-gradient(145deg, #f0f9ff 0%, #eef2ff 40%, #faf0fe 80%, #f0fdfa 100%);
-      padding: 80px 0 96px;
-    }
-    .hero-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      z-index: 0;
-      &.blob-a {
-        width: 700px; height: 700px;
-        background: radial-gradient(circle, rgba($primary, 0.1), transparent 60%);
-        bottom: -250px; right: -150px;
-      }
-      &.blob-b {
-        width: 450px; height: 450px;
-        background: radial-gradient(circle, rgba(139,92,246,0.1), transparent 60%);
-        top: -120px; left: -100px;
-      }
-      &.blob-c {
-        width: 300px; height: 300px;
-        background: radial-gradient(circle, rgba($secondary,0.12), transparent 60%);
-        top: 35%; right: 28%;
-      }
-    }
-
-    .hero-grid {
-      position: relative;
-      z-index: 1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 64px;
-      align-items: center;
-    }
-
-    // Hero content
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba($primary, 0.07);
-      border: 1.5px solid rgba($primary, 0.15);
-      border-radius: $border-radius-full;
-      padding: 7px 16px;
-      margin-bottom: 28px;
-      .badge-pulse {
-        width: 8px; height: 8px;
-        background: $success;
-        border-radius: 50%;
-        animation: badge-pulse 2s ease-in-out infinite;
-      }
-      mat-icon { font-size: 15px; width: 15px; height: 15px; color: $primary; }
-      span { font-size: 0.8rem; font-weight: 600; color: $primary; }
-    }
-
-    .hero-headline {
-      font-size: clamp(2.4rem, 4.5vw, 3.75rem);
-      font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -1.5px;
-      color: $text-primary;
-      margin-bottom: 20px;
-    }
-    .headline-gradient {
-      background: linear-gradient(135deg, $primary 0%, #4f8ef7 50%, $secondary 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero-desc {
-      font-size: 1.1rem;
-      color: $text-secondary;
-      line-height: 1.7;
-      margin-bottom: 36px;
-      max-width: 480px;
-    }
-    .hero-ctas {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 36px;
-      flex-wrap: wrap;
-    }
-    .cta-primary {
-      padding: 14px 28px !important;
-      font-size: 1rem !important;
-      font-weight: 600 !important;
-      border-radius: 14px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 6px !important;
-      box-shadow: 0 6px 24px rgba($primary, 0.35) !important;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    }
-    .cta-secondary {
-      padding: 14px 24px !important;
-      font-size: 1rem !important;
-      border-radius: 14px !important;
-      display: flex !important;
-      align-items: center !important;
-      gap: 6px !important;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; }
-    }
-    .hero-trust {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .trust-chip {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: white;
-      border: 1px solid $border-color;
-      border-radius: $border-radius-full;
-      padding: 6px 14px;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: $text-secondary;
-      box-shadow: $shadow-xs;
-      mat-icon { font-size: 14px; width: 14px; height: 14px; color: $success; }
-    }
-
-    // Hero visual
-    .hero-visual {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .visual-wrap {
-      position: relative;
-      width: 500px;
-      height: 500px;
-    }
-    .pulse-ring {
-      position: absolute;
-      top: 50%; left: 50%;
-      border-radius: 50%;
-      border: 1.5px solid rgba($primary, 0.18);
-      animation: pulse-ring-anim 3.5s ease-out infinite;
-      &.pr-1 { width: 360px; height: 360px; animation-delay: 0s; }
-      &.pr-2 { width: 420px; height: 420px; animation-delay: 1s; }
-      &.pr-3 { width: 480px; height: 480px; animation-delay: 2s; }
-    }
-    .med-sphere {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 340px; height: 340px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 50%, #d1fae5 100%);
-      box-shadow:
-        0 32px 80px rgba($primary, 0.18),
-        0 0 0 1px rgba($primary, 0.08),
-        inset 0 0 100px rgba(139,92,246,0.12);
+      grid-template-columns: 42% 58%;
+      min-height: calc(100vh - 92px);
       overflow: hidden;
-    }
-    .cell {
-      position: absolute;
-      border-radius: 50%;
-      &.c1 { width: 100px; height: 100px; background: rgba($primary,0.18); top: 5%; left: 10%; animation: float 4s ease-in-out infinite 0s; }
-      &.c2 { width: 70px;  height: 70px;  background: rgba(139,92,246,0.18); top: 15%; right: 8%; animation: float 4.5s ease-in-out infinite 0.6s; }
-      &.c3 { width: 55px;  height: 55px;  background: rgba($success,0.18); bottom: 18%; left: 6%; animation: float 3.8s ease-in-out infinite 1s; }
-      &.c4 { width: 85px;  height: 85px;  background: rgba($secondary,0.15); bottom: 5%; right: 12%; animation: float 5s ease-in-out infinite 0.3s; }
-      &.c5 { width: 42px;  height: 42px;  background: rgba($accent,0.2); top: 48%; right: 4%; animation: float 3.6s ease-in-out infinite 1.3s; }
-    }
-    .sphere-icon {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 84px; height: 84px;
       background: white;
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 40px rgba($primary, 0.2);
-      z-index: 5;
-      mat-icon { font-size: 44px; width: 44px; height: 44px; color: $primary; }
     }
 
-    // Floating cards
-    .fc-card {
+    .hbg {
       position: absolute;
-      background: white;
-      border-radius: 18px;
-      padding: 14px 18px;
-      box-shadow: 0 8px 40px rgba(0,0,0,0.11), 0 0 0 1px rgba(0,0,0,0.04);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      white-space: nowrap;
-      z-index: 10;
-      &.fc-doctor { top: 5%; left: -10%; animation: float 4.2s ease-in-out infinite 0s; }
-      &.fc-result { bottom: 22%; left: -5%; animation: float 4.5s ease-in-out infinite 1s; }
-      &.fc-stat   { top: 14%; right: -8%; animation: float 4s ease-in-out infinite 0.5s; flex-direction: column; text-align: center; padding: 16px 24px; }
-      &.fc-home   { bottom: 6%; right: -6%; animation: float 4.8s ease-in-out infinite 1.5s; }
-    }
-    .fc-avatar {
-      width: 42px; height: 42px;
       border-radius: 50%;
-      background: linear-gradient(135deg, $primary-light, #c7e3f8);
+      pointer-events: none;
+      filter: blur(70px);
+      &.hbg-1 { width:600px; height:600px; background:radial-gradient(circle,rgba(26,115,232,0.07),transparent 65%); top:-150px; left:-100px; }
+      &.hbg-2 { width:450px; height:450px; background:radial-gradient(circle,rgba(13,148,136,0.07),transparent 65%); bottom:-120px; left:35%; }
+    }
+
+    // Left column
+    .hero-left {
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 80px 52px 80px max(calc((100vw - 1400px)/2 + 40px), 28px);
+      position: relative; z-index: 2;
+      animation: fadeInL 0.75s ease both;
+    }
+
+    .hero-eyebrow {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 2.5px;
+      text-transform: uppercase; color: #1a73e8; margin-bottom: 22px;
+    }
+    .ew-pulse {
+      width: 8px; height: 8px;
+      background: #1a73e8; border-radius: 50%;
+      animation: ewpulse 2s ease-in-out infinite;
+    }
+
+    .hero-h1 {
+      font-size: clamp(2.6rem, 3.8vw, 4rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -2px; color: #0f172a;
+      margin-bottom: 22px;
+    }
+    .h1-hl {
+      background: linear-gradient(135deg, #1a73e8 0%, #06b6d4 55%, #0d9488 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+
+    .hero-p {
+      font-size: 1.05rem; color: #64748b;
+      line-height: 1.75; margin-bottom: 36px; max-width: 430px;
+    }
+
+    .hero-actions { display: flex; gap: 12px; margin-bottom: 44px; flex-wrap: wrap; }
+    .hbtn {
+      display: inline-flex; align-items: center; gap: 8px;
+      border-radius: 14px; padding: 13px 26px;
+      font-size: 0.93rem; font-weight: 600;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      mat-icon { font-size: 17px; width: 17px; height: 17px; }
+      &.hbtn-dark {
+        background: #0f172a; color: white;
+        box-shadow: 0 4px 16px rgba(15,23,42,0.18);
+        &:hover { background:#1e293b; transform:translateY(-2px); box-shadow:0 8px 24px rgba(15,23,42,0.24); }
+      }
+      &.hbtn-ghost {
+        background: white; color: #0f172a;
+        border: 1.5px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        &:hover { border-color:#94a3b8; transform:translateY(-2px); box-shadow:0 4px 14px rgba(0,0,0,0.1); }
+      }
+    }
+
+    .trust-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+    }
+    .trust-item { display: flex; align-items: flex-start; gap: 12px; }
+    .ti-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(26,115,232,0.08);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; color: #1a73e8; }
+    }
+    .ti-title { font-size: 0.84rem; font-weight: 700; color: #0f172a; margin-bottom: 2px; }
+    .ti-sub   { font-size: 0.74rem; color: #94a3b8; }
+
+    // Right column
+    .hero-right {
+      position: relative; overflow: hidden;
+      background: linear-gradient(155deg, #f0f7ff 0%, #e8f3fb 40%, #f0fdf8 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.3rem;
+      animation: fadeInR 0.75s 0.15s ease both;
     }
-    .fc-online {
-      width: 10px; height: 10px;
+
+    .hr-dots {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: radial-gradient(rgba(26,115,232,0.07) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+
+    // Lab centerpiece
+    .lab-center {
+      position: relative;
+      width: 500px; height: 500px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .lp {
+      position: absolute; top: 50%; left: 50%;
       border-radius: 50%;
-      background: $success;
-      border: 2px solid white;
+      border: 1.5px solid rgba(26,115,232,0.13);
+      animation: lpulse 3.5s ease-out infinite;
+      &.lp1 { width:240px; height:240px; margin:-120px 0 0 -120px; animation-delay:0s; }
+      &.lp2 { width:340px; height:340px; margin:-170px 0 0 -170px; animation-delay:1.2s; }
+      &.lp3 { width:440px; height:440px; margin:-220px 0 0 -220px; animation-delay:2.4s; }
+    }
+    .lab-lines { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:1; }
+    .lab-orb {
+      width: 190px; height: 190px; border-radius: 50%;
+      background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 50%, #e6f2fe 100%);
+      box-shadow: 0 32px 80px rgba(26,115,232,0.14), 0 0 0 1.5px rgba(26,115,232,0.1), inset 0 0 50px rgba(26,115,232,0.05);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 4;
+      animation: float 5s ease-in-out infinite;
+    }
+    .orb-icon { font-size:76px !important; width:76px !important; height:76px !important; color:#1a73e8; opacity:0.75; }
+    .orb-ring {
+      position:absolute; border-radius:50%;
+      border: 1px solid rgba(26,115,232,0.18);
+      &.or1 { width:230px; height:230px; }
+    }
+
+    .snode {
+      position: absolute; width: 50px; height: 50px;
+      border-radius: 15px; background: white;
+      box-shadow: 0 6px 28px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+      display: flex; align-items: center; justify-content: center; z-index: 3;
+      animation: float 4s ease-in-out infinite;
+      mat-icon { font-size: 22px; width: 22px; height: 22px; }
+      &.sn1 { top:7%;  left:18%;  animation-delay:0.2s;  mat-icon{color:#7c3aed;} }
+      &.sn2 { top:7%;  right:18%; animation-delay:1s;    mat-icon{color:#1a73e8;} }
+      &.sn3 { bottom:7%; left:20%;  animation-delay:1.9s; mat-icon{color:#0d9488;} }
+      &.sn4 { bottom:7%; right:20%; animation-delay:1.4s; mat-icon{color:#e11d48;} }
+    }
+    .mdot {
+      position: absolute; border-radius: 50%;
+      animation: float 4s ease-in-out infinite;
+      &.md1 { width:12px;height:12px; background:rgba(26,115,232,0.32);  box-shadow:0 0 0 4px rgba(26,115,232,0.08); top:18%; left:8%;   animation-delay:0s; }
+      &.md2 { width:10px;height:10px; background:rgba(13,148,136,0.35);  box-shadow:0 0 0 4px rgba(13,148,136,0.08); top:18%; right:8%;  animation-delay:0.9s; }
+      &.md3 { width:14px;height:14px; background:rgba(124,58,237,0.28);  box-shadow:0 0 0 4px rgba(124,58,237,0.07); bottom:18%; left:10%; animation-delay:1.8s; }
+      &.md4 { width:10px;height:10px; background:rgba(217,119,6,0.32);   box-shadow:0 0 0 4px rgba(217,119,6,0.07);  bottom:18%; right:10%; animation-delay:2.6s; }
+    }
+
+    // Floating hero cards
+    .hfc {
       position: absolute;
-      top: 12px; right: 12px;
+      background: rgba(255,255,255,0.93);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255,255,255,0.96);
+      border-radius: 20px; padding: 15px 18px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.09), 0 0 0 0.5px rgba(0,0,0,0.04);
+      display: flex; align-items: center; gap: 12px;
+      z-index: 10; white-space: nowrap;
+      &.hfc-patients { top:8%; right:5%; animation:float 4s ease-in-out infinite 0s; }
+      &.hfc-status   { top:37%; left:2%; animation:float 4.5s ease-in-out infinite 0.8s; flex-direction:column; align-items:flex-start; min-width:200px; gap:10px; }
+      &.hfc-support  { bottom:8%; right:5%; animation:float 4s ease-in-out infinite 1.6s; }
     }
-    .fc-icon-wrap {
-      width: 34px; height: 34px;
-      border-radius: 10px;
-      background: $primary-light;
-      display: flex; align-items: center; justify-content: center;
-      mat-icon { font-size: 18px; width: 18px; height: 18px; color: $primary; }
-      &.fc-home-icon { background: rgba($success, 0.1); mat-icon { color: $success; } }
+    .hfc-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+      &.hfc-blue  { background:rgba(26,115,232,0.1);  mat-icon{color:#1a73e8;} }
+      &.hfc-green { background:rgba(13,148,136,0.1);  mat-icon{color:#0d9488;} }
     }
-    .fc-title { font-size: 0.8rem; font-weight: 700; color: $text-primary; }
-    .fc-sub   { font-size: 0.7rem; color: $text-secondary; }
-    .fc-big   { font-size: 1.7rem; font-weight: 800; color: $primary; line-height: 1; }
-    .fc-sub-center { font-size: 0.72rem; color: $text-secondary; text-align: center; }
-    .fc-badge-good {
-      background: rgba($success,0.1); color: $success;
+    .hfc-body  { }
+    .hfc-label { font-size:0.71rem; color:#94a3b8; font-weight:500; margin-bottom:2px; }
+    .hfc-val   { font-size:0.94rem; font-weight:800; color:#0f172a; }
+    .hfc-tag {
+      margin-left: auto; display: flex; align-items: center; gap: 2px;
+      font-size: 0.7rem; font-weight: 700;
       border-radius: 8px; padding: 3px 8px;
-      font-size: 0.68rem; font-weight: 700;
+      mat-icon { font-size: 12px; width: 12px; height: 12px; }
+      &.hfc-tag-green { background:rgba(22,163,74,0.09); color:#16a34a; }
     }
+    .hfc-cert {
+      display:flex; align-items:center; gap:6px;
+      font-size:0.73rem; font-weight:700; color:#1a73e8;
+      background:rgba(26,115,232,0.07); border-radius:8px; padding:5px 10px;
+      mat-icon { font-size:14px; width:14px; height:14px; }
+    }
+    .hfc-ring-row { display:flex; align-items:center; gap:12px; }
+    .hfc-ring {
+      position:relative; width:54px; height:54px; flex-shrink:0;
+      svg { width:54px; height:54px; }
+    }
+    .hfc-ring-num {
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:0.78rem; font-weight:800; color:#0f172a;
+    }
+    .hfc-ring-label { font-size:0.8rem; font-weight:700; color:#0f172a; }
+    .hfc-ring-sub   { font-size:0.69rem; color:#94a3b8; margin-top:2px; }
+    .live-dot {
+      width:10px; height:10px; border-radius:50%;
+      background:#16a34a; flex-shrink:0;
+      animation: livePulse 2s ease-in-out infinite;
+    }
+
+    // Social strip
+    .hero-socials {
+      position:absolute; right:18px; top:50%; transform:translateY(-50%);
+      display:flex; flex-direction:column; gap:8px; z-index:15;
+    }
+    .hs-btn {
+      width:34px; height:34px;
+      background:rgba(255,255,255,0.82); backdrop-filter:blur(8px);
+      border:1px solid rgba(0,0,0,0.06); border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      color:#64748b; text-decoration:none;
+      transition: all 0.2s;
+      &:hover { background:white; color:#0f172a; transform:scale(1.08); }
+    }
+
+    // ══════════════════════════════════════════════════════ HERO STATS BAR ══
+    .hero-stats-bar {
+      background: white;
+      padding-bottom: 40px;
+      position: relative; z-index: 5;
+    }
+    .hsb-grid {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 20px;
+      transform: translateY(-44px);
+    }
+    .hsb-card {
+      background: white; border-radius: 24px; padding: 28px 22px;
+      box-shadow: 0 8px 48px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+      text-align: center;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      &:hover { transform:translateY(-5px); box-shadow:0 16px 60px rgba(0,0,0,0.11); }
+    }
+    .hsb-icon {
+      width:52px; height:52px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      margin: 0 auto 16px;
+      mat-icon { font-size:24px; width:24px; height:24px; }
+    }
+    .hsb-num { font-size:2.1rem; font-weight:800; color:#0f172a; line-height:1; margin-bottom:6px; letter-spacing:-1.5px; }
+    .hsb-label { font-size:0.88rem; font-weight:700; color:#334155; margin-bottom:4px; }
+    .hsb-sub   { font-size:0.76rem; color:#94a3b8; }
 
     // ══════════════════════════════════════════════════════════ FEATURES ═════════
     .features-section {
       background: white;
-      padding: 0 0 24px;
+      padding: 8px 0 64px;
       position: relative;
       z-index: 1;
     }
@@ -927,7 +1022,6 @@ import { Router } from '@angular/router';
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      margin-top: -56px;
     }
     .feature-card {
       background: white;
@@ -1672,33 +1766,47 @@ import { Router } from '@angular/router';
     }
 
     // ══════════════════════════════════════════════════════ RESPONSIVE ═══════
-    @media (max-width: 1200px) {
-      .visual-wrap { width: 420px; height: 420px; }
-      .med-sphere  { width: 280px; height: 280px; }
+    @media (max-width: 1100px) {
+      .hero-section { grid-template-columns: 50% 50%; }
+      .lab-center   { width: 400px; height: 400px; }
+      .lab-orb      { width: 155px; height: 155px; }
+      .orb-icon     { font-size:60px !important; width:60px !important; height:60px !important; }
     }
     @media (max-width: $breakpoint-lg) {
-      .hero-grid      { grid-template-columns: 1fr; }
-      .hero-visual    { display: none; }
-      .hero-headline  { font-size: 2.5rem; }
-      .features-grid  { grid-template-columns: 1fr; margin-top: 32px; }
-      .about-grid     { grid-template-columns: 1fr; }
+      .hero-section    { grid-template-columns: 1fr; min-height: auto; }
+      .hero-right      { order: -1; min-height: 380px; }
+      .hero-left       { padding: 52px 28px 48px; animation: none; opacity: 1; transform: none; }
+      .hero-right      { animation: none; opacity: 1; transform: none; }
+      .hfc-patients    { top: 6%; right: 4%; }
+      .hfc-status      { top: 38%; left: 2%; }
+      .hfc-support     { bottom: 6%; right: 4%; }
+      .hero-socials    { display: none; }
+      .hsb-grid        { grid-template-columns: repeat(2,1fr); }
+      .features-grid   { grid-template-columns: 1fr; }
+      .about-grid      { grid-template-columns: 1fr; }
       .about-image-wrap { display: none; }
-      .services-grid  { grid-template-columns: repeat(2, 1fr); }
-      .packages-grid  { grid-template-columns: repeat(2, 1fr); }
-      .tracker-grid   { grid-template-columns: 1fr; }
-      .programs-grid  { grid-template-columns: 1fr; }
+      .services-grid   { grid-template-columns: repeat(2, 1fr); }
+      .packages-grid   { grid-template-columns: repeat(2, 1fr); }
+      .tracker-grid    { grid-template-columns: 1fr; }
+      .programs-grid   { grid-template-columns: 1fr; }
       .collection-grid { grid-template-columns: 1fr; }
       .collection-art  { display: none; }
-      .stats-grid     { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid      { grid-template-columns: repeat(2, 1fr); }
       .testimonials-grid { grid-template-columns: 1fr; }
-      .app-grid       { grid-template-columns: 1fr; }
-      .app-mockup     { display: none; }
+      .app-grid        { grid-template-columns: 1fr; }
+      .app-mockup      { display: none; }
     }
     @media (max-width: $breakpoint-md) {
-      .hero-section   { padding: 56px 0 72px; }
-      .hero-headline  { font-size: 2rem; }
-      .hero-ctas      { flex-direction: column; }
-      .cta-primary, .cta-secondary { width: 100%; justify-content: center; }
+      .hero-h1        { font-size: 2.2rem; letter-spacing: -1.2px; }
+      .hero-actions   { flex-direction: column; }
+      .hbtn           { justify-content: center; }
+      .trust-grid     { grid-template-columns: 1fr; gap: 12px; }
+      .lab-center     { width: 300px; height: 300px; }
+      .lab-orb        { width: 120px; height: 120px; }
+      .orb-icon       { font-size:48px !important; width:48px !important; height:48px !important; }
+      .snode          { width: 40px; height: 40px; mat-icon { font-size:18px; width:18px; height:18px; } }
+      .hfc-status     { display: none; }
+      .hsb-grid       { grid-template-columns: repeat(2,1fr); gap: 14px; }
       .features-grid  { grid-template-columns: 1fr; }
       .services-grid  { grid-template-columns: 1fr; }
       .packages-grid  { grid-template-columns: 1fr; }
@@ -1706,6 +1814,13 @@ import { Router } from '@angular/router';
       .stats-grid     { grid-template-columns: 1fr; }
       .steps-flow     { gap: 4px; }
       .step-arrow     { display: none; }
+    }
+    @media (max-width: $breakpoint-sm) {
+      .hero-right { min-height: 300px; }
+      .hfc-patients, .hfc-support { display: none; }
+      .hsb-grid   { grid-template-columns: 1fr 1fr; gap: 12px; transform: translateY(-28px); }
+      .hsb-card   { padding: 20px 14px; }
+      .hsb-num    { font-size: 1.6rem; }
     }
   `],
 })
@@ -1716,11 +1831,18 @@ export class HomeComponent implements OnInit {
 
   packages = signal<HealthPackage[]>([]);
 
-  trustItems = [
-    { icon: 'verified', label: 'Certified Laboratory' },
-    { icon: 'speed', label: 'Fast Turnaround' },
-    { icon: 'description', label: 'Digital Reports' },
-    { icon: 'location_on', label: 'Multi-Branch Network' },
+  trustFeatures = [
+    { icon: 'verified',    title: 'Certified Laboratory', sub: 'ISO 15189 Accredited' },
+    { icon: 'speed',       title: 'Fast Turnaround',      sub: 'Results in 6–24 hours' },
+    { icon: 'description', title: 'Digital Reports',      sub: 'Secure online access' },
+    { icon: 'location_on', title: 'Multi-Branch Network', sub: '15+ locations' },
+  ];
+
+  heroStats = [
+    { icon: 'biotech',     value: 500, suffix: 'K+', label: 'Tests Performed',  sub: 'Since 2012',           bg: 'rgba(26,115,232,0.08)',  color: '#1a73e8' },
+    { icon: 'groups',      value: 100, suffix: 'K+', label: 'Happy Patients',   sub: 'Across the region',    bg: 'rgba(13,148,136,0.08)',  color: '#0d9488' },
+    { icon: 'science',     value: 300, suffix: '+',  label: 'Available Tests',  sub: 'All categories',       bg: 'rgba(124,58,237,0.08)', color: '#7c3aed' },
+    { icon: 'location_on', value: 15,  suffix: '+',  label: 'Branch Locations', sub: 'Major cities covered', bg: 'rgba(217,119,6,0.08)',  color: '#d97706' },
   ];
 
   featureCards = [
@@ -1861,7 +1983,7 @@ export class HomeComponent implements OnInit {
   }
 
   private setupCounterAnimation(): void {
-    const statNums = document.querySelectorAll('.stat-num[data-count]');
+    const statNums = document.querySelectorAll('[data-count]');
 
     const observer = new IntersectionObserver(
       (entries) => {
