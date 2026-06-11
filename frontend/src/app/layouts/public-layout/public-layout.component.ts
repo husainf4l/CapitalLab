@@ -18,68 +18,55 @@ import { AuthService } from '../../core/services/auth.service';
   template: `
     <div class="public-layout">
 
-      <!-- ── HEADER ── -->
-      <header class="public-header" [class.scrolled]="isScrolled()">
-        <div class="container header-inner">
+      <!-- ── NAVBAR ── -->
+      <header class="nav-wrapper">
+        <div class="nav-pill">
 
           <!-- Logo -->
           <a routerLink="/" class="logo">
-            <div class="logo-icon-wrap">
+            <div class="logo-icon">
               <mat-icon>biotech</mat-icon>
             </div>
             <span class="logo-text">Capital<span class="logo-accent">Lab</span></span>
           </a>
 
-          <!-- Desktop nav -->
-          <nav class="main-nav desktop-nav">
-            <a routerLink="/"               routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
-            <a routerLink="/tests"          routerLinkActive="active">Tests</a>
-            <a routerLink="/packages"       routerLinkActive="active">Packages</a>
-            <a routerLink="/health-programs" routerLinkActive="active">Health Programs</a>
-            <a routerLink="/branches"       routerLinkActive="active">Branches</a>
-            <a routerLink="/about"          routerLinkActive="active">About</a>
-            <a routerLink="/contact"        routerLinkActive="active">Contact</a>
+          <!-- Desktop links — centered -->
+          <nav class="desktop-nav">
+            <a routerLink="/"        routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
+            <a routerLink="/branches" routerLinkActive="active">Branches</a>
+            <a routerLink="/about"   routerLinkActive="active">About</a>
+            <a routerLink="/contact" routerLinkActive="active">Contact</a>
           </nav>
 
-          <!-- Header actions -->
-          <div class="header-actions">
-            <button class="lang-toggle" (click)="langService.toggle()">
-              {{ langService.isArabic() ? 'EN' : 'عر' }}
-            </button>
-
+          <!-- Right actions -->
+          <div class="nav-right">
             @if (authService.isAuthenticated()) {
-              <a mat-flat-button routerLink="/patient" color="primary" class="btn-portal">
-                <mat-icon>person</mat-icon> Patient Portal
+              <a routerLink="/patient" class="btn-cta">
+                <mat-icon>person</mat-icon>
+                Portal
               </a>
             } @else {
-              <a mat-stroked-button routerLink="/login" class="btn-portal-outline">
-                Patient Portal
-              </a>
-              <a mat-flat-button routerLink="/login" color="primary" class="btn-book">
-                <mat-icon>calendar_today</mat-icon> Book Appointment
+              <a routerLink="/login" class="btn-cta">
+                Book Now
               </a>
             }
 
-            <button class="mobile-hamburger" (click)="mobileMenuOpen.set(!mobileMenuOpen())">
+            <button class="hamburger" (click)="mobileMenuOpen.set(!mobileMenuOpen())" aria-label="Menu">
               <mat-icon>{{ mobileMenuOpen() ? 'close' : 'menu' }}</mat-icon>
             </button>
           </div>
         </div>
 
-        <!-- Mobile nav drawer -->
+        <!-- Mobile drawer -->
         @if (mobileMenuOpen()) {
-          <nav class="mobile-nav">
-            <a routerLink="/"                (click)="mobileMenuOpen.set(false)">Home</a>
-            <a routerLink="/tests"           (click)="mobileMenuOpen.set(false)">Tests</a>
-            <a routerLink="/packages"        (click)="mobileMenuOpen.set(false)">Packages</a>
-            <a routerLink="/health-programs" (click)="mobileMenuOpen.set(false)">Health Programs</a>
-            <a routerLink="/branches"        (click)="mobileMenuOpen.set(false)">Branches</a>
-            <a routerLink="/about"           (click)="mobileMenuOpen.set(false)">About</a>
-            <a routerLink="/contact"         (click)="mobileMenuOpen.set(false)">Contact</a>
-            <div class="mobile-nav-divider"></div>
-            <a routerLink="/login" class="mobile-cta" (click)="mobileMenuOpen.set(false)">
-              <mat-icon>calendar_today</mat-icon> Book Appointment
-            </a>
+          <nav class="mobile-drawer">
+            <a routerLink="/"         routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="mobileMenuOpen.set(false)">Home</a>
+            <a routerLink="/branches" routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Branches</a>
+            <a routerLink="/about"    routerLinkActive="active" (click)="mobileMenuOpen.set(false)">About</a>
+            <a routerLink="/contact"  routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Contact</a>
+            <div class="drawer-footer">
+              <a routerLink="/login" class="drawer-cta" (click)="mobileMenuOpen.set(false)">Book Now</a>
+            </div>
           </nav>
         }
       </header>
@@ -125,7 +112,7 @@ import { AuthService } from '../../core/services/auth.service';
 
             <!-- Newsletter -->
             <div class="newsletter-form">
-              <p class="newsletter-label">Get health tips & updates</p>
+              <p class="newsletter-label">Get health tips &amp; updates</p>
               <div class="newsletter-input-row">
                 <input type="email" [(ngModel)]="newsletterEmail" placeholder="Your email address" />
                 <button (click)="subscribeNewsletter()">Subscribe</button>
@@ -204,168 +191,230 @@ import { AuthService } from '../../core/services/auth.service';
 
     // ─── Layout shell ───────────────────────────────────────────────────────────
     .public-layout { display: flex; flex-direction: column; min-height: 100vh; }
-    .public-content { flex: 1; }
+    .public-content { flex: 1; padding-top: 92px; }
 
-    // ─── Header ─────────────────────────────────────────────────────────────────
-    .public-header {
-      position: sticky;
+    // ─── Navbar wrapper — fixed transparent overlay ──────────────────────────
+    .nav-wrapper {
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 200;
-      background: rgba(255,255,255,0);
-      transition: background 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
-      border-bottom: 1px solid transparent;
+      padding: 16px 20px;
+      pointer-events: none;
+    }
 
-      &.scrolled {
-        background: rgba(255,255,255,0.92);
-        backdrop-filter: blur(24px);
-        -webkit-backdrop-filter: blur(24px);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        box-shadow: 0 4px 32px rgba(0,0,0,0.06);
+    // ─── The floating pill ────────────────────────────────────────────────────
+    .nav-pill {
+      pointer-events: all;
+      max-width: 920px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 22px;
+      box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      padding: 8px 8px 8px 18px;
+      gap: 4px;
+      transition: box-shadow 0.3s ease, background 0.3s ease;
+
+      &:hover {
+        box-shadow:
+          0 4px 12px rgba(0, 0, 0, 0.06),
+          0 12px 40px rgba(0, 0, 0, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.9);
       }
     }
 
-    .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      height: 72px;
-      gap: 16px;
-    }
-
-    // Logo
+    // ─── Logo ─────────────────────────────────────────────────────────────────
     .logo {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 9px;
       text-decoration: none;
       flex-shrink: 0;
+      margin-right: 4px;
     }
-    .logo-icon-wrap {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, $primary, #4f8ef7);
-      border-radius: 12px;
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, $primary 0%, #4f8ef7 100%);
+      border-radius: 11px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      box-shadow: 0 4px 12px rgba($primary, 0.35);
-      mat-icon { font-size: 22px; width: 22px; height: 22px; }
-    }
-    .logo-text {
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: $text-primary;
-      letter-spacing: -0.3px;
-    }
-    .logo-accent { color: $primary; }
+      box-shadow: 0 3px 10px rgba($primary, 0.28);
+      flex-shrink: 0;
 
-    // Desktop nav
-    .main-nav {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-
-      a {
-        padding: 8px 13px;
-        border-radius: 10px;
-        color: $text-secondary;
-        text-decoration: none;
-        font-size: 0.88rem;
-        font-weight: 500;
-        transition: all $transition-fast;
-        white-space: nowrap;
-
-        &:hover { color: $primary; background: $primary-light; }
-        &.active { color: $primary; background: $primary-light; font-weight: 600; }
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
       }
     }
 
-    // Actions
-    .header-actions {
+    .logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.4px;
+    }
+
+    .logo-accent { color: $primary; }
+
+    // ─── Desktop nav — centered ───────────────────────────────────────────────
+    .desktop-nav {
+      flex: 1;
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 2px;
+
+      a {
+        padding: 7px 15px;
+        border-radius: 13px;
+        color: #64748b;
+        text-decoration: none;
+        font-size: 0.875rem;
+        font-weight: 500;
+        letter-spacing: -0.1px;
+        transition: background 0.18s ease, color 0.18s ease, transform 0.18s ease;
+        white-space: nowrap;
+
+        &:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+          transform: translateY(-0.5px);
+        }
+
+        &.active {
+          background: #f1f5f9;
+          color: #0f172a;
+          font-weight: 600;
+        }
+      }
+    }
+
+    // ─── Right side ───────────────────────────────────────────────────────────
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       flex-shrink: 0;
     }
 
-    .lang-toggle {
-      background: transparent;
-      border: 1.5px solid $border-color;
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: $text-secondary;
-      cursor: pointer;
-      transition: all $transition-fast;
-      &:hover { border-color: $primary; color: $primary; }
-    }
-
-    .btn-portal-outline {
-      font-size: 0.875rem !important;
-      white-space: nowrap;
-    }
-    .btn-portal, .btn-book {
-      font-size: 0.875rem !important;
-      white-space: nowrap;
-      display: flex !important;
-      align-items: center !important;
-      gap: 4px !important;
-      mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    }
-
-    .mobile-hamburger {
-      display: none;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      color: $text-primary;
-      padding: 4px;
-      border-radius: 8px;
-      &:hover { background: $gray-100; }
-    }
-
-    // Mobile nav
-    .mobile-nav {
-      background: white;
-      border-top: 1px solid $border-color;
-      padding: 12px 16px 20px;
+    .btn-cta {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      align-items: center;
+      gap: 5px;
+      background: #0f172a;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 14px;
+      padding: 9px 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: -0.1px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 
-      a {
-        padding: 12px 16px;
-        border-radius: 10px;
-        color: $text-primary;
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+
+      &:hover {
+        background: #1e293b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.22);
+      }
+
+      &:active { transform: translateY(0); }
+    }
+
+    // ─── Hamburger ────────────────────────────────────────────────────────────
+    .hamburger {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      background: #f8fafc;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 12px;
+      cursor: pointer;
+      color: #0f172a;
+      transition: background 0.18s, transform 0.18s;
+
+      mat-icon { font-size: 20px; width: 20px; height: 20px; }
+
+      &:hover { background: #f1f5f9; transform: scale(1.04); }
+    }
+
+    // ─── Mobile drawer ────────────────────────────────────────────────────────
+    .mobile-drawer {
+      pointer-events: all;
+      max-width: 920px;
+      margin: 8px auto 0;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      animation: slideDown 0.2s ease;
+
+      a:not(.drawer-cta) {
+        display: block;
+        padding: 14px 22px;
+        color: #334155;
         text-decoration: none;
-        font-weight: 500;
         font-size: 0.95rem;
+        font-weight: 500;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        transition: background 0.15s, color 0.15s;
+
+        &:last-of-type { border-bottom: none; }
+        &:hover { background: #f8fafc; color: #0f172a; }
+        &.active { color: $primary; background: rgba($primary, 0.04); font-weight: 600; }
+      }
+
+      .drawer-footer {
+        padding: 14px 16px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+      }
+
+      .drawer-cta {
         display: flex;
         align-items: center;
-        gap: 8px;
-        transition: all $transition-fast;
-        &:hover { background: $gray-50; color: $primary; }
-      }
-
-      .mobile-nav-divider {
-        height: 1px;
-        background: $border-color;
-        margin: 8px 0;
-      }
-
-      .mobile-cta {
-        background: $primary;
-        color: white;
-        text-align: center;
         justify-content: center;
-        border-radius: 12px;
-        margin-top: 4px;
-        &:hover { background: $primary-dark; color: white; }
-        mat-icon { font-size: 16px; width: 16px; height: 16px; }
+        background: #0f172a;
+        color: white;
+        text-decoration: none;
+        border-radius: 14px;
+        padding: 13px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: background 0.18s;
+        &:hover { background: #1e293b; }
       }
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     // ─── Footer ─────────────────────────────────────────────────────────────────
@@ -558,8 +607,8 @@ import { AuthService } from '../../core/services/auth.service';
 
     @media (max-width: $breakpoint-lg) {
       .desktop-nav { display: none; }
-      .btn-portal-outline, .btn-book { display: none !important; }
-      .mobile-hamburger { display: flex !important; }
+      .hamburger { display: flex !important; }
+      .btn-cta { display: none; }
     }
 
     @media (max-width: $breakpoint-md) {
@@ -569,6 +618,7 @@ import { AuthService } from '../../core/services/auth.service';
     }
 
     @media (max-width: $breakpoint-sm) {
+      .nav-wrapper { padding: 12px 14px; }
       .footer-body { grid-template-columns: 1fr; }
       .footer-bottom-inner { flex-direction: column; gap: 8px; text-align: center; }
     }
