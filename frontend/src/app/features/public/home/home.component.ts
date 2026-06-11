@@ -25,11 +25,6 @@ import { MEDIA } from '../../../core/config/media';
   <!-- ── LEFT 40% ─────────────────────────────────────────── -->
   <div class="hero-left">
 
-    <div class="hero-eyebrow">
-      <span class="ew-pulse"></span>
-      Advanced Diagnostics
-    </div>
-
     <h1 class="hero-h1">
       Precision<br>
       Diagnostics for<br>
@@ -42,29 +37,6 @@ import { MEDIA } from '../../../core/config/media';
       insights, digital reports, and home collection services designed around
       patient convenience and accuracy.
     </p>
-
-    <div class="hero-actions">
-      <a routerLink="/login" class="hbtn hbtn-dark">
-        <mat-icon>calendar_today</mat-icon>
-        Book Appointment
-      </a>
-      <a routerLink="/patient/results" class="hbtn hbtn-ghost">
-        <mat-icon>description</mat-icon>
-        View Test Results
-      </a>
-    </div>
-
-    <div class="trust-grid">
-      @for (t of trustFeatures; track t.title) {
-        <div class="trust-item">
-          <div class="ti-icon"><mat-icon>{{ t.icon }}</mat-icon></div>
-          <div>
-            <div class="ti-title">{{ t.title }}</div>
-            <div class="ti-sub">{{ t.sub }}</div>
-          </div>
-        </div>
-      }
-    </div>
 
   </div>
 
@@ -749,10 +721,10 @@ import { MEDIA } from '../../../core/config/media';
     }
 
     .hero-h1 {
-      font-size: clamp(2.6rem, 3.8vw, 4rem);
-      font-weight: 800; line-height: 1.1;
-      letter-spacing: -2px; color: #0f172a;
-      margin-bottom: 22px;
+      font-size: clamp(1.9rem, 2.8vw, 2.8rem);
+      font-weight: 800; line-height: 1.15;
+      letter-spacing: -1px; color: #0f172a;
+      margin-bottom: 18px;
     }
     .h1-hl {
       background: linear-gradient(135deg, #1a73e8 0%, #06b6d4 55%, #0d9488 100%);
@@ -760,8 +732,8 @@ import { MEDIA } from '../../../core/config/media';
     }
 
     .hero-p {
-      font-size: 1.05rem; color: #64748b;
-      line-height: 1.75; margin-bottom: 36px; max-width: 430px;
+      font-size: 0.92rem; color: #64748b;
+      line-height: 1.7; margin-bottom: 0; max-width: 400px;
     }
 
     .hero-actions { display: flex; gap: 12px; margin-bottom: 44px; flex-wrap: wrap; }
@@ -1770,10 +1742,7 @@ import { MEDIA } from '../../../core/config/media';
       .app-mockup      { display: none; }
     }
     @media (max-width: $breakpoint-md) {
-      .hero-h1        { font-size: 2.2rem; letter-spacing: -1.2px; }
-      .hero-actions   { flex-direction: column; }
-      .hbtn           { justify-content: center; }
-      .trust-grid     { grid-template-columns: 1fr; gap: 12px; }
+      .hero-h1        { font-size: 1.7rem; letter-spacing: -0.5px; }
       .lab-center     { width: 300px; height: 300px; }
       .lab-orb        { width: 120px; height: 120px; }
       .orb-icon       { font-size:48px !important; width:48px !important; height:48px !important; }
