@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
 import { PackageApiService } from '../../../core/api/package-api.service';
 import { HealthPackage } from '../../../core/models/health-package.models';
 import { Router } from '@angular/router';
+import { MEDIA } from '../../../core/config/media';
 
 @Component({
   selector: 'app-home',
@@ -70,11 +71,20 @@ import { Router } from '@angular/router';
   <!-- ── RIGHT 60% ─────────────────────────────────────────── -->
   <div class="hero-right">
 
-    <!-- Dot grid texture -->
+    <!-- Dot grid texture (visible only when no photo loaded) -->
     <div class="hr-dots"></div>
 
-    <!-- Lab visualization centerpiece -->
-    <div class="lab-center">
+    <!-- Hero photo — drop lab-photo.jpg into public/images/hero/ to activate -->
+    <img [src]="MEDIA.hero.labPhoto"
+         alt="Capital Lab — Professional Laboratory"
+         class="hero-photo"
+         (error)="onHeroImgError($event)" />
+
+    <!-- Overlay darkens photo slightly for card readability -->
+    <div class="hero-photo-overlay"></div>
+
+    <!-- Fallback art (shown when no photo) -->
+    <div class="lab-center lab-fallback">
       <div class="lp lp1"></div>
       <div class="lp lp2"></div>
       <div class="lp lp3"></div>
@@ -861,6 +871,26 @@ import { Router } from '@angular/router';
       background-image: radial-gradient(rgba(26,115,232,0.07) 1px, transparent 1px);
       background-size: 26px 26px;
     }
+
+    // Real hero photo (shown when file exists, hides on error)
+    .hero-photo {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      z-index: 2;
+    }
+    .hero-photo-overlay {
+      position: absolute; inset: 0; z-index: 3;
+      background: linear-gradient(
+        to right,
+        rgba(240,247,255,0.35) 0%,
+        rgba(240,247,255,0.1) 60%,
+        transparent 100%
+      );
+      pointer-events: none;
+    }
+    // Fallback art stays behind the photo; visible only when photo errors out
+    .lab-fallback { z-index: 1; }
 
     // Lab centerpiece
     .lab-center {
@@ -1829,7 +1859,13 @@ export class HomeComponent implements OnInit {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
+  readonly MEDIA = MEDIA;
   packages = signal<HealthPackage[]>([]);
+  heroImgLoaded = signal(false);
+
+  onHeroImgError(e: Event): void {
+    (e.target as HTMLImageElement).style.display = 'none';
+  }
 
   trustFeatures = [
     { icon: 'verified',    title: 'Certified Laboratory', sub: 'ISO 15189 Accredited' },
