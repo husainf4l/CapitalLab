@@ -29,8 +29,10 @@ import { MEDIA } from '../../../core/config/media';
       Precision<br>
       Diagnostics for<br>
       a <span class="h1-hl">Healthier</span><br>
-      Tomorrow
+      <span class="h1-light">Tomorrow</span>
     </h1>
+
+    <div class="hero-divider"></div>
 
     <p class="hero-p">
       Capital Lab provides advanced laboratory testing, personalized health
@@ -721,19 +723,31 @@ import { MEDIA } from '../../../core/config/media';
     }
 
     .hero-h1 {
-      font-size: clamp(1.9rem, 2.8vw, 2.8rem);
-      font-weight: 800; line-height: 1.15;
-      letter-spacing: -1px; color: #0f172a;
-      margin-bottom: 18px;
+      font-size: clamp(2.4rem, 3.4vw, 3.8rem);
+      font-weight: 800; line-height: 1.1;
+      letter-spacing: -2px; color: #0f172a;
+      margin-bottom: 22px;
     }
     .h1-hl {
       background: linear-gradient(135deg, #1a73e8 0%, #06b6d4 55%, #0d9488 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
+    .h1-light {
+      font-weight: 300;
+      letter-spacing: -1px;
+      color: #475569;
+    }
+
+    .hero-divider {
+      width: 48px; height: 3px;
+      background: linear-gradient(90deg, #1a73e8, #06b6d4);
+      border-radius: 2px;
+      margin-bottom: 22px;
+    }
 
     .hero-p {
-      font-size: 0.92rem; color: #64748b;
-      line-height: 1.7; margin-bottom: 0; max-width: 400px;
+      font-size: 1.05rem; color: #475569;
+      line-height: 1.75; margin-bottom: 0; max-width: 430px;
     }
 
     .hero-actions { display: flex; gap: 12px; margin-bottom: 44px; flex-wrap: wrap; }
@@ -1742,7 +1756,7 @@ import { MEDIA } from '../../../core/config/media';
       .app-mockup      { display: none; }
     }
     @media (max-width: $breakpoint-md) {
-      .hero-h1        { font-size: 1.7rem; letter-spacing: -0.5px; }
+      .hero-h1        { font-size: 2rem; letter-spacing: -1px; }
       .lab-center     { width: 300px; height: 300px; }
       .lab-orb        { width: 120px; height: 120px; }
       .orb-icon       { font-size:48px !important; width:48px !important; height:48px !important; }
