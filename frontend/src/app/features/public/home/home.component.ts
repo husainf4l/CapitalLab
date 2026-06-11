@@ -140,18 +140,12 @@ import { MEDIA } from '../../../core/config/media';
       <div class="about-art">
         <div class="art-ring art-ring-1"></div>
         <div class="art-ring art-ring-2"></div>
-        <div class="art-core">
-          <mat-icon>biotech</mat-icon>
-        </div>
-        <div class="art-orb orb-1"></div>
-        <div class="art-orb orb-2"></div>
-        <div class="art-orb orb-3"></div>
-        <div class="art-badge about-badge-1">
-          <mat-icon>verified</mat-icon><span>ISO Certified</span>
-        </div>
-        <div class="art-badge about-badge-2">
-          <strong>100K+</strong><span>Patients</span>
-        </div>
+        <picture class="about-img-wrap">
+          <source [srcset]="MEDIA.about.mainPhotoWebp" type="image/webp" />
+          <img [src]="MEDIA.about.mainPhoto"
+               alt="Capital Lab — Professional Laboratory"
+               class="about-img" />
+        </picture>
       </div>
     </div>
 
@@ -1001,6 +995,9 @@ import { MEDIA } from '../../../core/config/media';
     .feature-desc  { font-size: 0.9rem; color: $text-secondary; line-height: 1.6; margin: 0; }
 
     // ══════════════════════════════════════════════════════════ ABOUT ════════════
+    @keyframes ring-spin-cw  { from { transform: translate(-50%,-50%) rotate(0deg);   } to { transform: translate(-50%,-50%) rotate(360deg);  } }
+    @keyframes ring-spin-ccw { from { transform: translate(-50%,-50%) rotate(0deg);   } to { transform: translate(-50%,-50%) rotate(-360deg); } }
+
     .about-section { background: #f8fafc; }
     .about-grid {
       display: grid;
@@ -1019,45 +1016,33 @@ import { MEDIA } from '../../../core/config/media';
     .art-ring {
       position: absolute;
       border-radius: 50%;
-      border: 2px dashed rgba($primary, 0.18);
       top: 50%; left: 50%;
-      &.art-ring-1 { width: 80%; height: 80%; margin: -40% 0 0 -40%; }
-      &.art-ring-2 { width: 100%; height: 100%; margin: -50% 0 0 -50%; }
+      &.art-ring-1 {
+        width: 86%; height: 86%;
+        border: 1.5px dashed rgba($primary, 0.22);
+        animation: ring-spin-cw 22s linear infinite;
+      }
+      &.art-ring-2 {
+        width: 100%; height: 100%;
+        border: 1.5px dashed rgba($primary, 0.12);
+        animation: ring-spin-ccw 34s linear infinite;
+      }
     }
-    .art-core {
+    .about-img-wrap {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 120px; height: 120px;
-      background: linear-gradient(135deg, $primary, #4f8ef7);
-      border-radius: 32px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 20px 60px rgba($primary, 0.35);
-      mat-icon { font-size: 56px; width: 56px; height: 56px; color: white; }
-    }
-    .art-orb {
-      position: absolute;
+      width: 74%; height: 74%;
       border-radius: 50%;
-      &.orb-1 { width: 60px; height: 60px; background: linear-gradient(135deg,#dbeafe,#bfdbfe); top: 8%; right: 12%; }
-      &.orb-2 { width: 44px; height: 44px; background: linear-gradient(135deg,#ede9fe,#ddd6fe); bottom: 12%; left: 8%; }
-      &.orb-3 { width: 32px; height: 32px; background: linear-gradient(135deg,#d1fae5,#a7f3d0); bottom: 24%; right: 4%; }
+      overflow: hidden;
+      display: block;
+      box-shadow: 0 24px 64px rgba($primary, 0.18), 0 0 0 5px white, 0 0 0 6px rgba($primary, 0.08);
     }
-    .art-badge {
-      position: absolute;
-      background: white;
-      border-radius: 14px;
-      padding: 10px 14px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      display: flex; align-items: center; gap: 8px;
-      font-size: 0.8rem; font-weight: 600;
-      mat-icon { font-size: 16px; width: 16px; height: 16px; color: $primary; }
-      &.about-badge-1 { top: 6%; left: -4%; }
-      &.about-badge-2 {
-        bottom: 8%; right: 0%;
-        strong { font-size: 1rem; color: $primary; }
-        span { color: $text-secondary; }
-        flex-direction: column; align-items: flex-start;
-      }
+    .about-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
     }
 
     .about-content {

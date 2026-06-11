@@ -42,8 +42,8 @@ export const MEDIA = {
 
   // ── About section ──────────────────────────────────────────────────────────
   about: {
-    // Main about image — ideal: 800 × 800 px
-    mainPhoto:        '/images/about/main.jpg',
+    mainPhotoWebp:    '/images/hero/about.webp',  // 212 KB — served to modern browsers
+    mainPhoto:        '/images/hero/about.jpg',   // 1.1 MB  — fallback
 
     // Interior lab shots
     lab1:             '/images/about/lab-interior-1.jpg',
