@@ -56,7 +56,7 @@ public class ResultsController(IMediator mediator, ICurrentUserService currentUs
     public async Task<IActionResult> Create([FromBody] CreateResultRequest request, CancellationToken ct)
     {
         var command = new CreateResultCommand(
-            request.SampleId, request.LabTestId, (ResultType)request.ResultType,
+            request.SampleId, request.PatientId, request.LabTestId, (ResultType)request.ResultType,
             request.ResultValue, request.ResultText, request.Unit, request.ReferenceRange,
             (ResultInterpretation?)request.Interpretation);
         var result = await Mediator.Send(command, ct);

@@ -1,18 +1,19 @@
-import { Component, inject, signal, computed, OnInit, afterNextRender, DestroyRef } from '@angular/core';
+import { Component, inject, signal, computed, afterNextRender, DestroyRef, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { PackageApiService } from '../../../core/api/package-api.service';
-import { HealthPackage } from '../../../core/models/health-package.models';
 import { Router } from '@angular/router';
 import { MEDIA } from '../../../core/config/media';
+import { ContentApiService } from '../../../core/api/content-api.service';
+import { ContentPostSummary, ContentEventSummary } from '../../../core/models/content.models';
+import { PopularArticlesWidgetComponent } from './popular-articles-widget.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, CommonModule, FormsModule],
+  imports: [RouterLink, MatButtonModule, MatIconModule, CommonModule, FormsModule, DatePipe, PopularArticlesWidgetComponent],
   template: `
 
 <!-- ══════════════════════════════════════════════════════════ HERO ══ -->
@@ -106,9 +107,7 @@ import { MEDIA } from '../../../core/config/media';
         <div class="hsb-icon" [style.background]="s.bg">
           <mat-icon [style.color]="s.color">{{ s.icon }}</mat-icon>
         </div>
-        <div class="hsb-num" [attr.data-count]="s.value" [attr.data-suffix]="s.suffix">
-          {{ s.value }}{{ s.suffix }}
-        </div>
+        <div class="hsb-num" [attr.data-count]="s.value" [attr.data-suffix]="s.suffix">0{{ s.suffix }}</div>
         <div class="hsb-label">{{ s.label }}</div>
         <div class="hsb-sub">{{ s.sub }}</div>
       </div>
@@ -214,7 +213,7 @@ import { MEDIA } from '../../../core/config/media';
         <div class="srv-track">
           @for (s of filteredServices(); track s.title) {
             <div class="srv-card" [class]="'srv-size-' + s.size" routerLink="/tests">
-              <div class="srv-card-bg" [style.background]="s.gradient"></div>
+              <div class="srv-card-bg" [style.background-image]="'url(' + s.image + ')'" style="background-size:cover;background-position:center"></div>
               <div class="srv-card-overlay"></div>
               <div class="srv-card-content">
                 <div class="srv-card-icon-wrap">
@@ -235,63 +234,6 @@ import { MEDIA } from '../../../core/config/media';
   </div>
 </section>
 
-<!-- ════════════════════════════════════════════════════ PACKAGES ══ -->
-<section class="packages-section page-section">
-  <div class="container">
-    <div class="section-header reveal">
-      <div>
-        <p class="section-label">Featured Packages</p>
-        <h2 class="section-title">Complete Health Checkup Packages</h2>
-      </div>
-      <a mat-stroked-button routerLink="/packages" color="primary">All Packages</a>
-    </div>
-
-    <div class="packages-grid">
-      @if (packages().length > 0) {
-        @for (pkg of packages(); track pkg.id; let i = $index) {
-          <div class="pkg-card reveal" [style.transition-delay]="(i * 0.1) + 's'">
-            @if (pkg.isPopular) {
-              <div class="pkg-badge">⭐ Popular</div>
-            }
-            <div class="pkg-header" [style.background]="packageGradients[i % packageGradients.length]">
-              <mat-icon class="pkg-hero-icon">medical_services</mat-icon>
-            </div>
-            <div class="pkg-body">
-              <h4 class="pkg-name">{{ pkg.name }}</h4>
-              <p class="pkg-tests">{{ pkg.testCount ?? pkg.testsCount ?? 0 }} Tests Included</p>
-              @if ((pkg.discountPercentage ?? 0) > 0) {
-                <div class="pkg-savings">
-                  Save SAR {{ (pkg.price - (pkg.effectivePrice ?? pkg.price)) | number:'1.0-0' }}
-                </div>
-              }
-              <div class="pkg-price-row">
-                @if ((pkg.discountPercentage ?? 0) > 0) {
-                  <span class="pkg-original">SAR {{ pkg.price | number }}</span>
-                }
-                <span class="pkg-price">SAR {{ (pkg.effectivePrice ?? pkg.price) | number }}</span>
-              </div>
-              <a mat-flat-button color="primary" class="pkg-cta"
-                 [routerLink]="['/packages', pkg.id]">
-                Book Package
-              </a>
-            </div>
-          </div>
-        }
-      } @else {
-        @for (s of [1,2,3]; track s) {
-          <div class="pkg-card skeleton-card">
-            <div class="sk-header"></div>
-            <div class="pkg-body">
-              <div class="sk-line sk-w70"></div>
-              <div class="sk-line sk-w50"></div>
-              <div class="sk-price-line"></div>
-            </div>
-          </div>
-        }
-      }
-    </div>
-  </div>
-</section>
 
 <!-- ══════════════════════════════════════════════ HEALTH TRACKER ══ -->
 <section class="tracker-section page-section">
@@ -381,58 +323,16 @@ import { MEDIA } from '../../../core/config/media';
   </div>
 </section>
 
-<!-- ══════════════════════════════════════════════════ PROGRAMS ══ -->
-<section class="programs-section page-section">
-  <div class="container">
-    <div class="section-header reveal">
-      <div>
-        <p class="section-label">Health Programs</p>
-        <h2 class="section-title">Long-Term Wellness Programs</h2>
-      </div>
-      <a mat-stroked-button routerLink="/health-programs" color="primary">All Programs</a>
-    </div>
-    <div class="programs-grid">
-      @for (p of programs; track p.title; let i = $index) {
-        <div class="program-banner reveal" [style.transition-delay]="(i * 0.1) + 's'"
-             [style.background]="p.gradient">
-          <div class="program-icon-wrap">
-            <mat-icon>{{ p.icon }}</mat-icon>
-          </div>
-          <div class="program-body">
-            <h4 class="program-title">{{ p.title }}</h4>
-            <p class="program-desc">{{ p.desc }}</p>
-            <a class="program-link" [routerLink]="p.route">
-              Learn More <mat-icon>arrow_forward</mat-icon>
-            </a>
-          </div>
-        </div>
-      }
-    </div>
-  </div>
-</section>
 
 <!-- ════════════════════════════════════════ HOME SAMPLE COLLECTION ══ -->
 <section class="collection-section page-section">
   <div class="container collection-grid">
 
-    <!-- Illustration -->
+    <!-- Photo -->
     <div class="collection-art reveal-left">
       <div class="collection-art-card">
-        <div class="collection-house-icon">
-          <mat-icon>home</mat-icon>
-        </div>
-        <div class="collection-orbs">
-          <div class="c-orb c-orb-1">🩸</div>
-          <div class="c-orb c-orb-2">🔬</div>
-          <div class="c-orb c-orb-3">📋</div>
-        </div>
-        <div class="collection-info-badge">
-          <mat-icon>schedule</mat-icon>
-          <div>
-            <strong>Same Day</strong>
-            <span>Collection Available</span>
-          </div>
-        </div>
+        <div class="collection-photo"></div>
+        <div class="collection-photo-overlay"></div>
       </div>
     </div>
 
@@ -479,40 +379,9 @@ import { MEDIA } from '../../../core/config/media';
           <div class="stat-icon-wrap">
             <mat-icon>{{ s.icon }}</mat-icon>
           </div>
-          <div class="stat-num" [attr.data-count]="s.value" [attr.data-suffix]="s.suffix">
-            {{ s.value }}{{ s.suffix }}
-          </div>
+          <div class="stat-num" [attr.data-count]="s.value" [attr.data-suffix]="s.suffix">0{{ s.suffix }}</div>
           <div class="stat-label">{{ s.label }}</div>
           <div class="stat-sub">{{ s.sub }}</div>
-        </div>
-      }
-    </div>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════ TESTIMONIALS ══ -->
-<section class="testimonials-section page-section">
-  <div class="container">
-    <div class="section-header-center reveal">
-      <p class="section-label">Patient Stories</p>
-      <h2 class="section-title">What Our Patients Say</h2>
-    </div>
-    <div class="testimonials-grid">
-      @for (t of testimonials; track t.name; let i = $index) {
-        <div class="testimonial-card reveal" [style.transition-delay]="(i * 0.1) + 's'">
-          <div class="stars">
-            @for (s of [1,2,3,4,5]; track s) {
-              <mat-icon class="star-icon">star</mat-icon>
-            }
-          </div>
-          <p class="review-text">"{{ t.text }}"</p>
-          <div class="reviewer-row">
-            <div class="reviewer-avatar" [style.background]="t.color">{{ t.initials }}</div>
-            <div>
-              <div class="reviewer-name">{{ t.name }}</div>
-              <div class="reviewer-role">{{ t.role }}</div>
-            </div>
-          </div>
         </div>
       }
     </div>
@@ -622,9 +491,162 @@ import { MEDIA } from '../../../core/config/media';
 
   </div>
 </section>
+
+<!-- ══════════════════════════════════════════════════ LATEST NEWS ══ -->
+<section class="home-news-section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">Updates</span>
+        <h2 class="section-h2">Latest News</h2>
+        <p class="section-sub">Stay informed with the latest from Capital Lab</p>
+      </div>
+      <a routerLink="/news" class="view-all-link">View All News →</a>
+    </div>
+
+    @if (newsLoading()) {
+      <div class="news-skeleton-row">
+        @for (i of [1,2,3]; track i) { <div class="skeleton-news-card"></div> }
+      </div>
+    } @else if (latestNews().length === 0) {
+      <div class="news-empty">News articles will appear here once published.</div>
+    } @else {
+      <div class="news-grid">
+        @for (post of latestNews(); track post.id) {
+          <article class="news-card" [routerLink]="['/news', post.slug]">
+            <div class="news-card-img">
+              @if (post.thumbnailUrl) {
+                <img [src]="post.thumbnailUrl" [alt]="post.titleEn" loading="lazy" />
+              } @else {
+                <div class="img-placeholder">📰</div>
+              }
+              @if (post.isFeatured) { <span class="news-badge">Featured</span> }
+            </div>
+            <div class="news-card-body">
+              @if (post.categoryNameEn) { <span class="news-cat">{{ post.categoryNameEn }}</span> }
+              <h3>{{ post.titleEn }}</h3>
+              @if (post.summaryEn) { <p>{{ post.summaryEn }}</p> }
+              <span class="news-date">{{ post.publishedAt ? (post.publishedAt | date:'mediumDate') : '' }}</span>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ HEALTH ARTICLES ══ -->
+<section class="home-blog-section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">Health Insights</span>
+        <h2 class="section-h2">Health Articles</h2>
+        <p class="section-sub">Expert insights on diagnostics and wellness</p>
+      </div>
+      <a routerLink="/blog" class="view-all-link">View All Articles →</a>
+    </div>
+
+    @if (blogLoading()) {
+      <div class="news-skeleton-row">
+        @for (i of [1,2,3]; track i) { <div class="skeleton-news-card"></div> }
+      </div>
+    } @else if (latestBlogs().length === 0) {
+      <div class="news-empty">Health articles will appear here once published.</div>
+    } @else {
+      <div class="blog-list">
+        @for (post of latestBlogs(); track post.id) {
+          <article class="blog-row" [routerLink]="['/article', post.slug]">
+            <div class="blog-row-img">
+              @if (post.thumbnailUrl) {
+                <img [src]="post.thumbnailUrl" [alt]="post.titleEn" loading="lazy" />
+              } @else {
+                <div class="img-placeholder">✍️</div>
+              }
+            </div>
+            <div class="blog-row-body">
+              @if (post.categoryNameEn) { <span class="blog-cat">{{ post.categoryNameEn }}</span> }
+              <h4>{{ post.titleEn }}</h4>
+              @if (post.summaryEn) { <p>{{ post.summaryEn }}</p> }
+              <div class="blog-meta">
+                @if (post.authorName) { <span>{{ post.authorName }}</span> }
+                <span>{{ post.readingTimeMinutes }} min read</span>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ UPCOMING EVENTS ══ -->
+<section class="home-events-section">
+  <div class="container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">Community</span>
+        <h2 class="section-h2">Upcoming Events</h2>
+        <p class="section-sub">Health fairs, workshops, and screening drives</p>
+      </div>
+      <a routerLink="/events" class="view-all-link">View All Events →</a>
+    </div>
+
+    @if (eventsLoading()) {
+      <div class="news-skeleton-row">
+        @for (i of [1,2]; track i) { <div class="skeleton-event-card"></div> }
+      </div>
+    } @else if (upcomingEvents().length === 0) {
+      <div class="news-empty">Upcoming events will appear here once published.</div>
+    } @else {
+      <div class="events-row">
+        @for (ev of upcomingEvents(); track ev.id) {
+          <article class="event-row-card" [routerLink]="['/event', ev.slug]">
+            <div class="event-date-col">
+              <span class="ev-day">{{ ev.eventDate | date:'d' }}</span>
+              <span class="ev-month">{{ ev.eventDate | date:'MMM' }}</span>
+            </div>
+            @if (ev.coverImageUrl) {
+              <img [src]="ev.coverImageUrl" [alt]="ev.titleEn" class="ev-cover" loading="lazy" />
+            }
+            <div class="event-info">
+              <h4>{{ ev.titleEn }}</h4>
+              @if (ev.location) { <span class="ev-location">📍 {{ ev.location }}</span> }
+              @if (ev.registrationUrl) {
+                <span class="ev-reg-badge">Registration Open</span>
+              }
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════ POPULAR ARTICLES ══ -->
+<section class="home-popular-section">
+  <div class="container">
+    <div class="popular-section-inner">
+      <div class="popular-heading">
+        <span class="section-tag">Trending</span>
+        <h2 class="section-h2">Most Read Articles</h2>
+        <p class="section-sub">Explore our most popular health and wellness content</p>
+      </div>
+      <div class="popular-widget-wrap">
+        <app-popular-articles-widget />
+      </div>
+    </div>
+  </div>
+</section>
+
   `,
   styles: [`
     @use '../../../../styles/variables' as *;
+
+    :host {
+      display: block;
+      overflow-x: clip;
+    }
 
     // ── Keyframes ────────────────────────────────────────────────────────────────
     @keyframes float {
@@ -1202,7 +1224,7 @@ import { MEDIA } from '../../../core/config/media';
     }
     .srv-card-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.32) 48%, rgba(0,0,0,0.04) 100%);
+      background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.42) 45%, rgba(0,0,0,0.08) 100%);
     }
     .srv-card-content {
       position: absolute; bottom: 0; left: 0; right: 0;
@@ -1234,78 +1256,6 @@ import { MEDIA } from '../../../core/config/media';
       transform: translate(6px,-6px) scale(0.82);
       transition: all 0.32s ease;
       mat-icon { color: white; font-size: 17px; width: 17px; height: 17px; }
-    }
-
-    // ══════════════════════════════════════════════════════ PACKAGES ═════════
-    .packages-section { background: #f0f7ff; }
-    .packages-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .pkg-card {
-      background: white;
-      border-radius: $border-radius-xl;
-      overflow: hidden;
-      box-shadow: $shadow-md;
-      position: relative;
-      transition: transform $transition-normal, box-shadow $transition-normal;
-      &:hover { transform: translateY(-6px); box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
-    }
-    .pkg-badge {
-      position: absolute;
-      top: 0; right: 20px;
-      background: $accent;
-      color: white;
-      padding: 5px 14px;
-      border-radius: 0 0 12px 12px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      z-index: 2;
-    }
-    .pkg-header {
-      height: 120px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .pkg-hero-icon {
-      font-size: 48px !important;
-      width: 48px !important;
-      height: 48px !important;
-      color: white;
-      opacity: 0.9;
-    }
-    .pkg-body { padding: 20px 24px 24px; }
-    .pkg-name  { font-size: 1.05rem; font-weight: 700; color: $text-primary; margin-bottom: 6px; }
-    .pkg-tests { font-size: 0.875rem; color: $text-secondary; margin-bottom: 8px; }
-    .pkg-savings {
-      display: inline-block;
-      background: rgba($success, 0.1);
-      color: $success;
-      border-radius: 8px;
-      padding: 3px 10px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .pkg-price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; }
-    .pkg-original { text-decoration: line-through; color: $text-disabled; font-size: 0.875rem; }
-    .pkg-price    { font-size: 1.5rem; font-weight: 800; color: $primary; }
-    .pkg-cta { width: 100% !important; border-radius: 12px !important; }
-
-    // Skeleton
-    .skeleton-card {
-      pointer-events: none;
-      .sk-header { height: 120px; background: $gray-200; }
-      .sk-line {
-        height: 14px; background: $gray-200; border-radius: 6px;
-        margin-bottom: 10px;
-        animation: shimmer 1.5s infinite linear;
-        background: linear-gradient(90deg,$gray-200 25%,$gray-100 50%,$gray-200 75%);
-        background-size: 400px 100%;
-        &.sk-w70 { width: 70%; }
-        &.sk-w50 { width: 50%; }
-      }
-      .sk-price-line { height: 36px; background: $gray-200; border-radius: 10px; margin-top: 14px; }
     }
 
     // ══════════════════════════════════════════════════ HEALTH TRACKER ════════
@@ -1465,41 +1415,6 @@ import { MEDIA } from '../../../core/config/media';
       mat-icon { font-size: 18px; width: 18px; height: 18px; }
     }
 
-    // ══════════════════════════════════════════════════════ PROGRAMS ════════
-    .programs-section { background: white; }
-    .programs-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-    .program-banner {
-      border-radius: $border-radius-xl;
-      padding: 32px 28px;
-      display: flex;
-      align-items: flex-start;
-      gap: 20px;
-      cursor: pointer;
-      transition: transform $transition-normal, box-shadow $transition-normal;
-      &:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-    }
-    .program-icon-wrap {
-      width: 56px; height: 56px;
-      border-radius: 16px;
-      background: rgba(255,255,255,0.25);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      mat-icon { font-size: 28px; width: 28px; height: 28px; color: white; }
-    }
-    .program-title { font-size: 1.1rem; font-weight: 700; color: white; margin-bottom: 8px; }
-    .program-desc  { font-size: 0.875rem; color: rgba(255,255,255,0.8); line-height: 1.6; margin-bottom: 16px; }
-    .program-link {
-      display: inline-flex; align-items: center; gap: 4px;
-      color: white; font-size: 0.875rem; font-weight: 600;
-      text-decoration: none;
-      opacity: 0.9;
-      &:hover { opacity: 1; }
-      mat-icon { font-size: 16px; width: 16px; height: 16px; }
-    }
 
     // ══════════════════════════════════════════════ HOME COLLECTION ══════════
     .collection-section { background: #f0fdfa; }
@@ -1510,50 +1425,24 @@ import { MEDIA } from '../../../core/config/media';
       align-items: center;
     }
     .collection-art-card {
-      background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
       border-radius: 32px;
       height: 360px;
       position: relative;
       overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 24px 80px rgba(13,148,136,0.3);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.22);
     }
-    .collection-house-icon {
-      mat-icon {
-        font-size: 96px; width: 96px; height: 96px;
-        color: rgba(255,255,255,0.35);
-      }
+    .collection-photo {
+      position: absolute; inset: 0;
+      background-image: url('/images/services/home-collection.webp');
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);
     }
-    .collection-orbs {
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none;
+    .collection-art-card:hover .collection-photo { transform: scale(1.06); }
+    .collection-photo-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.18) 55%, rgba(0,0,0,0.04) 100%);
     }
-    .c-orb {
-      position: absolute;
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem;
-      animation: float 4s ease-in-out infinite;
-      &.c-orb-1 { top: 14%; left: 14%; animation-delay: 0s; }
-      &.c-orb-2 { top: 20%; right: 14%; animation-delay: 1s; }
-      &.c-orb-3 { bottom: 18%; left: 20%; animation-delay: 0.5s; }
-    }
-    .collection-info-badge {
-      position: absolute;
-      bottom: 24px; right: 24px;
-      background: white;
-      border-radius: 14px;
-      padding: 12px 16px;
-      display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      mat-icon { color: $primary; font-size: 20px; width: 20px; height: 20px; }
-      strong { display: block; font-size: 0.85rem; color: $text-primary; }
-      span   { display: block; font-size: 0.72rem; color: $text-secondary; }
-    }
-
     .collection-desc {
       font-size: 1rem; color: $text-secondary; line-height: 1.75; margin-bottom: 32px;
     }
@@ -1637,40 +1526,6 @@ import { MEDIA } from '../../../core/config/media';
     .stat-label { font-size: 1rem; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 6px; }
     .stat-sub   { font-size: 0.8rem; color: rgba(255,255,255,0.55); }
 
-    // ══════════════════════════════════════════════════ TESTIMONIALS ════════
-    .testimonials-section { background: white; }
-    .testimonials-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-    }
-    .testimonial-card {
-      background: $gray-50;
-      border: 1.5px solid $border-color;
-      border-radius: $border-radius-xl;
-      padding: 28px 24px;
-      transition: transform $transition-normal, box-shadow $transition-normal;
-      &:hover { transform: translateY(-4px); box-shadow: $shadow-lg; background: white; }
-    }
-    .stars { display: flex; gap: 2px; margin-bottom: 14px; }
-    .star-icon { font-size: 18px !important; width: 18px !important; height: 18px !important; color: $accent; }
-    .review-text {
-      font-size: 0.92rem;
-      color: $text-secondary;
-      line-height: 1.7;
-      margin-bottom: 20px;
-      font-style: italic;
-    }
-    .reviewer-row { display: flex; align-items: center; gap: 12px; }
-    .reviewer-avatar {
-      width: 44px; height: 44px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.9rem; font-weight: 700; color: white;
-      flex-shrink: 0;
-    }
-    .reviewer-name { font-size: 0.9rem; font-weight: 700; color: $text-primary; }
-    .reviewer-role { font-size: 0.78rem; color: $text-secondary; }
 
     // ══════════════════════════════════════════════════════════ FAQ ═════════
     .faq-section { background: #f8fafc; }
@@ -1858,17 +1713,19 @@ import { MEDIA } from '../../../core/config/media';
       .srv-header      { flex-direction: column; gap: 12px; }
       .srv-header-desc { max-width: 100%; padding-top: 0; }
       .srv-track-wrap  { margin: 0 -28px; padding-left: 28px; padding-right: 28px; }
-      .packages-grid   { grid-template-columns: repeat(2, 1fr); }
       .tracker-grid    { grid-template-columns: 1fr; }
-      .programs-grid   { grid-template-columns: 1fr; }
       .collection-grid { grid-template-columns: 1fr; }
       .collection-art  { display: none; }
       .stats-grid      { grid-template-columns: repeat(2, 1fr); }
-      .testimonials-grid { grid-template-columns: 1fr; }
       .app-grid        { grid-template-columns: 1fr; }
       .app-mockup      { display: none; }
     }
     @media (max-width: $breakpoint-md) {
+      .reveal-left,
+      .reveal-right {
+        transform: translateY(32px);
+        &.visible { transform: translateY(0); }
+      }
       .hero-h1        { font-size: 2rem; letter-spacing: -1px; }
       .lab-center     { width: 300px; height: 300px; }
       .lab-orb        { width: 120px; height: 120px; }
@@ -1880,8 +1737,6 @@ import { MEDIA } from '../../../core/config/media';
       .srv-card.srv-size-lg { width: 200px; height: 290px; }
       .srv-card.srv-size-md { width: 170px; height: 248px; }
       .srv-card.srv-size-sm { width: 150px; height: 215px; }
-      .packages-grid  { grid-template-columns: 1fr; }
-      .programs-grid  { grid-template-columns: 1fr; }
       .stats-grid     { grid-template-columns: 1fr; }
       .steps-flow     { gap: 4px; }
       .step-arrow     { display: none; }
@@ -1893,39 +1748,111 @@ import { MEDIA } from '../../../core/config/media';
       .hsb-card   { padding: 20px 14px; }
       .hsb-num    { font-size: 1.6rem; }
     }
+
+    /* ── Home content sections ── */
+    .home-news-section, .home-blog-section, .home-events-section {
+      padding: 72px 0;
+    }
+    .home-news-section { background: var(--bg-surface); }
+    .home-blog-section { background: var(--bg-card); }
+    .home-events-section { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #fff; }
+    .home-events-section .section-tag { background: rgba(255,255,255,.12); color: rgba(255,255,255,.85); }
+    .home-events-section .section-h2 { color: #fff; }
+    .home-events-section .section-sub { color: rgba(255,255,255,.65); }
+    .home-events-section .view-all-link { color: rgba(255,255,255,.8); }
+    .home-events-section .view-all-link:hover { color: #fff; }
+    .home-events-section .news-empty { color: rgba(255,255,255,.5); }
+
+    /* Popular articles section */
+    .home-popular-section { padding: 72px 0; background: var(--bg-surface); }
+    .popular-section-inner { display: grid; grid-template-columns: 1fr 420px; gap: 48px; align-items: start;
+      @media (max-width: 900px) { grid-template-columns: 1fr; }
+    }
+    .popular-heading { padding-top: 8px; }
+    .popular-widget-wrap { }
+
+    .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 36px; }
+    .section-tag { display: inline-block; padding: 4px 12px; background: var(--accent-light, rgba(14,165,233,.1)); color: var(--accent); border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+    .section-h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700; margin: 0 0 6px; color: var(--text-primary); }
+    .section-sub { font-size: 15px; color: var(--text-muted); margin: 0; }
+    .view-all-link { font-size: 14px; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; }
+    .view-all-link:hover { text-decoration: underline; }
+
+    /* News grid */
+    .news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .news-card { background: var(--bg-card); border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid var(--border); transition: transform .2s, box-shadow .2s; text-decoration: none; display: block; }
+    .news-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,.1); }
+    .news-card-img { position: relative; height: 180px; overflow: hidden; background: var(--bg-surface); }
+    .news-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 40px; background: linear-gradient(135deg, #f0f4ff, #e8f0fe); }
+    .news-badge { position: absolute; top: 10px; right: 10px; padding: 3px 9px; background: var(--accent); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .news-card-body { padding: 16px; }
+    .news-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent); }
+    .news-card-body h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin: 6px 0 6px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .news-card-body p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0 0 8px; }
+    .news-date { font-size: 11px; color: var(--text-muted); }
+
+    /* Blog list */
+    .blog-list { display: flex; flex-direction: column; gap: 16px; }
+    .blog-row { display: grid; grid-template-columns: 96px 1fr; gap: 16px; background: var(--bg-surface); border-radius: 10px; padding: 12px; cursor: pointer; transition: box-shadow .2s; border: 1px solid var(--border); }
+    .blog-row:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .blog-row-img { width: 96px; height: 80px; border-radius: 8px; overflow: hidden; flex-shrink: 0; background: var(--bg-card); }
+    .blog-row-img img { width: 100%; height: 100%; object-fit: cover; }
+    .blog-row-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .blog-cat { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: #065f46; }
+    .blog-row-body h4 { font-size: 14px; font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .blog-row-body p { font-size: 12px; color: var(--text-secondary); line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin: 0; }
+    .blog-meta { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
+
+    /* Events row */
+    .events-row { display: flex; flex-direction: column; gap: 16px; }
+    .event-row-card { display: grid; grid-template-columns: 64px 120px 1fr; gap: 0; background: rgba(255,255,255,.05); border-radius: 12px; overflow: hidden; cursor: pointer; border: 1px solid rgba(255,255,255,.1); transition: background .2s; }
+    .event-row-card:hover { background: rgba(255,255,255,.09); }
+    .event-date-col { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(99,102,241,.6); color: #fff; padding: 12px 8px; }
+    .ev-day { font-size: 24px; font-weight: 700; line-height: 1; }
+    .ev-month { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .ev-cover { width: 120px; height: 80px; object-fit: cover; }
+    .event-info { padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; justify-content: center; }
+    .event-info h4 { font-size: 14px; font-weight: 600; color: #fff; margin: 0; line-height: 1.3; }
+    .ev-location { font-size: 12px; color: rgba(255,255,255,.6); }
+    .ev-reg-badge { display: inline-block; padding: 3px 9px; background: #22c55e; color: #fff; border-radius: 10px; font-size: 10px; font-weight: 600; width: fit-content; margin-top: 2px; }
+
+    /* Skeletons */
+    .news-skeleton-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .skeleton-news-card { height: 280px; border-radius: 12px; background: linear-gradient(90deg, var(--bg-card) 25%, var(--border) 50%, var(--bg-card) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .skeleton-event-card { height: 80px; border-radius: 12px; background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.1) 50%, rgba(255,255,255,.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .news-empty { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
   `],
 })
-export class HomeComponent implements OnInit {
-  private packageApi = inject(PackageApiService);
+export class HomeComponent {
   private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   readonly MEDIA = MEDIA;
-  packages = signal<HealthPackage[]>([]);
   heroImgLoaded = signal(false);
 
   onHeroImgError(e: Event): void {
     (e.target as HTMLImageElement).style.display = 'none';
   }
 
+  featureCards = [
+    { icon: 'groups',   title: 'Professional Medical Team',   desc: 'Board-certified pathologists and specialists review every result for accuracy.',                         color: '#1a73e8', bg: '#e8f0fe' },
+    { icon: 'biotech',  title: 'Highly Accurate Results',     desc: 'State-of-the-art analyzers with 99.9% precision, calibrated to international standards.',               color: '#0d9488', bg: '#f0fdfa' },
+    { icon: 'insights', title: 'Personalized Health Insights', desc: 'AI-powered analysis translates your results into actionable health guidance.', color: '#7c3aed', bg: '#ede9fe' },
+  ];
+
   trustFeatures = [
     { icon: 'verified',    title: 'Certified Laboratory', sub: 'ISO 15189 Accredited' },
     { icon: 'speed',       title: 'Fast Turnaround',      sub: 'Results in 6–24 hours' },
     { icon: 'description', title: 'Digital Reports',      sub: 'Secure online access' },
-    { icon: 'location_on', title: 'Multi-Branch Network', sub: '15+ locations' },
+    { icon: 'location_on', title: 'Branch Network', sub: 'Locations available' },
   ];
 
   heroStats = [
-    { icon: 'biotech',     value: 500, suffix: 'K+', label: 'Tests Performed',  sub: 'Since 2012',           bg: 'rgba(26,115,232,0.08)',  color: '#1a73e8' },
-    { icon: 'groups',      value: 100, suffix: 'K+', label: 'Happy Patients',   sub: 'Across the region',    bg: 'rgba(13,148,136,0.08)',  color: '#0d9488' },
-    { icon: 'science',     value: 300, suffix: '+',  label: 'Available Tests',  sub: 'All categories',       bg: 'rgba(124,58,237,0.08)', color: '#7c3aed' },
-    { icon: 'location_on', value: 15,  suffix: '+',  label: 'Branch Locations', sub: 'Major cities covered', bg: 'rgba(217,119,6,0.08)',  color: '#d97706' },
-  ];
-
-  featureCards = [
-    { icon: 'groups', title: 'Professional Medical Team', desc: 'Board-certified pathologists and specialists review every result for accuracy.', color: '#1a73e8', bg: '#e8f0fe' },
-    { icon: 'biotech', title: 'Highly Accurate Results', desc: 'State-of-the-art analyzers with 99.9% precision, calibrated to international standards.', color: '#0d9488', bg: '#f0fdfa' },
-    { icon: 'insights', title: 'Personalized Health Insights', desc: 'AI-powered analysis translates your results into actionable health guidance.', color: '#7c3aed', bg: '#ede9fe' },
+    { icon: 'biotech',     value: 0, suffix: '', label: 'Tests Performed',  sub: 'No production data yet', bg: 'rgba(26,115,232,0.08)',  color: '#1a73e8' },
+    { icon: 'groups',      value: 0, suffix: '', label: 'Patients Served',  sub: 'No production data yet', bg: 'rgba(13,148,136,0.08)',  color: '#0d9488' },
+    { icon: 'science',     value: 0, suffix: '', label: 'Available Tests',  sub: 'No production data yet', bg: 'rgba(124,58,237,0.08)', color: '#7c3aed' },
+    { icon: 'location_on', value: 0, suffix: '', label: 'Branch Locations', sub: 'No production data yet', bg: 'rgba(217,119,6,0.08)',  color: '#d97706' },
   ];
 
   aboutFeatures = [
@@ -1937,12 +1864,12 @@ export class HomeComponent implements OnInit {
   ];
 
   services = [
-    { icon: 'water_drop',  title: 'Blood Tests',          desc: 'Complete blood count, blood chemistry, and specialized hematology panels.', color: '#dc2626', bg: '#fef2f2', gradient: 'linear-gradient(145deg,#1a0505 0%,#7f1d1d 45%,#dc2626 100%)',           size: 'lg', category: 'Diagnostics' },
-    { icon: 'science',     title: 'Hormone Tests',         desc: 'Thyroid, reproductive, adrenal, and growth hormone profiling.',            color: '#7c3aed', bg: '#ede9fe', gradient: 'linear-gradient(145deg,#1e0a40 0%,#6d28d9 50%,#a78bfa 100%)',           size: 'sm', category: 'Diagnostics' },
-    { icon: 'analytics',   title: 'Diabetes Monitoring',   desc: 'HbA1c, fasting glucose, insulin resistance, and diabetic risk panels.',    color: '#0284c7', bg: '#e0f2fe', gradient: 'linear-gradient(145deg,#0a1628 0%,#1a56a0 48%,#3b82f6 100%)',           size: 'md', category: 'Monitoring' },
-    { icon: 'medication',  title: 'Vitamin Screening',     desc: 'Vitamin D, B12, folate, and micronutrient deficiency assessment.',         color: '#d97706', bg: '#fffbeb', gradient: 'linear-gradient(145deg,#1c0f00 0%,#92400e 48%,#f59e0b 100%)',           size: 'sm', category: 'Monitoring' },
-    { icon: 'favorite',    title: 'Cardiac Diagnostics',   desc: 'Lipid profiles, troponin, BNP, and advanced cardiovascular risk markers.', color: '#e11d48', bg: '#fff1f2', gradient: 'linear-gradient(145deg,#1a0010 0%,#9f1239 48%,#f43f5e 100%)',           size: 'lg', category: 'Preventive' },
-    { icon: 'spa',         title: 'Wellness Packages',     desc: 'Comprehensive annual checkup bundles tailored to your age and lifestyle.',  color: '#059669', bg: '#ecfdf5', gradient: 'linear-gradient(145deg,#021a10 0%,#065f46 48%,#10b981 100%)',           size: 'md', category: 'Preventive' },
+    { icon: 'water_drop',  title: 'Blood Tests',          desc: 'Complete blood count, blood chemistry, and specialized hematology panels.', color: '#dc2626', bg: '#fef2f2', gradient: 'linear-gradient(145deg,rgba(26,5,5,0.72) 0%,rgba(127,29,29,0.55) 45%,rgba(220,38,38,0.38) 100%)',    image: '/images/services/blood-tests.webp',         size: 'lg', category: 'Diagnostics' },
+    { icon: 'science',     title: 'Hormone Tests',         desc: 'Thyroid, reproductive, adrenal, and growth hormone profiling.',            color: '#7c3aed', bg: '#ede9fe', gradient: 'linear-gradient(145deg,rgba(30,10,64,0.75) 0%,rgba(109,40,217,0.55) 50%,rgba(167,139,250,0.35) 100%)', image: '/images/services/hormone-tests.webp',       size: 'sm', category: 'Diagnostics' },
+    { icon: 'analytics',   title: 'Diabetes Monitoring',   desc: 'HbA1c, fasting glucose, insulin resistance, and diabetic risk panels.',    color: '#0284c7', bg: '#e0f2fe', gradient: 'linear-gradient(145deg,rgba(10,22,40,0.75) 0%,rgba(26,86,160,0.55) 48%,rgba(59,130,246,0.38) 100%)',  image: '/images/services/diabetes-monitoring.webp', size: 'md', category: 'Monitoring' },
+    { icon: 'medication',  title: 'Vitamin Screening',     desc: 'Vitamin D, B12, folate, and micronutrient deficiency assessment.',         color: '#d97706', bg: '#fffbeb', gradient: 'linear-gradient(145deg,rgba(28,15,0,0.75) 0%,rgba(146,64,14,0.55) 48%,rgba(245,158,11,0.38) 100%)',   image: '/images/services/vitamin-screening.webp',   size: 'sm', category: 'Monitoring' },
+    { icon: 'favorite',    title: 'Cardiac Diagnostics',   desc: 'Lipid profiles, troponin, BNP, and advanced cardiovascular risk markers.', color: '#e11d48', bg: '#fff1f2', gradient: 'linear-gradient(145deg,rgba(26,0,16,0.75) 0%,rgba(159,18,57,0.55) 48%,rgba(244,63,94,0.38) 100%)',    image: '/images/services/cardiac-diagnostics.webp', size: 'lg', category: 'Preventive' },
+    { icon: 'spa',         title: 'Wellness Packages',     desc: 'Comprehensive annual checkup bundles tailored to your age and lifestyle.',  color: '#059669', bg: '#ecfdf5', gradient: 'linear-gradient(145deg,rgba(2,26,16,0.75) 0%,rgba(6,95,70,0.55) 48%,rgba(16,185,129,0.38) 100%)',     image: '/images/services/wellness-packages.webp',   size: 'md', category: 'Preventive' },
   ];
 
   serviceFilters = ['All', 'Diagnostics', 'Monitoring', 'Preventive'];
@@ -1962,13 +1889,6 @@ export class HomeComponent implements OnInit {
     (document.querySelector('.srv-track-wrap') as HTMLElement | null)?.scrollBy({ left: 340, behavior: 'smooth' });
   }
 
-  packageGradients = [
-    'linear-gradient(135deg, #1a73e8, #4f8ef7)',
-    'linear-gradient(135deg, #0d9488, #14b8a6)',
-    'linear-gradient(135deg, #7c3aed, #a78bfa)',
-    'linear-gradient(135deg, #d97706, #fbbf24)',
-  ];
-
   vitaminTrend = [
     { month: 'Jan', pct: 32, active: false },
     { month: 'Feb', pct: 45, active: false },
@@ -1986,18 +1906,12 @@ export class HomeComponent implements OnInit {
   ];
 
   trackerBenefits = [
-    'Track 40+ biomarkers over time with trend analysis',
+    'Track biomarkers over time with trend analysis',
     'Receive intelligent alerts when values change',
     'Share reports securely with your physician',
     'Set personal health goals and monitor progress',
   ];
 
-  programs = [
-    { icon: 'monitor_weight', title: 'Weight Management Program', desc: 'Metabolic panel, hormones, and nutrition markers to support your weight journey.', gradient: 'linear-gradient(135deg, #065f46 0%, #10b981 100%)', route: '/health-programs' },
-    { icon: 'analytics', title: 'Diabetes Management Program', desc: 'Quarterly HbA1c, lipids, kidney function, and diabetic complication screening.', gradient: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)', route: '/health-programs' },
-    { icon: 'favorite', title: 'Heart Health Program', desc: 'Complete cardiovascular risk profiling including advanced lipid and inflammatory markers.', gradient: 'linear-gradient(135deg, #7f1d1d 0%, #ef4444 100%)', route: '/health-programs' },
-    { icon: 'spa', title: "Women's Wellness Program", desc: "Hormonal balance, thyroid, iron, bone health — a complete panel designed for women.", gradient: 'linear-gradient(135deg, #4c1d95 0%, #8b5cf6 100%)', route: '/health-programs' },
-  ];
 
   collectionSteps = [
     { num: 1, icon: 'list_alt', label: 'Select Tests' },
@@ -2007,16 +1921,10 @@ export class HomeComponent implements OnInit {
   ];
 
   stats = [
-    { icon: 'groups', value: 50, suffix: '+', label: 'Specialists', sub: 'Board-certified pathologists & doctors' },
-    { icon: 'biotech', value: 100, suffix: '+', label: 'Lab Tests', sub: 'Covering all major diagnostic categories' },
-    { icon: 'schedule', value: 24, suffix: 'h', label: 'Reporting', sub: 'Average result turnaround time' },
-    { icon: 'location_on', value: 15, suffix: '+', label: 'Branches', sub: 'Across major cities and districts' },
-  ];
-
-  testimonials = [
-    { name: 'Sarah Al-Mane', role: 'Riyadh', initials: 'SA', color: '#1a73e8', text: 'The home collection service is incredibly convenient. Results were ready in under 6 hours and the digital report was very detailed. Highly recommend.' },
-    { name: 'Mohammed Khalid', role: 'Jeddah', initials: 'MK', color: '#0d9488', text: 'After visiting 3 labs, Capital Lab is by far the most professional. The staff are knowledgeable and the online portal makes accessing results effortless.' },
-    { name: 'Nora Al-Rashidi', role: 'Dammam', initials: 'NR', color: '#7c3aed', text: 'The Diabetes Management Program changed how I monitor my health. My doctor loves the detailed trend reports. Worth every riyal.' },
+    { icon: 'biotech',     value: 0, suffix: '', label: 'Tests Performed',  sub: 'No production data yet' },
+    { icon: 'groups',      value: 0, suffix: '', label: 'Patients Served',   sub: 'No production data yet' },
+    { icon: 'science',     value: 0, suffix: '', label: 'Available Tests',  sub: 'No production data yet' },
+    { icon: 'location_on', value: 0, suffix: '', label: 'Branch Locations', sub: 'No production data yet' },
   ];
 
   faqItems = [
@@ -2042,38 +1950,69 @@ export class HomeComponent implements OnInit {
     this.faqOpen.set(arr);
   }
 
+  // ── Content CMS home sections ─────────────────────────────────────────────
+  private contentApi = inject(ContentApiService);
+
+  latestNews = signal<ContentPostSummary[]>([]);
+  latestBlogs = signal<ContentPostSummary[]>([]);
+  upcomingEvents = signal<ContentEventSummary[]>([]);
+  newsLoading = signal(true);
+  blogLoading = signal(true);
+  eventsLoading = signal(true);
+
+  private loadContentSections(): void {
+    this.contentApi.getPosts({ type: 'News', pageSize: 3, featured: true }).subscribe({
+      next: r => {
+        const items = r.data?.items ?? [];
+        this.latestNews.set(items.length ? items : (r.data?.items ?? []));
+      },
+      complete: () => this.newsLoading.set(false)
+    });
+
+    this.contentApi.getPosts({ type: 'Blog', pageSize: 4 }).subscribe({
+      next: r => this.latestBlogs.set(r.data?.items ?? []),
+      complete: () => this.blogLoading.set(false)
+    });
+
+    this.contentApi.getEvents({ upcoming: true, pageSize: 3 }).subscribe({
+      next: r => this.upcomingEvents.set(r.data?.items ?? []),
+      complete: () => this.eventsLoading.set(false)
+    });
+  }
+
   constructor() {
     afterNextRender(() => {
       this.setupScrollReveal();
       this.setupCounterAnimation();
+      this.loadContentSections();
     });
   }
 
-  ngOnInit(): void {
-    this.packageApi.getPopular(3).subscribe({
-      next: res => this.packages.set(res.data ?? []),
-      error: () => this.packages.set([]),
-    });
-  }
+
+
+  private revealObserver!: IntersectionObserver;
 
   private setupScrollReveal(): void {
-    const selectors = ['.reveal', '.reveal-left', '.reveal-right'];
-    const elements = document.querySelectorAll(selectors.join(','));
-
-    const observer = new IntersectionObserver(
+    this.revealObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible');
-            observer.unobserve(entry.target);
+            this.revealObserver.unobserve(entry.target);
           }
         });
       },
       { threshold: 0.1, rootMargin: '0px 0px -48px 0px' }
     );
 
-    elements.forEach(el => observer.observe(el));
-    this.destroyRef.onDestroy(() => observer.disconnect());
+    this.observeRevealElements();
+    this.destroyRef.onDestroy(() => this.revealObserver.disconnect());
+  }
+
+  private observeRevealElements(): void {
+    const selectors = ['.reveal', '.reveal-left', '.reveal-right'];
+    document.querySelectorAll(selectors.join(','))
+      .forEach(el => this.revealObserver.observe(el));
   }
 
   private setupCounterAnimation(): void {

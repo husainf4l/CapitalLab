@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { Branch } from '../models/branch.models';
 import { ApiResponse, PaginatedResponse, PaginationParams } from '../models/api.models';
@@ -23,7 +24,16 @@ export class BranchApiService {
   }
 
   getActive(): Observable<ApiResponse<Branch[]>> {
-    return this.http.get<ApiResponse<Branch[]>>(`${this.url}/active`);
+    const params = new HttpParams()
+      .set('isActive', true)
+      .set('pageSize', 100);
+
+    return this.http.get<ApiResponse<PaginatedResponse<Branch>>>(this.url, { params }).pipe(
+      map(response => ({
+        ...response,
+        data: response.data?.items ?? [],
+      }))
+    );
   }
 
   create(branch: Partial<Branch>): Observable<ApiResponse<Branch>> {

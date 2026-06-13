@@ -12,6 +12,7 @@ namespace CapitalLab.Application.Features.Results.Commands;
 // ── Commands ─────────────────────────────────────────────────────────────────
 public record CreateResultCommand(
     Guid SampleId,
+    Guid PatientId,
     Guid LabTestId,
     ResultType ResultType,
     decimal? ResultValue,
@@ -31,7 +32,6 @@ public record UpdateResultCommand(
 public record SubmitResultForReviewCommand(Guid Id) : IRequest<Result>;
 public record ApproveResultCommand(Guid Id) : IRequest<Result>;
 public record ReleaseResultCommand(Guid Id) : IRequest<Result>;
-public record AcknowledgeCriticalAlertCommand(Guid AlertId, Guid? AcknowledgedBy) : IRequest<Result>;
 
 // ── Validators ─────────────────────────────────────────────────────────────────
 public class CreateResultCommandValidator : AbstractValidator<CreateResultCommand>
@@ -51,59 +51,21 @@ public class CreateResultCommandValidator : AbstractValidator<CreateResultComman
     }
 }
 
-// ── Critical-detection helper ───────────────────────────────────────────────────
-internal static class CriticalDetection
-{
-    public static async Task EvaluateAsync(
-        TestResult result,
-        IRepository<CriticalResultRule> ruleRepo,
-        IRepository<CriticalResultAlert> alertRepo,
-        IDateTimeService clock,
-        CancellationToken ct)
-    {
-        if (result.ResultValue is null) return;
-
-        var rule = await ruleRepo.FirstOrDefaultAsync(r => r.LabTestId == result.LabTestId, ct);
-        if (rule is null) return;
-
-        var reason = rule.Evaluate(result.ResultValue.Value);
-        if (reason is null) return;
-
-        var alert = CriticalResultAlert.Create(result.Id, clock.UtcNow, reason);
-        await alertRepo.AddAsync(alert, ct);
-
-        var interpretation = rule.IsLowBreach(result.ResultValue.Value)
-            ? ResultInterpretation.CriticalLow
-            : ResultInterpretation.CriticalHigh;
-
-        result.MarkCriticalDetected(alert.Id, reason, interpretation);
-    }
-}
-
 // ── Handlers ─────────────────────────────────────────────────────────────────
 public class CreateResultCommandHandler(
     IRepository<TestResult> resultRepo,
-    IRepository<Sample> sampleRepo,
-    IRepository<CriticalResultRule> ruleRepo,
-    IRepository<CriticalResultAlert> alertRepo,
     ICurrentUserService currentUser,
     IDateTimeService clock,
     IUnitOfWork uow) : IRequestHandler<CreateResultCommand, Result<Guid>>
 {
     public async Task<Result<Guid>> Handle(CreateResultCommand request, CancellationToken cancellationToken)
     {
-        var sample = await sampleRepo.GetByIdAsync(request.SampleId, cancellationToken)
-            ?? throw new NotFoundException(nameof(Sample), request.SampleId);
-
         var result = TestResult.Create(
-            sample.Id, sample.PatientId, request.LabTestId, request.ResultType,
+            request.SampleId, request.PatientId, request.LabTestId, request.ResultType,
             request.ResultValue, request.ResultText, request.Unit, request.ReferenceRange,
             request.Interpretation, currentUser.UserId, clock.UtcNow);
 
         await resultRepo.AddAsync(result, cancellationToken);
-
-        await CriticalDetection.EvaluateAsync(result, ruleRepo, alertRepo, clock, cancellationToken);
-
         await uow.CommitAsync(cancellationToken);
         return Result<Guid>.Success(result.Id);
     }
@@ -112,8 +74,6 @@ public class CreateResultCommandHandler(
 public class UpdateResultCommandHandler(
     IRepository<TestResult> resultRepo,
     IRepository<TestResultHistory> historyRepo,
-    IRepository<CriticalResultRule> ruleRepo,
-    IRepository<CriticalResultAlert> alertRepo,
     ICurrentUserService currentUser,
     IDateTimeService clock,
     IUnitOfWork uow) : IRequestHandler<UpdateResultCommand, Result>
@@ -139,8 +99,6 @@ public class UpdateResultCommandHandler(
             var history = TestResultHistory.Create(result.Id, snapshot.oldValue, snapshot.newValue, currentUser.UserId, clock.UtcNow);
             await historyRepo.AddAsync(history, cancellationToken);
         }
-
-        await CriticalDetection.EvaluateAsync(result, ruleRepo, alertRepo, clock, cancellationToken);
 
         resultRepo.Update(result);
         await uow.CommitAsync(cancellationToken);
@@ -199,24 +157,6 @@ public class ReleaseResultCommandHandler(
         catch (InvalidOperationException ex) { throw new BusinessRuleException("Result.InvalidTransition", ex.Message); }
 
         resultRepo.Update(result);
-        await uow.CommitAsync(cancellationToken);
-        return Result.Success();
-    }
-}
-
-public class AcknowledgeCriticalAlertCommandHandler(
-    IRepository<CriticalResultAlert> alertRepo,
-    ICurrentUserService currentUser,
-    IDateTimeService clock,
-    IUnitOfWork uow) : IRequestHandler<AcknowledgeCriticalAlertCommand, Result>
-{
-    public async Task<Result> Handle(AcknowledgeCriticalAlertCommand request, CancellationToken cancellationToken)
-    {
-        var alert = await alertRepo.GetByIdAsync(request.AlertId, cancellationToken)
-            ?? throw new NotFoundException(nameof(CriticalResultAlert), request.AlertId);
-
-        alert.Acknowledge(request.AcknowledgedBy ?? currentUser.UserId, clock.UtcNow);
-        alertRepo.Update(alert);
         await uow.CommitAsync(cancellationToken);
         return Result.Success();
     }

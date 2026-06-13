@@ -40,22 +40,6 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
       <!-- ── KPI Cards ────────────────────────────────────────────── -->
       <div class="kpi-grid">
         <owner-kpi-card
-          label="Total Revenue"
-          icon="trending_up"
-          slot="2"
-          prefix="SAR "
-          [value]="o().totalRevenue"
-          [loading]="store.isLoading()" />
-
-        <owner-kpi-card
-          label="Net Revenue"
-          icon="account_balance_wallet"
-          slot="1"
-          prefix="SAR "
-          [value]="o().netRevenue"
-          [loading]="store.isLoading()" />
-
-        <owner-kpi-card
           label="Total Patients"
           icon="people_alt"
           slot="4"
@@ -64,49 +48,54 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
           [loading]="store.isLoading()" />
 
         <owner-kpi-card
+          label="New Patients"
+          icon="person_add"
+          slot="2"
+          [value]="o().newPatients"
+          [loading]="store.isLoading()" />
+
+        <owner-kpi-card
           label="Total Tests Run"
           icon="science"
           slot="3"
           [value]="o().totalTests"
+          [loading]="store.isLoading()" />
+
+        <owner-kpi-card
+          label="Appointments"
+          icon="event"
+          slot="1"
+          [value]="o().totalAppointments"
           [loading]="store.isLoading()" />
       </div>
 
       <!-- ── Secondary KPIs ───────────────────────────────────────── -->
       <div class="secondary-kpis">
         <div class="sec-kpi">
-          <mat-icon class="sec-icon c1">event</mat-icon>
-          <div><span class="sec-val">{{ o().totalAppointments | number }}</span><span class="sec-lbl">Appointments</span></div>
-        </div>
-        <div class="sec-kpi">
           <mat-icon class="sec-icon c2">timer</mat-icon>
           <div><span class="sec-val">{{ o().averageTurnaroundHours | number:'1.1-1' }}h</span><span class="sec-lbl">Avg Turnaround</span></div>
         </div>
         <div class="sec-kpi">
-          <mat-icon class="sec-icon c3">warning_amber</mat-icon>
-          <div><span class="sec-val">{{ o().lowStockItems }}</span><span class="sec-lbl">Low Stock Items</span></div>
+          <mat-icon class="sec-icon c1">trending_up</mat-icon>
+          <div><span class="sec-val">{{ o().totalTests | number }}</span><span class="sec-lbl">Tests This Period</span></div>
         </div>
         <div class="sec-kpi">
-          <mat-icon class="sec-icon c5">health_and_safety</mat-icon>
-          <div><span class="sec-val">{{ o().pendingInsuranceClaims }}</span><span class="sec-lbl">Pending Claims</span></div>
-        </div>
-        <div class="sec-kpi">
-          <mat-icon class="sec-icon c2">account_balance</mat-icon>
-          <div><span class="sec-val">SAR {{ o().outstandingBalance | number:'1.0-0' }}</span><span class="sec-lbl">Outstanding</span></div>
+          <mat-icon class="sec-icon c4">people_alt</mat-icon>
+          <div><span class="sec-val">{{ o().totalPatients | number }}</span><span class="sec-lbl">Total Patients</span></div>
         </div>
       </div>
 
       <!-- ── Charts Row ────────────────────────────────────────────── -->
       <div class="charts-row">
         <owner-line-chart
-          title="Daily Revenue — Last 30 Days"
+          title="Daily Activity — Last 30 Days"
           [points]="revenuePoints()"
           color="var(--chart-1)" />
 
         <owner-bar-chart
-          title="Revenue by Branch"
+          title="Patients by Branch"
           [data]="branchChartData()"
-          color="var(--chart-2)"
-          prefix="SAR " />
+          color="var(--chart-2)" />
       </div>
 
       <!-- ── Branch Table ──────────────────────────────────────────── -->
@@ -114,7 +103,7 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
         <div class="table-hdr">
           <div>
             <h3 class="table-title">Branch Performance</h3>
-            <p class="table-sub">{{ store.branches().length }} branches · sorted by revenue</p>
+            <p class="table-sub">{{ store.branches().length }} branches · sorted by patients</p>
           </div>
           <div class="table-actions">
             <a routerLink="/owner/branches" class="table-link-btn">
@@ -139,12 +128,10 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Branch</th>
-                  <th class="num-col">Revenue</th>
-                  <th class="num-col">Patients</th>
-                  <th class="num-col">Tests</th>
-                  <th class="num-col">Pending</th>
-                  <th class="num-col">Turnaround</th>
+                  <th scope="col">Branch</th>
+                  <th scope="col" class="num-col">Patients</th>
+                  <th scope="col" class="num-col">Tests</th>
+                  <th scope="col" class="num-col">Turnaround</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,16 +148,8 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
                         </div>
                       </div>
                     </td>
-                    <td class="num-col">
-                      <span class="rev-val">SAR {{ b.revenue | number:'1.0-0' }}</span>
-                    </td>
                     <td class="num-col">{{ b.patients | number }}</td>
                     <td class="num-col">{{ b.tests | number }}</td>
-                    <td class="num-col">
-                      <span class="pending-pill" [class.warn]="b.pendingSamples > 10">
-                        {{ b.pendingSamples }}
-                      </span>
-                    </td>
                     <td class="num-col">
                       <span class="turnaround" [class.good]="b.averageTurnaroundHours < 4">
                         {{ b.averageTurnaroundHours | number:'1.1-1' }}h
@@ -184,29 +163,6 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
         }
       </div>
 
-      <!-- ── Action Alerts ─────────────────────────────────────────── -->
-      @if (hasAlerts()) {
-        <div class="alerts-row">
-          @if (o().pendingInsuranceClaims > 0) {
-            <a routerLink="/owner/insurance" class="alert-chip c5">
-              <mat-icon>health_and_safety</mat-icon>
-              {{ o().pendingInsuranceClaims }} insurance claims pending
-            </a>
-          }
-          @if (o().lowStockItems > 0) {
-            <a routerLink="/owner/inventory" class="alert-chip c3">
-              <mat-icon>warning_amber</mat-icon>
-              {{ o().lowStockItems }} items low on stock
-            </a>
-          }
-          @if (o().outstandingBalance > 0) {
-            <a routerLink="/owner/revenue" class="alert-chip c5">
-              <mat-icon>account_balance</mat-icon>
-              SAR {{ o().outstandingBalance | number:'1.0-0' }} outstanding
-            </a>
-          }
-        </div>
-      }
     </div>
   `,
   styles: [`
@@ -245,8 +201,9 @@ import { BranchPerformance } from '../../../core/models/owner-analytics.models';
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: $spacing-lg;
-      @media (max-width: $breakpoint-xl) { grid-template-columns: repeat(2, 1fr); }
-      @media (max-width: $breakpoint-sm) { grid-template-columns: 1fr; }
+      @media (max-width: $breakpoint-xl) { grid-template-columns: repeat(4, 1fr); }
+      @media (max-width: $breakpoint-lg)  { grid-template-columns: repeat(2, 1fr); }
+      @media (max-width: $breakpoint-sm)  { grid-template-columns: 1fr; }
     }
 
     /* ── Secondary KPIs ────────────────────────────────────────────── */
@@ -403,15 +360,11 @@ export class OwnerOverviewComponent implements OnInit {
   );
 
   branchChartData = computed(() =>
-    this.store.branches().map(b => ({ label: b.branchName, value: b.revenue }))
+    this.store.branches().map(b => ({ label: b.branchName, value: b.patients }))
   );
 
   sortedBranches = computed(() =>
-    [...this.store.branches()].sort((a, b) => b.revenue - a.revenue)
-  );
-
-  hasAlerts = computed(() =>
-    this.o().pendingInsuranceClaims > 0 || this.o().lowStockItems > 0 || this.o().outstandingBalance > 0
+    [...this.store.branches()].sort((a, b) => b.patients - a.patients)
   );
 
   ngOnInit(): void { this.store.load(); }

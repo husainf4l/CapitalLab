@@ -70,15 +70,11 @@ export class AuthService {
     );
   }
 
-  logout(): Observable<ApiResponse<void>> {
-    return this.http.post<ApiResponse<void>>(`${this.baseUrl}/logout`, {}).pipe(
-      tap(() => {
-        this.tokenStorage.clearTokens();
-        this.currentUser.set(null);
-        this.isAuthenticated.set(false);
-        this.router.navigate(['/login']);
-      })
-    );
+  logout(): void {
+    this.http.post<ApiResponse<void>>(`${this.baseUrl}/logout`, {}).subscribe({
+      next: () => this.logoutLocally(),
+      error: () => this.logoutLocally(),
+    });
   }
 
   refresh(request: RefreshTokenRequest): Observable<ApiResponse<LoginResponse>> {

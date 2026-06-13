@@ -20,6 +20,7 @@ public sealed class DataSeeder(
         await SeedAdminUserAsync(cancellationToken);
         await SeedBranchAsync(cancellationToken);
         await SeedTestCategoriesAsync(cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
         await SeedLabTestsAsync(cancellationToken);
         await SeedHealthPackagesAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);

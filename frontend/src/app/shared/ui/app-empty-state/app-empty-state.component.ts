@@ -7,8 +7,8 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [MatIconModule, MatButtonModule],
   template: `
-    <div class="empty-state">
-      <mat-icon class="empty-icon">{{ icon() }}</mat-icon>
+    <div class="empty-state" role="status" aria-live="polite">
+      <mat-icon class="empty-icon" aria-hidden="true">{{ icon() }}</mat-icon>
       <h3>{{ title() }}</h3>
       @if (description()) {
         <p>{{ description() }}</p>

@@ -30,7 +30,7 @@ import { AppSearchBarComponent } from '../../../shared/ui/app-search-bar/app-sea
             @for (branch of filteredBranches(); track branch.id) {
               <div class="branch-card">
                 <div class="branch-header">
-                  <div class="branch-icon">🏥</div>
+                  <div class="branch-icon"><mat-icon>domain</mat-icon></div>
                   <div>
                     <h4>{{ branch.name }}</h4>
                     <span class="branch-city">{{ branch.city }}</span>
@@ -102,7 +102,7 @@ import { AppSearchBarComponent } from '../../../shared/ui/app-search-bar/app-sea
     }
 
     .branch-header { display: flex; align-items: center; gap: 12px; }
-    .branch-icon { font-size: 2rem; width: 48px; height: 48px; background: $primary-light; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .branch-icon { width: 48px; height: 48px; background: $primary-light; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; mat-icon { color: $primary; font-size: 26px; } }
     .branch-header h4 { margin: 0; font-size: 1rem; }
     .branch-city { font-size: 0.8rem; color: $text-secondary; }
 

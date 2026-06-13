@@ -33,7 +33,7 @@ import { ToastService } from '../../../core/services/toast.service';
       @if (bookingComplete()) {
         <div class="success-screen">
           <div class="success-card">
-            <div class="success-icon">✅</div>
+            <div class="success-icon"><mat-icon>check_circle</mat-icon></div>
             <h2>Booking Confirmed!</h2>
             <p class="success-sub">Your appointment has been successfully booked.</p>
             <div class="success-summary">
@@ -109,7 +109,7 @@ import { ToastService } from '../../../core/services/toast.service';
               <div class="type-cards">
                 <div class="type-card" [class.selected]="store.appointmentType() === 'branch'"
                      (click)="store.appointmentType.set('branch')">
-                  <div class="tc-icon">🏥</div>
+                  <div class="tc-icon"><mat-icon>domain</mat-icon></div>
                   <h4>Branch Visit</h4>
                   <p>Visit one of our modern labs near you</p>
                   <ul>
@@ -118,12 +118,12 @@ import { ToastService } from '../../../core/services/toast.service';
                     <li>Walk-in or scheduled</li>
                   </ul>
                   @if (store.appointmentType() === 'branch') {
-                    <div class="tc-check">✓</div>
+                    <div class="tc-check"><mat-icon>check</mat-icon></div>
                   }
                 </div>
                 <div class="type-card" [class.selected]="store.appointmentType() === 'home_collection'"
                      (click)="store.appointmentType.set('home_collection')">
-                  <div class="tc-icon">🏠</div>
+                  <div class="tc-icon"><mat-icon>home</mat-icon></div>
                   <h4>Home Collection</h4>
                   <p>A trained technician comes to your door</p>
                   <ul>
@@ -132,7 +132,7 @@ import { ToastService } from '../../../core/services/toast.service';
                     <li>SAR 30 collection fee</li>
                   </ul>
                   @if (store.appointmentType() === 'home_collection') {
-                    <div class="tc-check">✓</div>
+                    <div class="tc-check"><mat-icon>check</mat-icon></div>
                   }
                 </div>
               </div>
@@ -179,7 +179,7 @@ import { ToastService } from '../../../core/services/toast.service';
                       <div class="skel item-skel"></div>
                     }
                   } @else if (tests().length === 0) {
-                    <p class="no-items">No tests found. Try a different search.</p>
+                    <p class="no-items">No tests found. Choose a test or package to continue.</p>
                   } @else {
                     @for (test of tests(); track test.id) {
                       <div class="item-row" [class.selected]="store.isTestSelected(test.id)"
@@ -241,22 +241,37 @@ import { ToastService } from '../../../core/services/toast.service';
           @if (store.currentStep() === 3) {
             <div class="step-panel">
               @if (store.appointmentType() === 'branch') {
-                <h4 class="step-title">Choose your branch</h4>
+                <h4 class="step-title">{{ branches().length === 1 ? 'Visit branch' : 'Choose your branch' }}</h4>
                 @if (branchesLoading()) {
                   <div class="branch-grid">
                     @for (i of [1,2,3]; track i) {
                       <div class="skel branch-skel"></div>
                     }
                   </div>
+                } @else if (branches().length === 1) {
+                  <div class="single-branch-note">
+                    <mat-icon>info</mat-icon>
+                    <span>Capital Lab currently operates from one branch. It has been selected for your appointment.</span>
+                  </div>
+                  @if (store.selectedBranch(); as branch) {
+                    <div class="branch-card selected single-branch-card">
+                      <div class="bc-check"><mat-icon>check</mat-icon></div>
+                      <div class="bc-icon"><mat-icon>domain</mat-icon></div>
+                      <h5>{{ branch.name }}</h5>
+                      <p class="bc-address">{{ branch.address }}</p>
+                      <p class="bc-city">{{ branch.city }}</p>
+                      <p class="bc-phone">{{ branch.phone }}</p>
+                    </div>
+                  }
                 } @else {
                   <div class="branch-grid">
                     @for (branch of branches(); track branch.id) {
                       <div class="branch-card" [class.selected]="store.selectedBranch()?.id === branch.id"
                            (click)="store.selectedBranch.set(branch)">
                         @if (store.selectedBranch()?.id === branch.id) {
-                          <div class="bc-check">✓</div>
+                          <div class="bc-check"><mat-icon>check</mat-icon></div>
                         }
-                        <div class="bc-icon">🏥</div>
+                        <div class="bc-icon"><mat-icon>domain</mat-icon></div>
                         <h5>{{ branch.name }}</h5>
                         <p class="bc-address">{{ branch.address }}</p>
                         <p class="bc-city">{{ branch.city }}</p>
@@ -325,7 +340,7 @@ import { ToastService } from '../../../core/services/toast.service';
                     <span>{{ ctx.fullName() || 'Loading…' }}</span>
                   </div>
                   @if (store.selectedPatient()?.isSelf) {
-                    <div class="pc-check">✓</div>
+                    <div class="pc-check"><mat-icon>check</mat-icon></div>
                   }
                 </div>
 
@@ -340,7 +355,7 @@ import { ToastService } from '../../../core/services/toast.service';
                       <span>{{ member.relationship | titlecase }}</span>
                     </div>
                     @if (store.selectedPatient()?.id === member.id && !store.selectedPatient()?.isSelf) {
-                      <div class="pc-check">✓</div>
+                      <div class="pc-check"><mat-icon>check</mat-icon></div>
                     }
                   </div>
                 }
@@ -360,7 +375,7 @@ import { ToastService } from '../../../core/services/toast.service';
                 <div class="review-section">
                   <div class="review-row">
                     <span class="rv-label">Type</span>
-                    <span class="rv-val">{{ store.appointmentType() === 'branch' ? '🏥 Branch Visit' : '🏠 Home Collection' }}</span>
+                    <span class="rv-val">{{ store.appointmentType() === 'branch' ? 'Branch Visit' : 'Home Collection' }}</span>
                   </div>
                   @if (store.appointmentType() === 'branch' && store.selectedBranch()) {
                     <div class="review-row">
@@ -393,7 +408,7 @@ import { ToastService } from '../../../core/services/toast.service';
                   }
                   @for (p of store.selectedPackages(); track p.id) {
                     <div class="item-review-row pkg">
-                      <span>📦 {{ p.name }}</span>
+                      <span>{{ p.name }}</span>
                       <span>SAR {{ p.price }}</span>
                     </div>
                   }
@@ -435,9 +450,9 @@ import { ToastService } from '../../../core/services/toast.service';
                     [disabled]="store.isSubmitting() || !store.isCurrentStepValid()"
                     (click)="submit()">
               @if (store.isSubmitting()) {
-                <mat-icon class="spin">refresh</mat-icon> Booking…
+                <ng-container><mat-icon class="spin">refresh</mat-icon> Booking…</ng-container>
               } @else {
-                <mat-icon>check_circle</mat-icon> Confirm Booking
+                <ng-container><mat-icon>check_circle</mat-icon> Confirm Booking</ng-container>
               }
             </button>
           }
@@ -482,11 +497,11 @@ import { ToastService } from '../../../core/services/toast.service';
       cursor: pointer; position: relative; transition: all 0.2s;
       &:hover { border-color: $primary; background: $primary-light; }
       &.selected { border-color: $primary; background: $primary-light; }
-      .tc-icon { font-size: 2.5rem; margin-bottom: 12px; }
+      .tc-icon { margin-bottom: 12px; width: 48px; height: 48px; border-radius: 14px; background: $primary-light; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 26px; color: $primary; } }
       h4 { margin: 0 0 8px; }
       p { color: $text-secondary; font-size: 0.875rem; margin: 0 0 12px; }
       ul { margin: 0; padding-left: 18px; color: $text-secondary; font-size: 0.8rem; li { margin-bottom: 4px; } }
-      .tc-check { position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; }
+      .tc-check { position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; } }
     }
 
     /* Tests step */
@@ -516,16 +531,23 @@ import { ToastService } from '../../../core/services/toast.service';
     .branch-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
       @media (max-width: 576px) { grid-template-columns: 1fr; }
     }
+    .single-branch-note {
+      display: flex; align-items: flex-start; gap: 8px; padding: 12px 14px; margin-bottom: 12px;
+      border: 1px solid #bfdbfe; border-radius: $border-radius; background: #eff6ff; color: #1d4ed8;
+      font-size: 0.85rem;
+      mat-icon { font-size: 18px; width: 18px; height: 18px; flex-shrink: 0; }
+    }
     .branch-card {
       border: 2px solid $border-color; border-radius: $border-radius; padding: 16px;
       cursor: pointer; position: relative; transition: all 0.15s;
       &:hover { border-color: $primary; }
       &.selected { border-color: $primary; background: $primary-light; }
-      .bc-icon { font-size: 1.5rem; margin-bottom: 8px; }
+      .bc-icon { margin-bottom: 8px; width: 40px; height: 40px; border-radius: 10px; background: $primary-light; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 22px; color: $primary; } }
       h5 { margin: 0 0 4px; font-size: 0.9rem; }
       .bc-address, .bc-city, .bc-phone { margin: 0; font-size: 0.75rem; color: $text-secondary; }
-      .bc-check { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+      .bc-check { position: absolute; top: 10px; right: 10px; width: 22px; height: 22px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; mat-icon { font-size: 14px !important; width: 14px !important; height: 14px !important; } }
     }
+    .single-branch-card { max-width: 520px; cursor: default; &:hover { border-color: $primary; } }
 
     /* Address form */
     .address-form { display: flex; flex-direction: column; gap: 4px; }
@@ -557,7 +579,7 @@ import { ToastService } from '../../../core/services/toast.service';
       &.gender-female { background: #e91e63; }
     }
     .pc-info { flex: 1; strong { display: block; font-weight: 600; } span { font-size: 0.8rem; color: $text-secondary; } }
-    .pc-check { width: 24px; height: 24px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; }
+    .pc-check { width: 24px; height: 24px; border-radius: 50%; background: $primary; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; } }
     .no-family { font-size: 0.875rem; color: $text-secondary; a { color: $primary; } }
 
     /* Review */
@@ -582,7 +604,7 @@ import { ToastService } from '../../../core/services/toast.service';
     /* Success */
     .success-screen { display: flex; justify-content: center; padding: 40px 16px; }
     .success-card { background: white; border-radius: $border-radius-lg; padding: 40px; max-width: 480px; width: 100%; box-shadow: $shadow-md; border: 1px solid $border-color; text-align: center; }
-    .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .success-icon { margin-bottom: 16px; mat-icon { font-size: 56px !important; width: 56px !important; height: 56px !important; color: $success; } }
     .success-card h2 { margin: 0 0 8px; color: $success; }
     .success-sub { color: $text-secondary; margin: 0 0 28px; }
     .success-summary { text-align: left; border: 1px solid $border-color; border-radius: $border-radius; overflow: hidden; margin-bottom: 28px; }
@@ -631,33 +653,53 @@ export class BookComponent implements OnInit {
 
   loadCategories(): void {
     this.testApi.getCategories().subscribe({
-      next: res => this.categories.set(res.data ?? []),
+      next: res => this.categories.set(res.items ?? []),
       error: () => {},
     });
   }
 
   loadTests(): void {
     this.testsLoading.set(true);
-    const params = this.selectedCategoryId ? { categoryId: this.selectedCategoryId } : undefined;
-    this.testApi.getTests(params).subscribe({
+    const searchTerm = this.normalizedTestSearch();
+    this.testApi.getTests({
+      categoryId: searchTerm ? undefined : this.selectedCategoryId || undefined,
+      searchTerm: searchTerm || undefined,
+      pageNumber: 1,
+      pageSize: 50,
+    }).subscribe({
       next: res => { this.tests.set(res.data?.items ?? []); this.testsLoading.set(false); },
       error: () => this.testsLoading.set(false),
     });
   }
 
   onTestSearch(query: string): void {
-    if (!query.trim()) { this.loadTests(); return; }
-    this.testsLoading.set(true);
-    this.testApi.searchTests(query).subscribe({
-      next: res => { this.tests.set(res.data ?? []); this.testsLoading.set(false); },
-      error: () => this.testsLoading.set(false),
-    });
+    this.testSearch = query;
+    if (query.trim()) {
+      this.selectedCategoryId = '';
+    }
+    this.loadTests();
+  }
+
+  private normalizedTestSearch(): string {
+    const query = this.testSearch.trim().toLowerCase();
+    if (!query) return '';
+
+    const aliases: Record<string, string> = {
+      vitamn: 'vitamin',
+      vitamnin: 'vitamin',
+      vitamen: 'vitamin',
+      vitemen: 'vitamin',
+      vitmin: 'vitamin',
+      cbc: 'CBC',
+    };
+
+    return aliases[query] ?? query;
   }
 
   loadPackages(): void {
     this.packagesLoading.set(true);
-    this.packageApi.getAll().subscribe({
-      next: res => { this.packages.set(res.data?.items ?? []); this.packagesLoading.set(false); },
+    this.packageApi.getAll({ pageSize: 50, isActive: true }).subscribe({
+      next: res => { this.packages.set(res.items ?? []); this.packagesLoading.set(false); },
       error: () => this.packagesLoading.set(false),
     });
   }
@@ -665,7 +707,14 @@ export class BookComponent implements OnInit {
   loadBranches(): void {
     this.branchesLoading.set(true);
     this.branchApi.getActive().subscribe({
-      next: res => { this.branches.set(res.data ?? []); this.branchesLoading.set(false); },
+      next: res => {
+        const branches = res.data ?? [];
+        this.branches.set(branches);
+        if (branches.length === 1) {
+          this.store.selectedBranch.set(branches[0]);
+        }
+        this.branchesLoading.set(false);
+      },
       error: () => this.branchesLoading.set(false),
     });
   }

@@ -1,0 +1,41 @@
+
+> frontend@0.0.0 start
+> ng serve --host 127.0.0.1 --port 4200
+
+❯ Building...
+✔ Building...
+Initial chunk files | Names                       |  Raw size
+main.js             | main                        |  17.18 kB | 
+styles.css          | styles                      |  14.13 kB | 
+chunk-WAWBHESV.js   | -                           |   6.12 kB | 
+chunk-UR5TU3YO.js   | -                           |   1.72 kB | 
+chunk-5N2WSFQG.js   | -                           |   1.37 kB | 
+chunk-26NJVHRL.js   | -                           |   1.06 kB | 
+chunk-VUJOFXKG.js   | -                           | 938 bytes | 
+chunk-SK62DBWD.js   | -                           | 216 bytes | 
+
+                    | Initial total               |  42.74 kB
+
+Lazy chunk files    | Names                       |  Raw size
+chunk-2URXLGUH.js   | home-component              | 173.82 kB | 
+chunk-K7Q2LSQE.js   | book-component              | 116.29 kB | 
+chunk-PZAHPNPC.js   | admin-inventory-component   |  62.07 kB | 
+chunk-5SAF74DS.js   | admin-insurance-component   |  59.79 kB | 
+chunk-VTFW4KFP.js   | critical-results-component  |  55.22 kB | 
+chunk-5IWAKFL3.js   | public-layout-component     |  52.79 kB | 
+chunk-ZNW4A725.js   | admin-billing-component     |  51.95 kB | 
+chunk-FA7RI72P.js   | report-review-component     |  49.84 kB | 
+chunk-CW4AFCOB.js   | patient-timeline-component  |  49.41 kB | 
+chunk-BZFM2JEL.js   | lab-results-entry-component |  49.28 kB | 
+chunk-3L5XNQ4W.js   | follow-ups-component        |  47.40 kB | 
+chunk-RGL7CXCW.js   | lab-samples-component       |  45.61 kB | 
+chunk-OUJCRXE6.js   | lab-doctor-review-component |  45.60 kB | 
+chunk-ATRG5F4P.js   | doctor-notes-component      |  43.27 kB | 
+chunk-RIXMKK55.js   | lab-appointments-component  |  41.85 kB | 
+...and 77 more lazy chunks files. Use "--verbose" to show all the files.
+
+Application bundle generation complete. [4.055 seconds] - 2026-06-11T09:53:19.755Z
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  ➜  Local:   http://127.0.0.1:4200/

@@ -22,14 +22,14 @@ import { ResultReviewTableComponent } from './result-review-table.component';
         </div>
         <div class="panel-actions">
           @if (report().isDownloadable) {
-            <button mat-icon-button (click)="download.emit(report().id)"><mat-icon>download</mat-icon></button>
+            <button mat-icon-button aria-label="Download report" (click)="download.emit(report().id)"><mat-icon>download</mat-icon></button>
           }
-          <button mat-icon-button (click)="print.emit(report().id)"><mat-icon>print</mat-icon></button>
-          <button mat-icon-button (click)="close.emit()"><mat-icon>close</mat-icon></button>
+          <button mat-icon-button aria-label="Print report" (click)="print.emit(report().id)"><mat-icon>print</mat-icon></button>
+          <button mat-icon-button aria-label="Close report preview" (click)="close.emit()"><mat-icon>close</mat-icon></button>
         </div>
       </div>
 
-      @if (report().results?.length) {
+      @if (report().results.length) {
         <result-review-table [results]="report().results" />
       } @else {
         <div class="no-results">No results in this report.</div>
@@ -87,6 +87,6 @@ export class ReportPreviewPanelComponent {
   close = output<void>();
 
   hasCritical(): boolean {
-    return this.report().results?.some(r => r.interpretation === 'critical') ?? false;
+    return this.report().results.some(r => r.interpretation === 'critical');
   }
 }

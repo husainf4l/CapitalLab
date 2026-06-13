@@ -1,82 +1,137 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink } from '@angular/router';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-auth-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink],
+  imports: [RouterOutlet],
   template: `
-    <div class="auth-layout">
-      <div class="auth-brand">
-        <div class="brand-content">
-          <div class="logo-area">
-            <span class="logo-icon">🧪</span>
-            <h1>Capital Lab</h1>
-            <p>Trusted Diagnostics Since 2010</p>
-          </div>
-          <div class="brand-features">
-            <div class="feature">
-              <span class="feature-icon">⚡</span>
-              <span>Fast Results</span>
-            </div>
-            <div class="feature">
-              <span class="feature-icon">🏠</span>
-              <span>Home Collection</span>
-            </div>
-            <div class="feature">
-              <span class="feature-icon">🔒</span>
-              <span>Secure & Private</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="auth-form-area">
-        <div class="auth-form-container">
-          <a routerLink="/" class="back-home">← Back to Website</a>
+    <div class="auth-page">
+      <div class="auth-card">
+
+        <div class="form-col">
           <router-outlet />
         </div>
+
+        <div class="hero-col">
+          <div class="hero-inner">
+            <img src="/images/hero/hero.webp" alt="" aria-hidden="true" />
+            <div class="hero-overlay"></div>
+            <div class="hero-text">
+              <h2>Precision diagnostics<br>you can trust</h2>
+              <p>Advanced testing. Clear results. Better health.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   `,
   styles: [`
-    @use '../../../styles/variables' as *;
-
-    .auth-layout { display: flex; min-height: 100vh; }
-
-    .auth-brand {
-      flex: 1; background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
-      display: flex; align-items: center; justify-content: center;
-      padding: 48px; color: white;
-      @media (max-width: 768px) { display: none; }
+    .auth-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      padding: 32px 16px;
     }
 
-    .brand-content { max-width: 400px; }
-    .logo-area { margin-bottom: 48px; }
-    .logo-icon { font-size: 3rem; }
-    h1 { font-size: 2.5rem; color: white; margin: 16px 0 8px; }
-    p { color: rgba(255,255,255,0.8); font-size: 1.1rem; }
-
-    .brand-features { display: flex; flex-direction: column; gap: 16px; }
-    .feature {
-      display: flex; align-items: center; gap: 12px;
-      background: rgba(255,255,255,0.15); border-radius: 12px; padding: 16px;
-      font-size: 1rem; font-weight: 500;
-    }
-    .feature-icon { font-size: 1.5rem; }
-
-    .auth-form-area {
-      width: 480px; display: flex; align-items: center; justify-content: center;
-      padding: 48px; background: $bg-body;
-      @media (max-width: 768px) { width: 100%; }
-      @media (max-width: 480px) { padding: 24px; }
+    .auth-card {
+      width: 100%;
+      max-width: 1150px;
+      background: #ffffff;
+      border-radius: 40px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      display: flex;
+      min-height: 660px;
     }
 
-    .auth-form-container { width: 100%; }
+    .form-col {
+      width: 45%;
+      padding: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-    .back-home {
-      display: inline-block; color: $text-secondary; text-decoration: none;
-      font-size: 0.875rem; margin-bottom: 32px;
-      &:hover { color: $primary; }
+    .hero-col {
+      width: 55%;
+      padding: 28px;
+      display: flex;
+    }
+
+    .hero-inner {
+      flex: 1;
+      border-radius: 24px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-inner img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.18) 48%, transparent 100%);
+    }
+
+    .hero-text {
+      position: absolute;
+      bottom: 44px;
+      left: 44px;
+      right: 44px;
+      color: #fff;
+      z-index: 10;
+    }
+
+    .hero-text h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.22;
+      margin: 0 0 10px;
+    }
+
+    .hero-text p {
+      font-size: 1.05rem;
+      opacity: 0.88;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    @media (max-width: 900px) {
+      .form-col {
+        width: 100%;
+        padding: 48px;
+      }
+      .hero-col {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .auth-page {
+        padding: 0;
+        align-items: flex-start;
+      }
+      .auth-card {
+        border-radius: 0;
+        min-height: 100vh;
+        box-shadow: none;
+      }
+      .form-col {
+        padding: 36px 24px;
+        justify-content: flex-start;
+        padding-top: 52px;
+      }
     }
   `]
 })

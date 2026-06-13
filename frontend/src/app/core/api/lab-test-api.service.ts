@@ -13,9 +13,9 @@ export class LabTestApiService {
 
   getTests(params?: PaginationParams & { categoryId?: string }): Observable<ApiResponse<PaginatedResponse<LabTest>>> {
     let httpParams = new HttpParams();
-    if (params?.pageNumber) httpParams = httpParams.set('pageNumber', params.pageNumber);
-    if (params?.pageSize) httpParams = httpParams.set('pageSize', params.pageSize);
-    if (params?.searchTerm) httpParams = httpParams.set('search', params.searchTerm);
+    if (params?.pageNumber) httpParams = httpParams.set('Page', params.pageNumber);
+    if (params?.pageSize) httpParams = httpParams.set('PageSize', params.pageSize);
+    if (params?.searchTerm) httpParams = httpParams.set('Search', params.searchTerm);
     if (params?.categoryId) httpParams = httpParams.set('categoryId', params.categoryId);
     return this.http.get<ApiResponse<PaginatedResponse<LabTest>>>(this.url, { params: httpParams });
   }
@@ -28,8 +28,12 @@ export class LabTestApiService {
     return this.http.get<ApiResponse<LabTest[]>>(`${this.url}/popular?count=${count}`);
   }
 
-  getCategories(): Observable<ApiResponse<TestCategory[]>> {
-    return this.http.get<ApiResponse<TestCategory[]>>(this.categoryUrl);
+  getCategories(): Observable<PaginatedResponse<TestCategory>> {
+    const params = new HttpParams()
+      .set('Page', 1)
+      .set('PageSize', 100)
+      .set('isActive', true);
+    return this.http.get<PaginatedResponse<TestCategory>>(this.categoryUrl, { params });
   }
 
   searchTests(query: string): Observable<ApiResponse<LabTest[]>> {

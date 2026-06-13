@@ -2,6 +2,7 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { AppointmentApiService } from '../../../core/api/appointment-api.service';
 import { ResultApiService } from '../../../core/api/result-api.service';
 import { PatientApiService } from '../../../core/api/patient-api.service';
+import { RealtimeService } from '../../../core/services/realtime.service';
 import { Appointment } from '../../../core/models/appointment.models';
 import { Report } from '../../../core/models/result.models';
 
@@ -10,6 +11,9 @@ export class PatientDashboardStore {
   private appointmentApi = inject(AppointmentApiService);
   private resultApi = inject(ResultApiService);
   private patientApi = inject(PatientApiService);
+  private realtime = inject(RealtimeService);
+
+  private unsubscribers: (() => void)[] = [];
 
   readonly upcomingAppointment = signal<Appointment | null>(null);
   readonly recentReports = signal<Report[]>([]);
@@ -25,6 +29,20 @@ export class PatientDashboardStore {
     totalResults: this.totalResultsCount(),
     familyMembers: this.familyMembersCount(),
   }));
+
+  connectRealtime(): void {
+    this.realtime.connect('notifications');
+    this.unsubscribers.push(
+      this.realtime.on('notifications', 'appointment:statusChanged', () => this.load()),
+      this.realtime.on('notifications', 'result:released', () => this.load()),
+    );
+  }
+
+  disconnectRealtime(): void {
+    this.unsubscribers.forEach(fn => fn());
+    this.unsubscribers = [];
+    this.realtime.disconnect('notifications');
+  }
 
   load(): void {
     this.isLoading.set(true);

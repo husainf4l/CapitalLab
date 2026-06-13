@@ -1,14 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -28,143 +20,265 @@ function passwordMatchValidator(control: AbstractControl): ValidationErrors | nu
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [
-    RouterLink, ReactiveFormsModule,
-    MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule,
-    MatSelectModule, MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule,
-  ],
+  imports: [RouterLink, ReactiveFormsModule],
   template: `
-    <div class="register-container">
-      <div class="register-header">
-        <h2>Create Your Account</h2>
-        <p>Register as a patient to book appointments and view your results online.</p>
+    <a routerLink="/" class="logo">
+      <img src="/images/hero/logo.png" alt="Capital Lab" class="logo-img">
+    </a>
+
+    <h1 class="headline">Create your<br>account</h1>
+    <p class="subline">Book appointments, view results, and manage your health online.</p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form">
+
+      <div class="row-2">
+        <div class="field">
+          <input type="text" formControlName="firstName" placeholder="First name"
+                 autocomplete="given-name" [class.input-error]="err('firstName')" />
+          @if (err('firstName')) { <span class="err">Required</span> }
+        </div>
+        <div class="field">
+          <input type="text" formControlName="lastName" placeholder="Last name"
+                 autocomplete="family-name" [class.input-error]="err('lastName')" />
+          @if (err('lastName')) { <span class="err">Required</span> }
+        </div>
       </div>
 
-      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="register-form">
-
-        <div class="row-2">
-          <mat-form-field appearance="outline">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" autocomplete="given-name" />
-            @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
-              <mat-error>First name is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" autocomplete="family-name" />
-            @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
-              <mat-error>Last name is required</mat-error>
-            }
-          </mat-form-field>
+      <div class="row-2">
+        <div class="field">
+          <div class="select-wrap">
+            <select formControlName="gender" [class.input-error]="err('gender')" [class.placeholder]="form.get('gender')?.value === ''">
+              <option value="" disabled>Gender</option>
+              <option value="0">Male</option>
+              <option value="1">Female</option>
+            </select>
+            <svg class="chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          @if (err('gender')) { <span class="err">Required</span> }
         </div>
-
-        <div class="row-2">
-          <mat-form-field appearance="outline">
-            <mat-label>Gender</mat-label>
-            <mat-select formControlName="gender">
-              <mat-option [value]="0">Male</mat-option>
-              <mat-option [value]="1">Female</mat-option>
-            </mat-select>
-            @if (form.get('gender')?.hasError('required') && form.get('gender')?.touched) {
-              <mat-error>Gender is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Date of Birth</mat-label>
-            <input matInput [matDatepicker]="dob" formControlName="dateOfBirth" autocomplete="bday" />
-            <mat-datepicker-toggle matIconSuffix [for]="dob" />
-            <mat-datepicker #dob [startAt]="defaultDobStart" startView="multi-year" />
-            @if (form.get('dateOfBirth')?.hasError('required') && form.get('dateOfBirth')?.touched) {
-              <mat-error>Date of birth is required</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <input type="date" formControlName="dateOfBirth"
+                 autocomplete="bday" [class.input-error]="err('dateOfBirth')"
+                 [max]="today" />
+          @if (err('dateOfBirth')) { <span class="err">Required</span> }
         </div>
+      </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Phone Number</mat-label>
-          <input matInput type="tel" formControlName="phone" autocomplete="tel" placeholder="+962 7X XXX XXXX" />
-          <mat-icon matSuffix>phone</mat-icon>
-          @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
-            <mat-error>Phone number is required</mat-error>
-          }
-        </mat-form-field>
+      <div class="field">
+        <input type="tel" formControlName="phone" placeholder="Phone number"
+               autocomplete="tel" [class.input-error]="err('phone')" />
+        @if (err('phone')) { <span class="err">Phone number is required</span> }
+      </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Email Address</mat-label>
-          <input matInput type="email" formControlName="email" autocomplete="email" />
-          <mat-icon matSuffix>email</mat-icon>
-          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-            <mat-error>Email is required</mat-error>
-          }
-          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-            <mat-error>Enter a valid email address</mat-error>
-          }
-        </mat-form-field>
+      <div class="field">
+        <input type="email" formControlName="email" placeholder="Email address"
+               autocomplete="email" [class.input-error]="err('email')" />
+        @if (err('email')) { <span class="err">Enter a valid email address</span> }
+      </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" />
-          <button mat-icon-button matSuffix type="button" (click)="showPassword.set(!showPassword())" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'">
-            <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      <div class="field">
+        <div class="pass-wrap">
+          <input [type]="showPass() ? 'text' : 'password'" formControlName="password"
+                 placeholder="Password (min. 8 characters)" autocomplete="new-password"
+                 [class.input-error]="err('password')" />
+          <button type="button" class="eye-btn" (click)="showPass.set(!showPass())" aria-label="Toggle password">
+            @if (showPass()) {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+            } @else {
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            }
           </button>
-          @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
-            <mat-error>Password is required</mat-error>
-          }
-          @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
-            <mat-error>Password must be at least 8 characters</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Confirm Password</mat-label>
-          <input matInput [type]="showPassword() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" />
-          @if (form.get('confirmPassword')?.hasError('required') && form.get('confirmPassword')?.touched) {
-            <mat-error>Please confirm your password</mat-error>
-          }
-          @if (form.get('confirmPassword')?.hasError('passwordMismatch') && form.get('confirmPassword')?.touched) {
-            <mat-error>Passwords do not match</mat-error>
-          }
-        </mat-form-field>
-
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || loading()" class="submit-btn">
-          @if (loading()) {
-            <mat-spinner diameter="20" />
-          } @else {
-            Create Account
-          }
-        </button>
-      </form>
-
-      <div class="register-footer">
-        <p>Already have an account? <a routerLink="/login">Sign In</a></p>
+        </div>
+        @if (err('password')) { <span class="err">Password must be at least 8 characters</span> }
       </div>
-    </div>
+
+      <div class="field">
+        <input [type]="showPass() ? 'text' : 'password'" formControlName="confirmPassword"
+               placeholder="Confirm password" autocomplete="new-password"
+               [class.input-error]="err('confirmPassword')" />
+        @if (err('confirmPassword')) { <span class="err">Passwords do not match</span> }
+      </div>
+
+      <button type="submit" class="submit-btn" [disabled]="form.invalid || loading()">
+        <span>{{ loading() ? 'Creating account...' : 'Create Account' }}</span>
+        @if (!loading()) {
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        }
+      </button>
+
+    </form>
+
+    <p class="footer-txt">Already have an account? <a routerLink="/login">Sign in</a></p>
   `,
   styles: [`
-    @use '../../../../styles/variables' as *;
-    .register-header {
-      margin-bottom: 28px;
-      h2 { font-size: 1.75rem; margin-bottom: 6px; }
-      p { color: $text-secondary; margin: 0; font-size: 0.9rem; }
+    :host {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
     }
-    .register-form { display: flex; flex-direction: column; gap: 4px; }
-    mat-form-field { width: 100%; }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      margin-bottom: 36px;
+    }
+
+    .logo-img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .headline {
+      font-size: clamp(1.8rem, 3vw, 2.5rem);
+      font-weight: 700;
+      color: #000;
+      line-height: 1.18;
+      letter-spacing: -0.8px;
+      margin: 0 0 10px;
+    }
+
+    .subline {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin: 0 0 28px;
+      line-height: 1.55;
+    }
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .row-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
-      @media (max-width: 480px) { grid-template-columns: 1fr; }
+
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+      }
     }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      background: #fff;
+      font-size: 0.95rem;
+      color: #111827;
+      outline: none;
+      transition: border-color 0.18s;
+      box-sizing: border-box;
+      font-family: inherit;
+
+      &::placeholder { color: #9ca3af; }
+      &:focus { border-color: #000; }
+    }
+
+    input[type="date"] {
+      color: #111827;
+      &::-webkit-datetime-edit-text,
+      &::-webkit-datetime-edit-month-field,
+      &::-webkit-datetime-edit-day-field,
+      &::-webkit-datetime-edit-year-field { color: #111827; }
+    }
+
+    .input-error { border-color: #fca5a5 !important; }
+
+    .select-wrap {
+      position: relative;
+
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 44px;
+        cursor: pointer;
+      }
+
+      select.placeholder { color: #9ca3af; }
+
+      .chevron {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+      }
+    }
+
+    .pass-wrap {
+      position: relative;
+
+      input { padding-right: 52px; }
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      padding: 4px;
+      transition: color 0.15s;
+
+      &:hover { color: #374151; }
+    }
+
+    .err {
+      font-size: 0.78rem;
+      color: #ef4444;
+    }
+
     .submit-btn {
-      width: 100%; height: 48px; font-size: 1rem; margin-top: 8px;
-      display: flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 15px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.18s;
+      margin-top: 4px;
+
+      &:hover:not(:disabled) { background: #111827; }
+      &:disabled { opacity: 0.5; cursor: not-allowed; }
     }
-    .register-footer {
-      margin-top: 24px; text-align: center; color: $text-secondary;
-      a { color: $primary; font-weight: 500; text-decoration: none; }
+
+    .footer-txt {
+      text-align: center;
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin: 14px 0 0;
+
+      a {
+        color: #000;
+        font-weight: 600;
+        text-decoration: none;
+        &:hover { text-decoration: underline; }
+      }
     }
   `]
 })
@@ -175,20 +289,24 @@ export class RegisterComponent {
   private router = inject(Router);
 
   loading = signal(false);
-  showPassword = signal(false);
-  readonly defaultDobStart = new Date(1990, 0, 1);
-  readonly maxDob = new Date();
+  showPass = signal(false);
+  readonly today = new Date().toISOString().split('T')[0];
 
   form = this.fb.group({
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
-    gender: [null as number | null, Validators.required],
-    dateOfBirth: [null as Date | null, Validators.required],
+    gender: ['', Validators.required],
+    dateOfBirth: ['', Validators.required],
     phone: ['', [Validators.required, Validators.maxLength(20)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(200)]],
     password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
     confirmPassword: ['', Validators.required],
   }, { validators: passwordMatchValidator });
+
+  err(field: string): boolean {
+    const c = this.form.get(field);
+    return !!(c?.invalid && c?.touched);
+  }
 
   onSubmit(): void {
     if (this.form.invalid) {
@@ -197,16 +315,14 @@ export class RegisterComponent {
     }
     this.loading.set(true);
     const v = this.form.value;
-    const dob = v.dateOfBirth as Date;
-    const dobStr = `${dob.getFullYear()}-${String(dob.getMonth() + 1).padStart(2, '0')}-${String(dob.getDate()).padStart(2, '0')}`;
 
     this.authService.register({
       firstName: v.firstName!,
       lastName: v.lastName!,
       email: v.email!,
       phone: v.phone!,
-      gender: v.gender!,
-      dateOfBirth: dobStr,
+      gender: Number(v.gender),
+      dateOfBirth: v.dateOfBirth!,
       password: v.password!,
       confirmPassword: v.confirmPassword!,
     }).subscribe({

@@ -1,0 +1,57 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: capitallab_test
+          POSTGRES_USER: capitallab
+          POSTGRES_PASSWORD: capitallab_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U capitallab -d capitallab_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore CapitalLab.sln
+
+      - name: Build
+        run: dotnet build CapitalLab.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test CapitalLab.sln --configuration Release --no-build --verbosity normal
+        env:
+          ASPNETCORE_ENVIRONMENT: Testing
+          ConnectionStrings__DefaultConnection: Host=localhost;Port=5432;Database=capitallab_test;Username=capitallab;Password=capitallab_test
+          ConnectionStrings__Redis: localhost:6379

@@ -7,11 +7,14 @@ using CapitalLab.Infrastructure.Persistence;
 using CapitalLab.Infrastructure.Persistence.Interceptors;
 using CapitalLab.Infrastructure.Persistence.Repositories;
 using CapitalLab.Infrastructure.Services;
+using CapitalLab.Infrastructure.Services.Notifications;
 using CapitalLab.Infrastructure.Services.NumberGeneration;
+using CapitalLab.Infrastructure.Services.Pdf;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -64,6 +67,15 @@ public static class DependencyInjection
                 });
 
             options.UseSnakeCaseNamingConvention();
+
+            if (string.Equals(
+                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                    "Development",
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                options.ConfigureWarnings(warnings =>
+                    warnings.Ignore(RelationalEventId.PendingModelChangesWarning));
+            }
         });
 
         services.AddScoped<IApplicationDbContext>(sp =>
@@ -192,6 +204,16 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        if (string.Equals(
+                Environment.GetEnvironmentVariable("CAPITALLAB_DISABLE_HANGFIRE_SERVER"),
+                "true",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddTransient<CleanupExpiredTokensJob>();
+            services.AddTransient<AppointmentReminderJob>();
+            return services;
+        }
+
         var pgConnection = configuration.GetConnectionString("DefaultConnection")!;
 
         services.AddHangfire(config => config
@@ -208,7 +230,6 @@ public static class DependencyInjection
 
         // Register job classes for DI-based execution
         services.AddTransient<CleanupExpiredTokensJob>();
-        services.AddTransient<InventoryAlertsJob>();
         services.AddTransient<AppointmentReminderJob>();
 
         return services;
@@ -222,6 +243,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<ISystemInfoService, SystemInfoService>();
         services.AddSingleton<IDateTimeService, DateTimeService>();
         services.AddScoped<IFileStorageService, LocalFileStorageService>();
         services.AddScoped<IAuditService, AuditService>();
@@ -229,15 +251,22 @@ public static class DependencyInjection
         services.AddScoped<IPatientNumberService, PatientNumberService>();
         services.AddScoped<IAppointmentNumberService, AppointmentNumberService>();
         services.AddScoped<IOrderNumberService, OrderNumberService>();
-        services.AddScoped<ISampleNumberService, SampleNumberService>();
         services.AddScoped<IReportNumberService, ReportNumberService>();
-        services.AddScoped<IPurchaseOrderNumberService, PurchaseOrderNumberService>();
-        services.AddScoped<IInvoiceNumberService, InvoiceNumberService>();
-        services.AddScoped<IClaimNumberService, ClaimNumberService>();
-        services.AddSingleton<IBarcodeService, Services.Laboratory.BarcodeService>();
         services.AddSingleton<IQrCodeService, Services.Laboratory.QrCodeService>();
         services.AddScoped<IAuthService, Services.AuthService>();
         services.AddScoped<DataSeeder>();
+        services.AddScoped<DemoDataSeeder>();
+
+        // Content scheduling (auto-publish/expire)
+        services.AddHostedService<ContentSchedulingService>();
+
+        // Phase F services
+        services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<ISmsService, SmsService>();
+        services.AddScoped<IWhatsAppService, WhatsAppService>();
+        services.AddScoped<IPushNotificationService, PushNotificationService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IPdfReportService, PdfReportService>();
 
         return services;
     }

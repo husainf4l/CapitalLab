@@ -1,3 +1,4 @@
+import { AppEmptyStateComponent } from '../../../shared/ui/app-empty-state/app-empty-state.component';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,11 +9,12 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { FollowUpsStore } from '../stores/follow-ups.store';
 import { FollowUpCardComponent } from '../shared/follow-up-card.component';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-follow-ups',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatInputModule, FollowUpCardComponent],
+  imports: [FormsModule, CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatInputModule, FollowUpCardComponent, AppEmptyStateComponent, A11yModule],
   template: `
     <div class="page">
       <div class="page-header">
@@ -49,8 +51,8 @@ import { FollowUpCardComponent } from '../shared/follow-up-card.component';
       <!-- Create modal -->
       @if (store.showForm()) {
         <div class="modal-backdrop" (click)="store.showForm.set(false)">
-          <div class="modal-card" (click)="$event.stopPropagation()">
-            <h3>New Follow Up</h3>
+          <div class="modal-card" (click)="$event.stopPropagation()" (keydown.escape)="store.showForm.set(false)" cdkTrapFocus cdkTrapFocusAutoCapture role="dialog" aria-modal="true" aria-labelledby="followup-form-title">
+            <h3 id="followup-form-title">New Follow Up</h3>
             <mat-form-field appearance="outline" class="full">
               <mat-label>Patient ID</mat-label>
               <input matInput [ngModel]="store.formPatientId()" (ngModelChange)="store.formPatientId.set($event)" placeholder="Enter patient ID" />
@@ -87,10 +89,7 @@ import { FollowUpCardComponent } from '../shared/follow-up-card.component';
           @for (i of [1,2,3,4]; track i) { <div class="skel-card"></div> }
         </div>
       } @else if (store.filtered().length === 0) {
-        <div class="empty-state">
-          <mat-icon>schedule_send</mat-icon>
-          <p>No follow ups found</p>
-        </div>
+        <app-empty-state icon="schedule_send" title="No follow-ups found" description="Scheduled patient follow-ups will appear here." />
       } @else {
         <div class="fu-grid">
           @for (fu of store.filtered(); track fu.id) {

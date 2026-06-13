@@ -2,7 +2,7 @@ using CapitalLab.Contracts.Enums;
 
 namespace CapitalLab.Contracts.Laboratory;
 
-public record GenerateReportRequest(Guid? DoctorId);
+public record GenerateReportRequest(Guid PatientId, Guid TestOrderId, Guid? DoctorId);
 
 public record ReportItemResponse(
     Guid Id,

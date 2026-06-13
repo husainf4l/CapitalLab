@@ -16,7 +16,17 @@ export const routes: Routes = [
       { path: 'about', loadComponent: () => import('./features/public/about/about.component').then(m => m.AboutComponent) },
       { path: 'contact', loadComponent: () => import('./features/public/contact/contact.component').then(m => m.ContactComponent) },
       { path: 'faq', loadComponent: () => import('./features/public/faq/faq.component').then(m => m.FaqComponent) },
-      { path: 'health-programs', loadComponent: () => import('./features/public/health-programs/health-programs.component').then(m => m.HealthProgramsComponent) },
+      // Content CMS public routes
+      { path: 'news', loadComponent: () => import('./features/public/news/news.component').then(m => m.NewsComponent) },
+      { path: 'blog', loadComponent: () => import('./features/public/blog/blog.component').then(m => m.BlogComponent) },
+      { path: 'events', loadComponent: () => import('./features/public/events/events.component').then(m => m.EventsComponent) },
+      { path: 'news/:slug', loadComponent: () => import('./features/public/article/article.component').then(m => m.ArticleComponent) },
+      { path: 'article/:slug', loadComponent: () => import('./features/public/article/article.component').then(m => m.ArticleComponent) },
+      { path: 'event/:slug', loadComponent: () => import('./features/public/event-detail/event-detail.component').then(m => m.EventDetailComponent) },
+      // Phase 2: Author pages + Category landing pages
+      { path: 'author/:slug', loadComponent: () => import('./features/public/author/author-page.component').then(m => m.AuthorPageComponent) },
+      { path: 'blog/category/:slug', loadComponent: () => import('./features/public/category/category-page.component').then(m => m.CategoryPageComponent) },
+      { path: 'news/category/:slug', loadComponent: () => import('./features/public/category/category-page.component').then(m => m.CategoryPageComponent) },
     ],
   },
 
@@ -48,27 +58,8 @@ export const routes: Routes = [
       { path: 'appointments', loadComponent: () => import('./features/patient/appointments/patient-appointments.component').then(m => m.PatientAppointmentsComponent) },
       { path: 'home-collection', loadComponent: () => import('./features/patient/home-collection/home-collection.component').then(m => m.HomeCollectionComponent) },
       { path: 'family-members', loadComponent: () => import('./features/patient/family-members/family-members.component').then(m => m.FamilyMembersComponent) },
-      { path: 'payments', loadComponent: () => import('./features/patient/payments/patient-payments.component').then(m => m.PatientPaymentsComponent) },
       { path: 'notifications', loadComponent: () => import('./features/patient/notifications/patient-notifications.component').then(m => m.PatientNotificationsComponent) },
       { path: 'profile', loadComponent: () => import('./features/patient/profile/patient-profile.component').then(m => m.PatientProfileComponent) },
-    ],
-  },
-
-  // Lab staff dashboard
-  {
-    path: 'lab',
-    loadComponent: () => import('./layouts/lab-layout/lab-layout.component').then(m => m.LabLayoutComponent),
-    canActivate: [roleGuard],
-    data: { roles: ['SuperAdmin', 'Owner', 'BranchAdmin', 'LabTechnician', 'Receptionist', 'Doctor'] },
-    children: [
-      { path: '', loadComponent: () => import('./features/lab/overview/lab-overview.component').then(m => m.LabOverviewComponent) },
-      { path: 'appointments', loadComponent: () => import('./features/lab/appointments/lab-appointments.component').then(m => m.LabAppointmentsComponent) },
-      { path: 'orders', loadComponent: () => import('./features/lab/orders/lab-orders.component').then(m => m.LabOrdersComponent) },
-      { path: 'samples', loadComponent: () => import('./features/lab/samples/lab-samples.component').then(m => m.LabSamplesComponent) },
-      { path: 'barcode', loadComponent: () => import('./features/lab/barcode/lab-barcode.component').then(m => m.LabBarcodeComponent) },
-      { path: 'qc', loadComponent: () => import('./features/lab/qc/lab-qc.component').then(m => m.LabQcComponent) },
-      { path: 'results-entry', loadComponent: () => import('./features/lab/results-entry/lab-results-entry.component').then(m => m.LabResultsEntryComponent) },
-      { path: 'doctor-review', loadComponent: () => import('./features/lab/doctor-review/lab-doctor-review.component').then(m => m.LabDoctorReviewComponent) },
     ],
   },
 
@@ -82,8 +73,6 @@ export const routes: Routes = [
       { path: '', loadComponent: () => import('./features/doctor/dashboard/doctor-dashboard.component').then(m => m.DoctorDashboardComponent) },
       { path: 'patients', loadComponent: () => import('./features/doctor/patient-search/patient-search.component').then(m => m.PatientSearchComponent) },
       { path: 'patients/:patientId', loadComponent: () => import('./features/doctor/patient-timeline/patient-timeline.component').then(m => m.PatientTimelineComponent) },
-      { path: 'critical-results', loadComponent: () => import('./features/doctor/critical-results/critical-results.component').then(m => m.CriticalResultsComponent) },
-      { path: 'reviews', loadComponent: () => import('./features/doctor/reviews/review-center.component').then(m => m.ReviewCenterComponent) },
       { path: 'reports', loadComponent: () => import('./features/doctor/reports/report-review.component').then(m => m.ReportReviewComponent) },
       { path: 'follow-ups', loadComponent: () => import('./features/doctor/follow-ups/follow-ups.component').then(m => m.FollowUpsComponent) },
       { path: 'notes', loadComponent: () => import('./features/doctor/notes/doctor-notes.component').then(m => m.DoctorNotesComponent) },
@@ -98,17 +87,37 @@ export const routes: Routes = [
     canActivate: [roleGuard],
     data: { roles: ['SuperAdmin', 'Owner', 'BranchAdmin'] },
     children: [
-      { path: '', redirectTo: 'inventory', pathMatch: 'full' },
-      { path: 'inventory', loadComponent: () => import('./features/admin/inventory/admin-inventory.component').then(m => m.AdminInventoryComponent) },
-      { path: 'purchase-orders', loadComponent: () => import('./features/admin/purchase-orders/admin-purchase-orders.component').then(m => m.AdminPurchaseOrdersComponent) },
-      { path: 'billing', loadComponent: () => import('./features/admin/billing/admin-billing.component').then(m => m.AdminBillingComponent) },
-      { path: 'payments', loadComponent: () => import('./features/admin/payments/admin-payments.component').then(m => m.AdminPaymentsComponent) },
-      { path: 'insurance', loadComponent: () => import('./features/admin/insurance/admin-insurance.component').then(m => m.AdminInsuranceComponent) },
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview', loadComponent: () => import('./features/admin/overview/admin-overview.component').then(m => m.AdminOverviewComponent) },
+      { path: 'packages', loadComponent: () => import('./features/admin/packages/admin-packages.component').then(m => m.AdminPackagesComponent) },
       { path: 'notifications', loadComponent: () => import('./features/admin/notifications/admin-notifications.component').then(m => m.AdminNotificationsComponent) },
       { path: 'audit', loadComponent: () => import('./features/admin/audit/admin-audit.component').then(m => m.AdminAuditComponent) },
-      { path: 'analyzers', loadComponent: () => import('./features/admin/analyzers/admin-analyzers.component').then(m => m.AdminAnalyzersComponent) },
       { path: 'settings', loadComponent: () => import('./features/admin/settings/admin-settings.component').then(m => m.AdminSettingsComponent) },
       { path: 'system-health', loadComponent: () => import('./features/admin/system-health/admin-system-health.component').then(m => m.AdminSystemHealthComponent) },
+      // Content CMS admin routes
+      { path: 'content/posts', loadComponent: () => import('./features/admin/content/posts/admin-content-posts.component').then(m => m.AdminContentPostsComponent) },
+      { path: 'content/posts/new', loadComponent: () => import('./features/admin/content/post-editor/admin-content-post-editor.component').then(m => m.AdminContentPostEditorComponent) },
+      { path: 'content/posts/:slug/edit', loadComponent: () => import('./features/admin/content/post-editor/admin-content-post-editor.component').then(m => m.AdminContentPostEditorComponent) },
+      { path: 'content/categories', loadComponent: () => import('./features/admin/content/categories/admin-content-categories.component').then(m => m.AdminContentCategoriesComponent) },
+      { path: 'content/authors', loadComponent: () => import('./features/admin/content/authors/admin-content-authors.component').then(m => m.AdminContentAuthorsComponent) },
+      { path: 'content/tags', loadComponent: () => import('./features/admin/content/tags/admin-content-tags.component').then(m => m.AdminContentTagsComponent) },
+      { path: 'content/events', loadComponent: () => import('./features/admin/content/events/admin-content-events.component').then(m => m.AdminContentEventsComponent) },
+      // Phase 2: Analytics, Newsletter, FAQ management
+      { path: 'content/analytics', loadComponent: () => import('./features/admin/content/analytics/admin-content-analytics.component').then(m => m.AdminContentAnalyticsComponent) },
+      { path: 'content/newsletter', loadComponent: () => import('./features/admin/content/newsletter/admin-content-newsletter.component').then(m => m.AdminContentNewsletterComponent) },
+      { path: 'content/faq', loadComponent: () => import('./features/admin/content/faq/admin-content-faq.component').then(m => m.AdminContentFaqComponent) },
+    ],
+  },
+
+  // Branch portal
+  {
+    path: 'branch',
+    loadComponent: () => import('./layouts/branch-layout/branch-layout.component').then(m => m.BranchLayoutComponent),
+    canActivate: [roleGuard],
+    data: { roles: ['SuperAdmin', 'Owner', 'BranchAdmin'] },
+    children: [
+      { path: '', loadComponent: () => import('./features/branch/overview/branch-overview.component').then(m => m.BranchOverviewComponent) },
+      { path: 'appointments', loadComponent: () => import('./features/lab/appointments/lab-appointments.component').then(m => m.LabAppointmentsComponent) },
     ],
   },
 
@@ -121,12 +130,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
       { path: 'overview', loadComponent: () => import('./features/owner/overview/owner-overview.component').then(m => m.OwnerOverviewComponent) },
-      { path: 'revenue', loadComponent: () => import('./features/owner/revenue/owner-revenue.component').then(m => m.OwnerRevenueComponent) },
       { path: 'branches', loadComponent: () => import('./features/owner/branches/owner-branches.component').then(m => m.OwnerBranchesComponent) },
       { path: 'tests', loadComponent: () => import('./features/owner/tests/owner-tests.component').then(m => m.OwnerTestsComponent) },
       { path: 'patients', loadComponent: () => import('./features/owner/patients/owner-patients.component').then(m => m.OwnerPatientsComponent) },
-      { path: 'inventory', loadComponent: () => import('./features/owner/inventory/owner-inventory.component').then(m => m.OwnerInventoryComponent) },
-      { path: 'insurance', loadComponent: () => import('./features/owner/insurance/owner-insurance.component').then(m => m.OwnerInsuranceComponent) },
       { path: 'executive', loadComponent: () => import('./features/owner/executive/owner-executive.component').then(m => m.OwnerExecutiveComponent) },
     ],
   },

@@ -22,7 +22,7 @@ import { ToastService } from '../../../core/services/toast.service';
         <mat-form-field appearance="outline">
           <mat-label>New Password</mat-label>
           <input matInput [type]="showPw() ? 'text' : 'password'" formControlName="password" />
-          <button mat-icon-button matSuffix type="button" (click)="showPw.set(!showPw())">
+          <button mat-icon-button matSuffix type="button" [attr.aria-label]="showPw() ? 'Hide password' : 'Show password'" (click)="showPw.set(!showPw())">
             <mat-icon>{{ showPw() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
         </mat-form-field>

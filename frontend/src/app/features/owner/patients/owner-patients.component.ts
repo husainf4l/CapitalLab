@@ -14,12 +14,12 @@ import { OwnerLineChartComponent } from '../shared/line-chart.component';
       <div class="page-header"><div><h2>Patient Analytics</h2><p class="sub">Growth &amp; retention</p></div></div>
 
       <div class="kpi-grid">
-        <owner-kpi-card label="New Patients" icon="person_add" color="#16a34a" [value]="d()?.newPatients ?? 0" sub="this month" [loading]="store.isLoading()" />
-        <owner-kpi-card label="Returning Patients" icon="repeat" color="#4f46e5" [value]="d()?.returningPatients ?? 0" [loading]="store.isLoading()" />
-        <owner-kpi-card label="Family Accounts" icon="family_restroom" color="#8b5cf6" [value]="d()?.familyAccounts ?? 0" [loading]="store.isLoading()" />
+        <owner-kpi-card label="New Patients" icon="person_add" slot="2" [value]="d()?.newPatients ?? 0" sub="this month" [loading]="store.isLoading()" />
+        <owner-kpi-card label="Returning Patients" icon="repeat" slot="1" [value]="d()?.returningPatients ?? 0" [loading]="store.isLoading()" />
+        <owner-kpi-card label="Family Accounts" icon="family_restroom" slot="4" [value]="d()?.familyAccounts ?? 0" [loading]="store.isLoading()" />
       </div>
 
-      <owner-line-chart title="Patient Growth (6 months)" [points]="growthPoints()" color="#4f46e5" />
+      <owner-line-chart title="Patient Growth (6 months)" [points]="growthPoints()" color="var(--chart-1)" />
     </div>
   `,
   styles: [`

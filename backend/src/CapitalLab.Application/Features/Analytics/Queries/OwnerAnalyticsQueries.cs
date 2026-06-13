@@ -1,8 +1,5 @@
 using CapitalLab.Contracts.Analytics;
 using CapitalLab.Contracts.Common;
-using CapitalLab.Domain.Entities.Billing;
-using CapitalLab.Domain.Entities.Insurance;
-using CapitalLab.Domain.Entities.Inventory;
 using CapitalLab.Domain.Entities.Laboratory;
 using CapitalLab.Domain.Entities.Operations;
 using CapitalLab.Domain.Entities.Organization;
@@ -18,44 +15,31 @@ namespace CapitalLab.Application.Features.Analytics.Queries;
 public record GetOwnerOverviewQuery : IRequest<Result<OwnerOverviewResponse>>;
 
 public class GetOwnerOverviewQueryHandler(
-    IRepository<Invoice> invoiceRepo,
-    IRepository<Payment> paymentRepo,
     IRepository<Patient> patientRepo,
     IRepository<TestOrder> orderRepo,
-    IRepository<Appointment> appointmentRepo,
-    IRepository<InventoryItem> inventoryRepo,
-    IRepository<InsuranceClaim> claimRepo)
+    IRepository<Appointment> appointmentRepo)
     : IRequestHandler<GetOwnerOverviewQuery, Result<OwnerOverviewResponse>>
 {
     public async Task<Result<OwnerOverviewResponse>> Handle(GetOwnerOverviewQuery request, CancellationToken ct)
     {
         var monthStart = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        var totalRevenue = await invoiceRepo.Query().SumAsync(i => (decimal?)i.PaidAmount, ct) ?? 0m;
-        var refunds = await paymentRepo.Query().Where(p => p.Status == PaymentStatus.Refunded).SumAsync(p => (decimal?)p.Amount, ct) ?? 0m;
-        var outstanding = await invoiceRepo.Query()
-            .Where(i => i.Status != InvoiceStatus.Cancelled && i.Status != InvoiceStatus.Refunded)
-            .SumAsync(i => (decimal?)i.BalanceAmount, ct) ?? 0m;
-
         var totalPatients = await patientRepo.Query().CountAsync(ct);
         var newPatients = await patientRepo.Query().CountAsync(p => p.CreatedAt >= monthStart, ct);
         var totalTests = await orderRepo.Query().SumAsync(o => (int?)o.Items.Count, ct) ?? 0;
         var totalAppointments = await appointmentRepo.Query().CountAsync(ct);
-        var lowStock = await inventoryRepo.Query().CountAsync(i => i.IsActive && i.CurrentStock <= i.MinimumStock, ct);
-        var pendingClaims = await claimRepo.Query()
-            .CountAsync(c => c.Status == InsuranceClaimStatus.Submitted || c.Status == InsuranceClaimStatus.UnderReview, ct);
 
         var response = new OwnerOverviewResponse(
-            TotalRevenue: Math.Round(totalRevenue, 3),
-            NetRevenue: Math.Round(totalRevenue - refunds, 3),
-            OutstandingBalance: Math.Round(outstanding, 3),
+            TotalRevenue: 0,
+            NetRevenue: 0,
+            OutstandingBalance: 0,
             TotalPatients: totalPatients,
             NewPatients: newPatients,
             TotalTests: totalTests,
             TotalAppointments: totalAppointments,
             AverageTurnaroundHours: 0,
-            LowStockItems: lowStock,
-            PendingInsuranceClaims: pendingClaims);
+            LowStockItems: 0,
+            PendingInsuranceClaims: 0);
 
         return Result<OwnerOverviewResponse>.Success(response);
     }
@@ -64,59 +48,32 @@ public class GetOwnerOverviewQueryHandler(
 // ── Revenue ───────────────────────────────────────────────────────────────────
 public record GetRevenueAnalyticsQuery(int Days = 30) : IRequest<Result<RevenueAnalyticsResponse>>;
 
-public class GetRevenueAnalyticsQueryHandler(
-    IRepository<Payment> paymentRepo,
-    IRepository<Invoice> invoiceRepo,
-    IRepository<Branch> branchRepo)
+public class GetRevenueAnalyticsQueryHandler(IRepository<TestOrder> orderRepo)
     : IRequestHandler<GetRevenueAnalyticsQuery, Result<RevenueAnalyticsResponse>>
 {
     public async Task<Result<RevenueAnalyticsResponse>> Handle(GetRevenueAnalyticsQuery request, CancellationToken ct)
     {
         var since = DateTime.UtcNow.Date.AddDays(-(request.Days <= 0 ? 30 : request.Days));
-        var payments = await paymentRepo.Query()
-            .Where(p => p.Status == PaymentStatus.Completed && p.CreatedAt >= since)
-            .Select(p => new { p.Amount, p.Method, p.BranchId, p.CreatedAt })
+
+        var orders = await orderRepo.Query()
+            .Where(o => o.CreatedAt >= since)
+            .Select(o => new { o.CreatedAt, o.TotalAmount })
             .ToListAsync(ct);
 
-        var daily = payments
-            .GroupBy(p => DateOnly.FromDateTime(p.CreatedAt))
+        var daily = orders
+            .GroupBy(o => DateOnly.FromDateTime(o.CreatedAt))
             .OrderBy(g => g.Key)
-            .Select(g => new TimeSeriesPoint(g.Key.ToString("dd/MM"), Math.Round(g.Sum(x => x.Amount), 3)))
+            .Select(g => new TimeSeriesPoint(g.Key.ToString("dd/MM"), Math.Round(g.Sum(x => x.TotalAmount), 3)))
             .ToList();
-
-        var monthly = payments
-            .GroupBy(p => new { p.CreatedAt.Year, p.CreatedAt.Month })
-            .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
-            .Select(g => new TimeSeriesPoint($"{g.Key.Year}-{g.Key.Month:D2}", Math.Round(g.Sum(x => x.Amount), 3)))
-            .ToList();
-
-        var byMethod = payments
-            .GroupBy(p => p.Method)
-            .Select(g => new NamedAmount(g.Key.ToString(), Math.Round(g.Sum(x => x.Amount), 3), g.Count()))
-            .OrderByDescending(x => x.Amount)
-            .ToList();
-
-        var branches = await branchRepo.Query().Select(b => new { b.Id, b.Name }).ToListAsync(ct);
-        var byBranch = payments
-            .GroupBy(p => p.BranchId)
-            .Select(g => new NamedAmount(
-                branches.FirstOrDefault(b => b.Id == g.Key)?.Name ?? "Unknown",
-                Math.Round(g.Sum(x => x.Amount), 3), g.Count()))
-            .OrderByDescending(x => x.Amount)
-            .ToList();
-
-        var refunds = await paymentRepo.Query()
-            .Where(p => p.Status == PaymentStatus.Refunded && p.CreatedAt >= since)
-            .SumAsync(p => (decimal?)p.Amount, ct) ?? 0m;
 
         var response = new RevenueAnalyticsResponse(
             DailyRevenue: daily,
-            MonthlyRevenue: monthly,
-            RevenueByBranch: byBranch,
+            MonthlyRevenue: [],
+            RevenueByBranch: [],
             RevenueByTest: [],
             RevenueByPackage: [],
-            PaymentMethodBreakdown: byMethod,
-            TotalRefunds: Math.Round(refunds, 3));
+            PaymentMethodBreakdown: [],
+            TotalRefunds: 0);
 
         return Result<RevenueAnalyticsResponse>.Success(response);
     }
@@ -127,34 +84,23 @@ public record GetBranchAnalyticsQuery : IRequest<Result<List<BranchPerformanceRe
 
 public class GetBranchAnalyticsQueryHandler(
     IRepository<Branch> branchRepo,
-    IRepository<Invoice> invoiceRepo,
-    IRepository<TestOrder> orderRepo,
-    IRepository<Sample> sampleRepo)
+    IRepository<TestOrder> orderRepo)
     : IRequestHandler<GetBranchAnalyticsQuery, Result<List<BranchPerformanceResponse>>>
 {
     public async Task<Result<List<BranchPerformanceResponse>>> Handle(GetBranchAnalyticsQuery request, CancellationToken ct)
     {
         var branches = await branchRepo.Query().Select(b => new { b.Id, b.Name }).ToListAsync(ct);
-        var revenue = await invoiceRepo.Query()
-            .GroupBy(i => i.BranchId)
-            .Select(g => new { BranchId = g.Key, Amount = g.Sum(x => x.PaidAmount) })
-            .ToListAsync(ct);
         var orders = await orderRepo.Query()
             .GroupBy(o => o.BranchId)
             .Select(g => new { BranchId = g.Key, Count = g.Count(), PatientCount = g.Select(x => x.PatientId).Distinct().Count() })
             .ToListAsync(ct);
-        var pendingSamples = await sampleRepo.Query()
-            .Where(s => s.Status != SampleStatus.Completed && s.Status != SampleStatus.Rejected)
-            .GroupBy(s => s.BranchId)
-            .Select(g => new { BranchId = g.Key, Count = g.Count() })
-            .ToListAsync(ct);
 
         var result = branches.Select(b => new BranchPerformanceResponse(
             b.Id, b.Name,
-            Math.Round(revenue.FirstOrDefault(r => r.BranchId == b.Id)?.Amount ?? 0m, 3),
+            0m,
             orders.FirstOrDefault(o => o.BranchId == b.Id)?.PatientCount ?? 0,
             orders.FirstOrDefault(o => o.BranchId == b.Id)?.Count ?? 0,
-            pendingSamples.FirstOrDefault(s => s.BranchId == b.Id)?.Count ?? 0,
+            0,
             0)).ToList();
 
         return Result<List<BranchPerformanceResponse>>.Success(result);
@@ -228,62 +174,24 @@ public class GetPatientAnalyticsQueryHandler(
     }
 }
 
-// ── Inventory ─────────────────────────────────────────────────────────────────
+// ── Inventory (stub — module removed) ────────────────────────────────────────
 public record GetInventoryAnalyticsQuery : IRequest<Result<InventoryAnalyticsResponse>>;
 
-public class GetInventoryAnalyticsQueryHandler(
-    IRepository<InventoryItem> itemRepo,
-    IRepository<InventoryTransaction> txRepo)
+public class GetInventoryAnalyticsQueryHandler
     : IRequestHandler<GetInventoryAnalyticsQuery, Result<InventoryAnalyticsResponse>>
 {
-    public async Task<Result<InventoryAnalyticsResponse>> Handle(GetInventoryAnalyticsQuery request, CancellationToken ct)
-    {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var soon = today.AddDays(30);
-
-        var lowStock = await itemRepo.Query().CountAsync(i => i.IsActive && i.CurrentStock <= i.MinimumStock, ct);
-        var expiring = await itemRepo.Query().CountAsync(i => i.IsActive && i.ExpiryDate != null && i.ExpiryDate <= soon, ct);
-        var items = await itemRepo.Query().Where(i => i.IsActive).Select(i => new { i.CurrentStock, i.CostPrice }).ToListAsync(ct);
-        var value = Math.Round(items.Sum(i => i.CurrentStock * i.CostPrice), 3);
-
-        var since = DateTime.UtcNow.AddDays(-30);
-        var movements = await txRepo.Query().Where(t => t.CreatedAt >= since)
-            .Select(t => new { t.CreatedAt, t.TotalCost }).ToListAsync(ct);
-        var movement = movements
-            .GroupBy(t => DateOnly.FromDateTime(t.CreatedAt))
-            .OrderBy(g => g.Key)
-            .Select(g => new TimeSeriesPoint(g.Key.ToString("dd/MM"), Math.Round(g.Sum(x => x.TotalCost), 3)))
-            .ToList();
-
-        return Result<InventoryAnalyticsResponse>.Success(
-            new InventoryAnalyticsResponse(lowStock, expiring, value, movement));
-    }
+    public Task<Result<InventoryAnalyticsResponse>> Handle(GetInventoryAnalyticsQuery request, CancellationToken ct)
+        => Task.FromResult(Result<InventoryAnalyticsResponse>.Success(
+            new InventoryAnalyticsResponse(0, 0, 0, [])));
 }
 
-// ── Insurance ─────────────────────────────────────────────────────────────────
+// ── Insurance (stub — module removed) ────────────────────────────────────────
 public record GetInsuranceAnalyticsQuery : IRequest<Result<InsuranceAnalyticsResponse>>;
 
-public class GetInsuranceAnalyticsQueryHandler(IRepository<InsuranceClaim> claimRepo)
+public class GetInsuranceAnalyticsQueryHandler
     : IRequestHandler<GetInsuranceAnalyticsQuery, Result<InsuranceAnalyticsResponse>>
 {
-    public async Task<Result<InsuranceAnalyticsResponse>> Handle(GetInsuranceAnalyticsQuery request, CancellationToken ct)
-    {
-        var claims = await claimRepo.Query()
-            .Select(c => new { c.Status, c.ClaimAmount, c.ApprovedAmount })
-            .ToListAsync(ct);
-
-        var submitted = claims.Count(c => c.Status == InsuranceClaimStatus.Submitted || c.Status == InsuranceClaimStatus.UnderReview);
-        var approved = claims.Count(c => c.Status == InsuranceClaimStatus.Approved || c.Status == InsuranceClaimStatus.PartiallyApproved);
-        var rejected = claims.Count(c => c.Status == InsuranceClaimStatus.Rejected);
-        var pendingAmount = Math.Round(claims
-            .Where(c => c.Status == InsuranceClaimStatus.Submitted || c.Status == InsuranceClaimStatus.UnderReview)
-            .Sum(c => c.ClaimAmount), 3);
-        var approvedAmount = Math.Round(claims
-            .Where(c => c.Status == InsuranceClaimStatus.Approved || c.Status == InsuranceClaimStatus.PartiallyApproved)
-            .Sum(c => c.ApprovedAmount), 3);
-        var paidAmount = Math.Round(claims.Where(c => c.Status == InsuranceClaimStatus.Paid).Sum(c => c.ApprovedAmount), 3);
-
-        return Result<InsuranceAnalyticsResponse>.Success(
-            new InsuranceAnalyticsResponse(submitted, approved, rejected, pendingAmount, approvedAmount, paidAmount));
-    }
+    public Task<Result<InsuranceAnalyticsResponse>> Handle(GetInsuranceAnalyticsQuery request, CancellationToken ct)
+        => Task.FromResult(Result<InsuranceAnalyticsResponse>.Success(
+            new InsuranceAnalyticsResponse(0, 0, 0, 0, 0, 0)));
 }

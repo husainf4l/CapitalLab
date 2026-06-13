@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-about',
   standalone: true,
-  imports: [MatButtonModule],
+  imports: [MatButtonModule, MatIconModule],
   template: `
     <div class="about-page">
       <div class="page-hero">
         <div class="container">
           <h1>About Capital Lab</h1>
-          <p>Leading diagnostic laboratory serving families since 2010</p>
+          <p>Diagnostic laboratory services for accurate, timely health insights</p>
         </div>
       </div>
       <div class="container page-body">
@@ -21,14 +22,14 @@ import { MatButtonModule } from '@angular/material/button';
             <h2>Our Vision</h2>
             <p>To be the most trusted and accessible diagnostic laboratory network in the region, delivering world-class results with compassion and precision.</p>
             <div class="stats-row">
-              <div class="about-stat"><strong>500+</strong><span>Tests Available</span></div>
-              <div class="about-stat"><strong>100K+</strong><span>Patients Served</span></div>
-              <div class="about-stat"><strong>15+</strong><span>Branches</span></div>
-              <div class="about-stat"><strong>14</strong><span>Years of Excellence</span></div>
+              <div class="about-stat"><strong>0</strong><span>Tests Available</span></div>
+              <div class="about-stat"><strong>0</strong><span>Patients Served</span></div>
+              <div class="about-stat"><strong>0</strong><span>Branches</span></div>
+              <div class="about-stat"><strong>0</strong><span>Production Metrics</span></div>
             </div>
           </div>
           <div class="about-image">
-            <div class="image-placeholder">🔬</div>
+            <div class="image-placeholder"><mat-icon>biotech</mat-icon></div>
           </div>
         </div>
       </div>

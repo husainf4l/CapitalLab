@@ -1,0 +1,14 @@
+{
+  "name": "capitallab-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "test": "playwright test",
+    "e2e:local": "./scripts/run-local-e2e.sh",
+    "e2e:headed": "PLAYWRIGHT_HEADED=true ./scripts/run-local-e2e.sh",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}

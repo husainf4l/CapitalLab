@@ -1,0 +1,73 @@
+global:
+  resolve_timeout: 5m
+  smtp_from: 'alerts@capitallab.sa'
+  smtp_smarthost: '${SMTP_HOST}:${SMTP_PORT}'
+  smtp_auth_username: '${SMTP_USERNAME}'
+  smtp_auth_password: '${SMTP_PASSWORD}'
+  smtp_require_tls: true
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+route:
+  receiver: ops-team
+  group_by: ['alertname', 'severity']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+
+  routes:
+    # Critical alerts page immediately, no grouping delay
+    - matchers:
+        - severity = critical
+      receiver: ops-critical
+      group_wait: 0s
+      repeat_interval: 1h
+
+    # Infrastructure alerts go to ops + on-call
+    - matchers:
+        - team = backend
+      receiver: ops-team
+      repeat_interval: 4h
+
+inhibit_rules:
+  # Suppress warning-level errors when a critical is already firing for the same service
+  - source_matchers:
+      - severity = critical
+    target_matchers:
+      - severity = warning
+    equal: ['alertname']
+
+receivers:
+  - name: ops-team
+    email_configs:
+      - to: 'ops@capitallab.sa'
+        send_resolved: true
+        headers:
+          Subject: '[CapitalLab] {{ .Status | toUpper }} — {{ .CommonLabels.alertname }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Details: {{ .Annotations.description }}
+          Severity: {{ .Labels.severity }}
+          Started: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ if .EndsAt }}Resolved: {{ .EndsAt.Format "2006-01-02 15:04:05 UTC" }}{{ end }}
+          {{ end }}
+
+  - name: ops-critical
+    email_configs:
+      - to: 'ops@capitallab.sa, oncall@capitallab.sa'
+        send_resolved: true
+        headers:
+          Subject: '[CapitalLab] CRITICAL — {{ .CommonLabels.alertname }}'
+    webhook_configs:
+      - url: '${SLACK_WEBHOOK_URL}'
+        send_resolved: true
+        http_config: {}
+        title: '{{ .Status | toUpper }}: {{ .CommonLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          *{{ .Annotations.summary }}*
+          {{ .Annotations.description }}
+          Severity: `{{ .Labels.severity }}`
+          {{ end }}

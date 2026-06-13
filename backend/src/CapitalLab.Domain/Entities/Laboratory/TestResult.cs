@@ -22,8 +22,6 @@ public class TestResult : AggregateRoot
     public DateTime? ApprovedAt { get; private set; }
     public bool IsCritical { get; private set; }
 
-    public Sample Sample { get; private set; } = null!;
-
     private TestResult() { }
 
     public static TestResult Create(

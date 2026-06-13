@@ -2,7 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { OwnerAnalyticsApiService } from '../../../core/api/owner-analytics-api.service';
 import {
   OwnerOverview, RevenueAnalytics, BranchPerformance, TestAnalytics,
-  PatientAnalytics, InventoryAnalytics, InsuranceAnalytics,
+  PatientAnalytics,
 } from '../../../core/models/owner-analytics.models';
 
 const EMPTY_OVERVIEW: OwnerOverview = {
@@ -92,32 +92,3 @@ export class OwnerPatientsStore {
   }
 }
 
-@Injectable({ providedIn: 'root' })
-export class OwnerInventoryStore {
-  private api = inject(OwnerAnalyticsApiService);
-  readonly data = signal<InventoryAnalytics | null>(null);
-  readonly isLoading = signal(false);
-
-  load(): void {
-    this.isLoading.set(true);
-    this.api.getInventory().subscribe({
-      next: res => { this.data.set(res.data ?? null); this.isLoading.set(false); },
-      error: () => this.isLoading.set(false),
-    });
-  }
-}
-
-@Injectable({ providedIn: 'root' })
-export class OwnerInsuranceStore {
-  private api = inject(OwnerAnalyticsApiService);
-  readonly data = signal<InsuranceAnalytics | null>(null);
-  readonly isLoading = signal(false);
-
-  load(): void {
-    this.isLoading.set(true);
-    this.api.getInsurance().subscribe({
-      next: res => { this.data.set(res.data ?? null); this.isLoading.set(false); },
-      error: () => this.isLoading.set(false),
-    });
-  }
-}

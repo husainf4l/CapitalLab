@@ -21,18 +21,18 @@ public static class HangfireJobService
             "0 2 * * *",
             new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
-        // Daily at 06:00 UTC
-        RecurringJob.AddOrUpdate<InventoryAlertsJob>(
-            "inventory-alerts",
-            job => job.ExecuteAsync(CancellationToken.None),
-            "0 6 * * *",
-            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
-
         // Every 15 minutes
         RecurringJob.AddOrUpdate<AppointmentReminderJob>(
             "appointment-reminders",
             job => job.ExecuteAsync(CancellationToken.None),
             "*/15 * * * *",
+            new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
+
+        // Every 5 minutes — retry failed notifications
+        RecurringJob.AddOrUpdate<NotificationRetryJob>(
+            "notification-retry",
+            job => job.ExecuteAsync(CancellationToken.None),
+            "*/5 * * * *",
             new RecurringJobOptions { TimeZone = TimeZoneInfo.Utc });
 
         logger.LogInformation("Hangfire recurring jobs registered successfully");

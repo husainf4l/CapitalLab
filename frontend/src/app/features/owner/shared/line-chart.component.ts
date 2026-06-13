@@ -1,12 +1,13 @@
 import { Component, input, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface LinePoint { label: string; value: number; }
 
 @Component({
   selector: 'owner-line-chart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatIconModule],
   template: `
     <div class="chart-card">
       <div class="chart-header">
@@ -24,7 +25,7 @@ export interface LinePoint { label: string; value: number; }
 
       @if (points().length < 2) {
         <div class="no-data">
-          <span class="no-data-icon">📊</span>
+          <mat-icon class="no-data-icon">bar_chart</mat-icon>
           <span>Waiting for data…</span>
         </div>
       } @else {

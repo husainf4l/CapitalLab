@@ -9,12 +9,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CapitalLab.Application.Features.Reports.Commands;
 
-public record GenerateReportCommand(Guid SampleId, Guid? DoctorId) : IRequest<Result<Guid>>;
+public record GenerateReportCommand(
+    Guid SampleId,
+    Guid PatientId,
+    Guid TestOrderId,
+    Guid? DoctorId) : IRequest<Result<Guid>>;
+
 public record ReleaseReportCommand(Guid Id) : IRequest<Result>;
 
 public class GenerateReportCommandHandler(
     IRepository<Report> reportRepo,
-    IRepository<Sample> sampleRepo,
     IRepository<TestResult> resultRepo,
     IRepository<LabTest> labTestRepo,
     IReportNumberService reportNumberService,
@@ -24,11 +28,8 @@ public class GenerateReportCommandHandler(
 {
     public async Task<Result<Guid>> Handle(GenerateReportCommand request, CancellationToken cancellationToken)
     {
-        var sample = await sampleRepo.GetByIdAsync(request.SampleId, cancellationToken)
-            ?? throw new NotFoundException(nameof(Sample), request.SampleId);
-
         var results = await resultRepo.Query()
-            .Where(r => r.SampleId == sample.Id)
+            .Where(r => r.SampleId == request.SampleId)
             .ToListAsync(cancellationToken);
 
         if (results.Count == 0)
@@ -40,10 +41,10 @@ public class GenerateReportCommandHandler(
             .ToDictionaryAsync(t => t.Id, t => t.Name, cancellationToken);
 
         var reportNumber = await reportNumberService.GenerateNextAsync(clock.UtcToday, cancellationToken);
-        var qr = qrCodeService.GenerateVerification($"report:{sample.TestOrderId}:{sample.Id}");
+        var qr = qrCodeService.GenerateVerification($"report:{request.TestOrderId}:{request.SampleId}");
 
         var report = Report.Generate(
-            reportNumber, sample.PatientId, sample.Id, sample.TestOrderId, request.DoctorId, clock.UtcNow, qr.Value);
+            reportNumber, request.PatientId, request.SampleId, request.TestOrderId, request.DoctorId, clock.UtcNow, qr.Value);
 
         foreach (var r in results)
         {

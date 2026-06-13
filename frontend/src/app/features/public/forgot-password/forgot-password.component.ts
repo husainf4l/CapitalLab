@@ -21,7 +21,7 @@ import { ToastService } from '../../../core/services/toast.service';
 
       @if (sent()) {
         <div class="success-box">
-          <div class="success-icon">✉️</div>
+          <div class="success-icon"><mat-icon>mark_email_read</mat-icon></div>
           <h3>Check Your Email</h3>
           <p>We sent a password reset link to your email address.</p>
           <a routerLink="/login">Back to Login</a>
@@ -53,7 +53,7 @@ import { ToastService } from '../../../core/services/toast.service';
     .back-link { text-align: center; color: $primary; text-decoration: none; font-size: 0.875rem; }
     .success-box {
       text-align: center; padding: 32px; background: #dcfce7; border-radius: $border-radius; border: 1px solid #86efac;
-      .success-icon { font-size: 3rem; margin-bottom: 16px; }
+      .success-icon { margin-bottom: 16px; mat-icon { font-size: 52px !important; width: 52px !important; height: 52px !important; color: $primary; } }
       h3 { color: $success; margin-bottom: 8px; }
       p { color: $text-secondary; margin-bottom: 16px; }
       a { color: $primary; text-decoration: none; font-weight: 500; }

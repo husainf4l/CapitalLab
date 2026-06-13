@@ -77,7 +77,7 @@ import { AppBadgeComponent } from '../../../shared/ui/app-badge/app-badge.compon
                   </div>
                 </div>
                 @if (test.preparationInstructions) {
-                  <p class="prep-note">⚠️ {{ test.preparationInstructions }}</p>
+                  <p class="prep-note"><mat-icon>warning</mat-icon> {{ test.preparationInstructions }}</p>
                 }
                 <div class="test-footer">
                   <div class="test-price">SAR {{ test.price | number }}</div>
@@ -146,7 +146,7 @@ import { AppBadgeComponent } from '../../../shared/ui/app-badge/app-badge.compon
       mat-icon { font-size: 14px; width: 14px; height: 14px; }
     }
 
-    .prep-note { font-size: 0.8rem; color: $warning; background: #fef3c7; padding: 8px; border-radius: 8px; margin: 0; }
+    .prep-note { font-size: 0.8rem; color: $warning; background: #fef3c7; padding: 8px; border-radius: 8px; margin: 0; display: flex; align-items: flex-start; gap: 6px; mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; } }
 
     .test-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
     .test-price { font-size: 1.25rem; font-weight: 700; color: $primary; }
@@ -179,7 +179,7 @@ export class TestsComponent implements OnInit {
 
   loadCategories(): void {
     this.labTestApi.getCategories().subscribe({
-      next: res => this.categories.set(res.data ?? []),
+      next: res => this.categories.set(res.items ?? []),
       error: () => {},
     });
   }

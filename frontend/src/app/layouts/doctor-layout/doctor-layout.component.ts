@@ -26,8 +26,7 @@ interface DoctorNavItem {
       <aside class="doctor-sidebar" [class.collapsed]="collapsed()">
         <div class="sidebar-header">
           <a routerLink="/doctor" class="doc-logo">
-            <div class="logo-icon">👨‍⚕️</div>
-            @if (!collapsed()) { <span class="logo-text">Doctor Portal</span> }
+            @if (!collapsed()) { <img src="/images/hero/logo.png" alt="Capital Lab" class="brand-logo"> }
           </a>
           <button class="collapse-btn" (click)="collapsed.set(!collapsed())">
             <mat-icon>{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
@@ -72,7 +71,7 @@ interface DoctorNavItem {
       <!-- Main -->
       <div class="doctor-main" [class.collapsed]="collapsed()">
         <header class="doctor-topbar">
-          <button mat-icon-button class="mobile-menu-btn">
+          <button mat-icon-button class="mobile-menu-btn" aria-label="Toggle doctor navigation">
             <mat-icon>menu</mat-icon>
           </button>
           <div class="topbar-center">
@@ -85,7 +84,7 @@ interface DoctorNavItem {
               <mat-icon>medical_services</mat-icon>
               @if (!collapsed()) { <span>{{ roleLabel() }}</span> }
             </div>
-            <button mat-icon-button [matMenuTriggerFor]="userMenu">
+            <button mat-icon-button aria-label="Open user menu" [matMenuTriggerFor]="userMenu">
               <div class="user-avatar">{{ doctorInitial() }}</div>
             </button>
             <mat-menu #userMenu>
@@ -126,10 +125,10 @@ interface DoctorNavItem {
     $doc-sidebar-collapsed: 68px;
     $topbar-h: 60px;
     $bottom-nav-h: 60px;
-    $doc-accent: #4f46e5;
-    $doc-accent-light: #e0e7ff;
+    $doc-accent: $primary;
+    $doc-accent-light: $primary-light;
 
-    .doctor-layout { display: flex; min-height: 100vh; }
+    .doctor-layout { display: flex; min-height: 100vh; font-family: $font-family; }
 
     // ── Sidebar ────────────────────────────────────────────────────────────────
     .doctor-sidebar {
@@ -144,9 +143,8 @@ interface DoctorNavItem {
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 14px; height: $topbar-h; border-bottom: 1px solid $border-color;
     }
-    .doc-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: $text-primary; overflow: hidden; }
-    .logo-icon { font-size: 1.4rem; flex-shrink: 0; }
-    .logo-text { font-weight: 700; font-size: 0.95rem; white-space: nowrap; }
+    .doc-logo { display: flex; align-items: center; flex: 1; min-width: 0; text-decoration: none; overflow: hidden; }
+    .brand-logo { height: 34px; width: auto; object-fit: contain; }
     .collapse-btn { background: none; border: none; cursor: pointer; color: $text-secondary; border-radius: 6px; padding: 4px; display: flex; transition: 0.2s;
       &:hover { background: $gray-100; color: $doc-accent; }
     }
@@ -232,8 +230,6 @@ export class DoctorLayoutComponent {
   navItems: DoctorNavItem[] = [
     { label: 'Dashboard',       icon: 'dashboard',          route: '/doctor' },
     { label: 'Patient Timeline', icon: 'timeline',           route: '/doctor/patients', dividerBefore: true },
-    { label: 'Critical Results', icon: 'priority_high',      route: '/doctor/critical-results' },
-    { label: 'Pending Reviews',  icon: 'pending_actions',    route: '/doctor/reviews' },
     { label: 'Reports',          icon: 'description',        route: '/doctor/reports', dividerBefore: true },
     { label: 'Follow Ups',       icon: 'schedule_send',      route: '/doctor/follow-ups' },
     { label: 'Notes',            icon: 'sticky_note_2',      route: '/doctor/notes' },
@@ -243,9 +239,9 @@ export class DoctorLayoutComponent {
   mobileNavItems = [
     { label: 'Dashboard',  icon: 'dashboard',      route: '/doctor' },
     { label: 'Timeline',   icon: 'timeline',       route: '/doctor/patients' },
-    { label: 'Critical',   icon: 'priority_high',  route: '/doctor/critical-results' },
-    { label: 'Reviews',    icon: 'pending_actions', route: '/doctor/reviews' },
     { label: 'Reports',    icon: 'description',    route: '/doctor/reports' },
+    { label: 'Follow Ups', icon: 'schedule_send',  route: '/doctor/follow-ups' },
+    { label: 'Analytics',  icon: 'bar_chart',      route: '/doctor/analytics' },
   ];
 
   doctorInitial(): string {

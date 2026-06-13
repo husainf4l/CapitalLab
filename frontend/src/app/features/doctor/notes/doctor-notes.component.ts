@@ -1,3 +1,4 @@
+import { AppEmptyStateComponent } from '../../../shared/ui/app-empty-state/app-empty-state.component';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -10,11 +11,12 @@ import { DoctorNotesStore } from '../stores/doctor-notes.store';
 import { DoctorNoteCardComponent } from '../shared/doctor-note-card.component';
 import { NoteType, NOTE_TYPE_LABELS } from '../../../core/models/doctor-note.models';
 import { DoctorNote } from '../../../core/models/doctor-note.models';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-doctor-notes',
   standalone: true,
-  imports: [FormsModule, CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatInputModule, DoctorNoteCardComponent],
+  imports: [FormsModule, CommonModule, MatButtonModule, MatIconModule, MatSelectModule, MatFormFieldModule, MatInputModule, DoctorNoteCardComponent, AppEmptyStateComponent, A11yModule],
   template: `
     <div class="page">
       <div class="page-header">
@@ -47,8 +49,8 @@ import { DoctorNote } from '../../../core/models/doctor-note.models';
       <!-- Form modal -->
       @if (showForm()) {
         <div class="modal-backdrop" (click)="closeForm()">
-          <div class="modal-card" (click)="$event.stopPropagation()">
-            <h3>{{ store.editingNote() ? 'Edit Note' : 'New Medical Note' }}</h3>
+          <div class="modal-card" (click)="$event.stopPropagation()" (keydown.escape)="closeForm()" cdkTrapFocus cdkTrapFocusAutoCapture role="dialog" aria-modal="true" aria-labelledby="notes-form-title">
+            <h3 id="notes-form-title">{{ store.editingNote() ? 'Edit Note' : 'New Medical Note' }}</h3>
 
             @if (!store.editingNote()) {
               <mat-form-field appearance="outline" class="full">
@@ -91,11 +93,9 @@ import { DoctorNote } from '../../../core/models/doctor-note.models';
           @for (i of [1,2,3,4]; track i) { <div class="skel-card"></div> }
         </div>
       } @else if (store.notes().length === 0) {
-        <div class="empty-state">
-          <mat-icon>sticky_note_2</mat-icon>
-          <p>No notes yet</p>
+        <app-empty-state icon="sticky_note_2" title="No notes yet" description="Clinical notes you add for patients will appear here.">
           <button mat-stroked-button (click)="openCreate()"><mat-icon>add</mat-icon> Add First Note</button>
-        </div>
+        </app-empty-state>
       } @else {
         <div class="notes-grid">
           @for (note of store.notes(); track note.id) {

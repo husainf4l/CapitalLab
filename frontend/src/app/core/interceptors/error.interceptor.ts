@@ -4,6 +4,7 @@ import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { ToastService } from '../services/toast.service';
 import { TokenStorageService } from '../services/token-storage.service';
+import { environment } from '../../../environments/environment';
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -18,15 +19,19 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           break;
         case 401:
           tokenStorage.clearTokens();
-          toast.error('Session expired. Please log in again.');
-          router.navigate(['/login']);
+          toast.error(extractMessage(error, 'Session expired. Please log in again.'));
+          if (!req.url.includes('/auth/login')) {
+            router.navigate(['/login']);
+          }
           break;
         case 403:
           toast.error('You do not have permission to perform this action.');
           router.navigate(['/']);
           break;
         case 404:
-          toast.error('The requested resource was not found.');
+          toast.error(environment.production
+            ? 'The requested resource was not found.'
+            : `The requested resource was not found: ${req.url}`);
           break;
         case 500:
           toast.error('A server error occurred. Please try again later.');

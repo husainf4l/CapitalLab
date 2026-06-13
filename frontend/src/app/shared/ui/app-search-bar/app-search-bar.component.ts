@@ -7,18 +7,21 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports: [FormsModule, MatIconModule],
   template: `
-    <div class="search-bar">
-      <mat-icon class="search-icon">search</mat-icon>
+    <div class="search-bar" role="search">
+      <mat-icon class="search-icon" aria-hidden="true">search</mat-icon>
       <input
-        type="text"
+        type="search"
+        [id]="inputId"
         [placeholder]="placeholder()"
+        [attr.aria-label]="ariaLabel() || placeholder()"
         [(ngModel)]="value"
         (ngModelChange)="searched.emit($event)"
         class="search-input"
+        autocomplete="off"
       />
       @if (value) {
-        <button class="clear-btn" (click)="value = ''; searched.emit('')">
-          <mat-icon>close</mat-icon>
+        <button class="clear-btn" (click)="value = ''; searched.emit('')" aria-label="Clear search">
+          <mat-icon aria-hidden="true">close</mat-icon>
         </button>
       }
     </div>
@@ -47,6 +50,8 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class AppSearchBarComponent {
   placeholder = input('Search...');
+  ariaLabel  = input('');
   value = '';
+  inputId = `search-${Math.random().toString(36).slice(2, 8)}`;
   searched = output<string>();
 }

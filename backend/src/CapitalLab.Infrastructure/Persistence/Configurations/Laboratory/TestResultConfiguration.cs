@@ -29,9 +29,5 @@ public class TestResultConfiguration : AuditableEntityConfiguration<TestResult>
         builder.HasIndex(r => r.Status).HasDatabaseName("ix_test_results_status");
         builder.HasIndex(r => new { r.PatientId, r.LabTestId }).HasDatabaseName("ix_test_results_patient_lab_test");
 
-        builder.HasOne(r => r.Sample)
-            .WithMany()
-            .HasForeignKey(r => r.SampleId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

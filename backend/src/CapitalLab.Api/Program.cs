@@ -21,7 +21,29 @@ try
 {
     Log.Information("Starting Capital Lab API");
 
-    var builder = WebApplication.CreateBuilder(args);
+    var builder = WebApplication.CreateEmptyBuilder(new WebApplicationOptions
+    {
+        Args = args,
+        ContentRootPath = AppContext.BaseDirectory,
+        EnvironmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+            ?? Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT")
+            ?? (AppDomain.CurrentDomain.GetAssemblies()
+                .Any(assembly => assembly.GetName().Name == "Microsoft.AspNetCore.Mvc.Testing")
+                ? "Testing"
+                : null)
+            ?? Environments.Production,
+        ApplicationName = typeof(Program).Assembly.FullName
+    });
+    builder.Configuration
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: false)
+        .AddEnvironmentVariables()
+        .AddCommandLine(args);
+    builder.Logging.AddConsole();
+    builder.WebHost.UseKestrel();
+    var configuredUrls = builder.Configuration["ASPNETCORE_URLS"] ?? builder.Configuration["urls"];
+    if (!string.IsNullOrWhiteSpace(configuredUrls))
+        builder.WebHost.UseUrls(configuredUrls);
 
     // ─── Serilog ─────────────────────────────────────────────────────────────
     if (!builder.Environment.IsEnvironment("Testing"))
@@ -40,6 +62,7 @@ try
     }
 
     // ─── Application & Infrastructure ────────────────────────────────────────
+    builder.ValidateProductionConfiguration();
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -125,8 +148,28 @@ try
     // ─── Build App ───────────────────────────────────────────────────────────
     var app = builder.Build();
 
+    // ─── Explicit Demo Data Command ──────────────────────────────────────────
+    if (args.Contains("--seed-demo-data", StringComparer.OrdinalIgnoreCase))
+    {
+        using var seedScope = app.Services.CreateScope();
+        var dbContext = seedScope.ServiceProvider
+            .GetRequiredService<CapitalLab.Infrastructure.Persistence.ApplicationDbContext>();
+
+        await dbContext.Database.MigrateAsync();
+        await seedScope.ServiceProvider.GetRequiredService<DataSeeder>().SeedAsync();
+        await seedScope.ServiceProvider.GetRequiredService<DemoDataSeeder>().SeedAsync();
+
+        Log.Information("Demo data seeding completed");
+        return;
+    }
+
     // ─── Auto-migrate database on startup ────────────────────────────────────
-    if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
+    var skipStartupMigrations = string.Equals(
+        Environment.GetEnvironmentVariable("CAPITALLAB_SKIP_MIGRATIONS"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    if (!skipStartupMigrations && (app.Environment.IsDevelopment() || app.Environment.IsStaging()))
     {
         using var scope = app.Services.CreateScope();
         var dbContext = scope.ServiceProvider
@@ -141,8 +184,14 @@ try
 
     // ─── Middleware Pipeline ─────────────────────────────────────────────────
     app.UseMiddleware<GlobalExceptionMiddleware>();
+    app.UseMiddleware<SecurityHeadersMiddleware>();
 
-    if (!app.Environment.IsEnvironment("Testing"))
+    var hangfireDisabled = string.Equals(
+        Environment.GetEnvironmentVariable("CAPITALLAB_DISABLE_HANGFIRE_SERVER"),
+        "true",
+        StringComparison.OrdinalIgnoreCase);
+
+    if (!app.Environment.IsEnvironment("Testing") && !hangfireDisabled)
     {
         app.UseSerilogRequestLogging(options =>
         {
@@ -179,7 +228,7 @@ try
     // Health checks
     app.MapCapitalLabHealthChecks();
 
-    if (!app.Environment.IsEnvironment("Testing"))
+    if (!app.Environment.IsEnvironment("Testing") && !hangfireDisabled)
     {
         // Hangfire dashboard (SuperAdmin only in production)
         app.UseHangfireDashboard("/hangfire", new DashboardOptions

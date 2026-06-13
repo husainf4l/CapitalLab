@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, computed } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { PatientTimelineStore } from '../stores/patient-timeline.store';
 import { PatientSummaryCardComponent } from '../shared/patient-summary-card.component';
 import { MedicalTimelineComponent } from '../shared/medical-timeline.component';
+import { BreadcrumbComponent } from '../../../shared/ui/breadcrumb/breadcrumb.component';
 
 const FILTERS = [
   { key: 'all',         label: 'All',         icon: 'view_list' },
@@ -21,18 +22,19 @@ const FILTERS = [
 @Component({
   selector: 'app-patient-timeline',
   standalone: true,
-  imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule, PatientSummaryCardComponent, MedicalTimelineComponent],
+  imports: [RouterLink, CommonModule, MatButtonModule, MatIconModule, PatientSummaryCardComponent, MedicalTimelineComponent, BreadcrumbComponent],
   template: `
     <div class="page">
+      <app-breadcrumb [items]="breadcrumbs()" />
       <div class="page-header">
-        <button mat-icon-button routerLink="/doctor/patients"><mat-icon>arrow_back</mat-icon></button>
+        <button mat-icon-button routerLink="/doctor/patients" aria-label="Back to patients"><mat-icon>arrow_back</mat-icon></button>
         <div class="header-text">
           <h2>Patient Timeline</h2>
           @if (store.patient()) {
             <p class="sub">{{ store.patient()!.fullName }} · {{ store.filteredEvents().length }} events</p>
           }
         </div>
-        <button mat-icon-button (click)="reload()"><mat-icon>refresh</mat-icon></button>
+        <button mat-icon-button (click)="reload()" aria-label="Refresh timeline"><mat-icon>refresh</mat-icon></button>
       </div>
 
       <div class="layout">
@@ -127,6 +129,12 @@ export class PatientTimelineComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
 
   filters = FILTERS;
+
+  breadcrumbs = computed(() => [
+    { label: 'Dashboard', route: '/doctor' },
+    { label: 'Search Patients', route: '/doctor/patients' },
+    { label: this.store.patient()?.fullName ?? 'Patient Timeline' },
+  ]);
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('patientId') ?? '';

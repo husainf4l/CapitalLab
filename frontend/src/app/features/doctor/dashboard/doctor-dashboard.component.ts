@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { DoctorDashboardStore } from '../stores/doctor-dashboard.store';
 import { AuthService } from '../../../core/services/auth.service';
+import { ColorTokens as CT } from '../../../core/constants/color-tokens';
 import { Patient } from '../../../core/models/patient.models';
 
 @Component({
@@ -21,7 +22,7 @@ import { Patient } from '../../../core/models/patient.models';
           <h2>Good {{ greeting() }}, {{ firstName() }}</h2>
           <p class="sub">{{ today | date:'EEEE, d MMMM yyyy' }}</p>
         </div>
-        <button mat-icon-button (click)="store.load()"><mat-icon>refresh</mat-icon></button>
+        <button mat-icon-button (click)="store.load()" aria-label="Refresh"><mat-icon>refresh</mat-icon></button>
       </div>
 
       <!-- KPI Cards -->
@@ -160,20 +161,17 @@ export class DoctorDashboardComponent implements OnInit {
   kpiCardList() {
     const s = this.store.stats();
     return [
-      { label: 'Pending Reviews',   icon: 'pending_actions', color: '#4f46e5', value: s.pendingReviews,       route: '/doctor/reviews',          alert: false },
-      { label: 'Critical Results',  icon: 'priority_high',   color: '#ef4444', value: s.criticalResults,      route: '/doctor/critical-results', alert: s.criticalResults > 0 },
-      { label: 'Reports Today',     icon: 'description',     color: '#22c55e', value: s.reportsToday,         route: '/doctor/reports',          alert: false },
-      { label: 'Follow Ups Today',  icon: 'schedule_send',   color: '#f59e0b', value: s.followUpsToday,       route: '/doctor/follow-ups',       alert: false },
-      { label: 'Patients Reviewed', icon: 'how_to_reg',      color: '#0d9488', value: s.patientsReviewed,     route: null,                       alert: false },
-      { label: 'Avg Review (min)',  icon: 'timer',           color: '#8b5cf6', value: s.avgReviewTimeMinutes, route: null,                       alert: false },
+      { label: 'Reports Today',     icon: 'description',     color: CT.green500, value: s.reportsToday,         route: '/doctor/reports',    alert: false },
+      { label: 'Follow Ups Today',  icon: 'schedule_send',   color: CT.amber,    value: s.followUpsToday,       route: '/doctor/follow-ups', alert: false },
+      { label: 'Patients Reviewed', icon: 'how_to_reg',      color: CT.teal,     value: s.patientsReviewed,     route: null,                 alert: false },
+      { label: 'Avg Review (min)',  icon: 'timer',           color: CT.purple,   value: s.avgReviewTimeMinutes, route: null,                 alert: false },
     ];
   }
 
   readonly quickActions = [
-    { title: 'Review Results',  desc: 'Review pending reports and sign off', icon: 'pending_actions',  route: '/doctor/reviews',          color: '#4f46e5' },
-    { title: 'Critical Results', desc: 'View unacknowledged critical values', icon: 'priority_high',   route: '/doctor/critical-results',  color: '#ef4444' },
-    { title: 'Search Patient',  desc: 'Find patient timeline and history',   icon: 'person_search',   route: '/doctor/patients',          color: '#0d9488' },
-    { title: 'View Reports',    desc: 'Browse and approve lab reports',      icon: 'description',     route: '/doctor/reports',           color: '#f59e0b' },
+    { title: 'View Reports',    desc: 'Browse and release patient reports',  icon: 'description',   route: '/doctor/reports',    color: CT.amber },
+    { title: 'Search Patient',  desc: 'Find patient timeline and history',   icon: 'person_search', route: '/doctor/patients',   color: CT.teal },
+    { title: 'Follow Ups',      desc: 'Review scheduled patient follow-ups', icon: 'schedule_send', route: '/doctor/follow-ups', color: CT.indigo },
   ];
 
   greeting(): string {

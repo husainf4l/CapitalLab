@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { AppLoadingComponent } from '../../../../shared/ui/app-loading/app-loading.component';
 import { AppStatusBadgeComponent } from '../../../../shared/ui/app-status-badge/app-status-badge.component';
+import { BreadcrumbComponent } from '../../../../shared/ui/breadcrumb/breadcrumb.component';
 import { ResultsStore } from '../../stores/results.store';
 import { ResultApiService } from '../../../../core/api/result-api.service';
 import { ToastService } from '../../../../core/services/toast.service';
@@ -12,9 +13,10 @@ import { ToastService } from '../../../../core/services/toast.service';
 @Component({
   selector: 'app-report-viewer',
   standalone: true,
-  imports: [RouterLink, MatButtonModule, MatIconModule, CommonModule, AppLoadingComponent, AppStatusBadgeComponent],
+  imports: [RouterLink, MatButtonModule, MatIconModule, CommonModule, AppLoadingComponent, AppStatusBadgeComponent, BreadcrumbComponent],
   template: `
     <div class="viewer-page">
+      <app-breadcrumb [items]="breadcrumbs" />
       <!-- Back nav -->
       <div class="viewer-nav">
         <a mat-stroked-button routerLink="/patient/results">
@@ -25,11 +27,34 @@ import { ToastService } from '../../../../core/services/toast.service';
       @if (store.isReportLoading()) {
         <app-loading />
       } @else if (store.currentReport()) {
+
+        <!-- Summary card -->
+        <div class="summary-card">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <span class="si-label">Report Number</span>
+              <span class="si-val">#{{ store.currentReport()!.reportNumber }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="si-label">Patient</span>
+              <span class="si-val">{{ store.currentReport()!.patientName ?? 'You' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="si-label">Date Generated</span>
+              <span class="si-val">{{ store.currentReport()!.generatedAt | date:'dd MMM yyyy' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="si-label">Status</span>
+              <app-status-badge [status]="store.currentReport()!.status" />
+            </div>
+          </div>
+        </div>
+
         <div class="report-shell">
           <!-- Header -->
           <div class="report-header">
             <div class="rh-left">
-              <div class="lab-logo">🔬</div>
+              <div class="lab-logo"><img src="/images/hero/logo.png" alt="Capital Lab" style="height:32px;width:auto;object-fit:contain;"></div>
               <div>
                 <h2>Lab Report</h2>
                 <p class="report-num">Report #{{ store.currentReport()!.reportNumber }}</p>
@@ -44,7 +69,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           <!-- Tests table -->
           <div class="results-section">
             <h4>Test Results</h4>
-            @if ((store.currentReport()!.results?.length ?? 0) > 0) {
+            @if (store.currentReport()!.results.length > 0) {
               <div class="results-table">
                 <div class="table-head">
                   <span>Test</span>
@@ -75,7 +100,7 @@ import { ToastService } from '../../../../core/services/toast.service';
           </div>
 
           <!-- Notes -->
-          @if (store.currentReport()!.results?.some(r => r.notes)) {
+          @if (store.currentReport()!.results.some(r => r.notes)) {
             <div class="notes-section">
               <h4>Notes</h4>
               @for (result of store.currentReport()!.results; track result.id) {
@@ -95,8 +120,12 @@ import { ToastService } from '../../../../core/services/toast.service';
                 <mat-icon>download</mat-icon> Download PDF
               </button>
             }
-            <button mat-stroked-button (click)="print()">
+            <button mat-stroked-button (click)="print()" aria-label="Print report">
               <mat-icon>print</mat-icon> Print
+            </button>
+            <button mat-stroked-button (click)="copyLink()" aria-label="Copy share link">
+              <mat-icon>{{ linkCopied ? 'check' : 'share' }}</mat-icon>
+              {{ linkCopied ? 'Copied!' : 'Share Link' }}
             </button>
           </div>
         </div>
@@ -116,6 +145,18 @@ import { ToastService } from '../../../../core/services/toast.service';
     .viewer-page { max-width: 900px; margin: 0 auto; }
     .viewer-nav { margin-bottom: 20px; }
 
+    .summary-card {
+      background: white; border: 1px solid $border-color; border-radius: $border-radius;
+      padding: 18px 24px; margin-bottom: 20px; box-shadow: $shadow-sm;
+    }
+    .summary-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+      @media (max-width: 640px) { grid-template-columns: repeat(2, 1fr); }
+    }
+    .summary-item { display: flex; flex-direction: column; gap: 4px; }
+    .si-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: $text-secondary; }
+    .si-val { font-size: 0.9rem; font-weight: 600; color: $text-primary; }
+
     .report-shell {
       background: white; border-radius: $border-radius-lg;
       box-shadow: $shadow-md; border: 1px solid $border-color; overflow: hidden;
@@ -127,7 +168,7 @@ import { ToastService } from '../../../../core/services/toast.service';
       @media (max-width: 640px) { flex-direction: column; gap: 16px; }
     }
     .rh-left { display: flex; align-items: center; gap: 16px;
-      .lab-logo { font-size: 2.5rem; }
+      .lab-logo { display: flex; align-items: center; }
       h2 { margin: 0 0 4px; font-size: 1.4rem; }
       .report-num { margin: 0; color: $text-secondary; font-size: 0.9rem; }
     }
@@ -189,6 +230,12 @@ export class ReportViewerComponent implements OnInit {
   private resultApi = inject(ResultApiService);
   private toast = inject(ToastService);
 
+  readonly breadcrumbs = [
+    { label: 'Dashboard', route: '/patient/dashboard' },
+    { label: 'My Results', route: '/patient/results' },
+    { label: 'Report' },
+  ];
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('reportId');
     if (id) {
@@ -212,6 +259,15 @@ export class ReportViewerComponent implements OnInit {
       },
       error: () => this.toast.error('Failed to download report.'),
     });
+  }
+
+  linkCopied = false;
+
+  copyLink(): void {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      this.linkCopied = true;
+      setTimeout(() => { this.linkCopied = false; }, 2500);
+    }).catch(() => {});
   }
 
   print(): void {

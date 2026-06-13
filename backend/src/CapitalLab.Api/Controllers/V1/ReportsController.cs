@@ -46,7 +46,7 @@ public class ReportsController(IMediator mediator, ICurrentUserService currentUs
     [HttpPost("generate/{sampleId:guid}")]
     public async Task<IActionResult> Generate(Guid sampleId, [FromBody] GenerateReportRequest? request, CancellationToken ct)
     {
-        var result = await Mediator.Send(new GenerateReportCommand(sampleId, request?.DoctorId), ct);
+        var result = await Mediator.Send(new GenerateReportCommand(sampleId, request!.PatientId, request.TestOrderId, request.DoctorId), ct);
         return CreatedResponse(result.Value, $"api/v1/reports/{result.Value}");
     }
 
@@ -67,6 +67,17 @@ public class ReportsController(IMediator mediator, ICurrentUserService currentUs
     [HttpGet("{id:guid}/pdf")]
     public async Task<IActionResult> GetPdf(Guid id, CancellationToken ct)
     {
+        // Patients may only download their own reports
+        if (User.IsInRole("Patient"))
+        {
+            var patientResult = await Mediator.Send(new GetPatientByEmailQuery(currentUser.Email!), ct);
+            if (patientResult.Value is null) return Forbid();
+
+            var report = await Mediator.Send(new GetReportByIdQuery(id), ct);
+            if (!report.IsSuccess || report.Value is null) return NotFound();
+            if (report.Value.PatientId != patientResult.Value.Value) return Forbid();
+        }
+
         var result = await Mediator.Send(new GetReportPdfQuery(id), ct);
         if (!result.IsSuccess) return NotFound();
         return File(result.Value!, "application/pdf", $"report-{id}.pdf");

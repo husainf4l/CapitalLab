@@ -28,7 +28,7 @@ public sealed class TokenService(IOptions<JwtSettings> jwtOptions, IDateTimeServ
         using var rsa = RSA.Create();
         rsa.ImportFromPem(Encoding.UTF8.GetString(Convert.FromBase64String(_settings.PrivateKeyBase64)));
 
-        var signingKey = new RsaSecurityKey(rsa) { KeyId = "capitallab-rs256" };
+        var signingKey = new RsaSecurityKey(rsa.ExportParameters(true)) { KeyId = "capitallab-rs256" };
         var credentials = new SigningCredentials(signingKey, SecurityAlgorithms.RsaSha256);
 
         var claims = new List<Claim>
@@ -79,7 +79,7 @@ public sealed class TokenService(IOptions<JwtSettings> jwtOptions, IDateTimeServ
         var validationParams = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new RsaSecurityKey(rsa),
+            IssuerSigningKey = new RsaSecurityKey(rsa.ExportParameters(false)) { KeyId = "capitallab-rs256" },
             ValidateIssuer = true,
             ValidIssuer = _settings.Issuer,
             ValidateAudience = true,

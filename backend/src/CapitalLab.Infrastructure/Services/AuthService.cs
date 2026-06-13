@@ -2,6 +2,9 @@ using System.Security.Claims;
 using CapitalLab.Application.Common.Interfaces;
 using CapitalLab.Contracts.Auth;
 using CapitalLab.Contracts.Common;
+using CapitalLab.Domain.Entities.People;
+using CapitalLab.Domain.Enums;
+using CapitalLab.Domain.Interfaces;
 using CapitalLab.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,7 +12,10 @@ namespace CapitalLab.Infrastructure.Services;
 
 public sealed class AuthService(
     UserManager<AppUser> userManager,
-    ITokenService tokenService)
+    ITokenService tokenService,
+    IRepository<Patient> patientRepo,
+    IPatientNumberService patientNumberService,
+    IUnitOfWork uow)
     : IAuthService
 {
     private const string LoginProvider = "CapitalLab";
@@ -102,6 +108,49 @@ public sealed class AuthService(
             return Result.Failure("PASSWORD_CHANGE_FAILED", result.Errors.Select(e => e.Description));
 
         return Result.Success();
+    }
+
+    public async Task<Result<LoginResponse>> RegisterPatientAsync(
+        string firstName, string lastName, string email, string phone,
+        int gender, DateOnly dateOfBirth, string password,
+        CancellationToken ct = default)
+    {
+        if (await userManager.FindByEmailAsync(email) is not null)
+            return Result<LoginResponse>.Failure("AUTH_EMAIL_TAKEN", "An account with this email already exists.");
+
+        var user = new AppUser
+        {
+            Id = Guid.NewGuid(),
+            FirstName = firstName.Trim(),
+            LastName = lastName.Trim(),
+            Email = email.Trim().ToLowerInvariant(),
+            UserName = email.Trim().ToLowerInvariant(),
+            IsActive = true,
+        };
+
+        var createResult = await userManager.CreateAsync(user, password);
+        if (!createResult.Succeeded)
+            return Result<LoginResponse>.Failure("REGISTRATION_FAILED",
+                createResult.Errors.Select(e => e.Description));
+
+        await userManager.AddToRoleAsync(user, "Patient");
+
+        var patientNumber = await patientNumberService.GenerateNextAsync(ct);
+        var patient = Patient.Create(
+            patientNumber,
+            firstName.Trim(), lastName.Trim(), null,
+            (Gender)gender, dateOfBirth,
+            null, null,
+            phone.Trim(), email.Trim().ToLowerInvariant(),
+            null, null, null,
+            null, null,
+            null, null,
+            null, null);
+
+        await patientRepo.AddAsync(patient, ct);
+        await uow.CommitAsync(ct);
+
+        return await BuildLoginResponseAsync(user);
     }
 
     private async Task<Result<LoginResponse>> BuildLoginResponseAsync(AppUser user)

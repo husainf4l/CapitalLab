@@ -42,7 +42,7 @@ import { AppSearchBarComponent } from '../../../shared/ui/app-search-bar/app-sea
 
                 <div class="pkg-tests">
                   <mat-icon>science</mat-icon>
-                  <span>{{ pkg.testsCount || (pkg.tests ? pkg.tests.length : 0) }} Tests Included</span>
+                  <span>{{ pkg.testCount || pkg.testsCount || (pkg.tests ? pkg.tests.length : 0) }} Tests Included</span>
                 </div>
 
                 @if (pkg.turnaroundTime) {
@@ -132,7 +132,7 @@ export class PackagesComponent implements OnInit {
     this.loading.set(true);
     this.packageApi.getAll({ pageSize: 50 }).subscribe({
       next: res => {
-        const items = res.data?.items ?? [];
+        const items = res.items ?? [];
         this.packages.set(items);
         this.filteredPackages.set(items);
         this.loading.set(false);

@@ -25,10 +25,13 @@
     <PackageReference Include="StackExchange.Redis" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <!-- Background Jobs -->
+    <PackageReference Include="Newtonsoft.Json" />
     <PackageReference Include="Hangfire.Core" />
     <PackageReference Include="Hangfire.PostgreSql" />
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.Console" />
+    <!-- PDF -->
+    <PackageReference Include="QuestPDF" />
     <!-- Logging -->
     <PackageReference Include="Serilog" />
     <PackageReference Include="Serilog.AspNetCore" />

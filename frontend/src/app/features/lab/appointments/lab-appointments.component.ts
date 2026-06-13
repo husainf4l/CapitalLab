@@ -8,13 +8,14 @@ import { MatInputModule } from '@angular/material/input';
 import { CommonModule } from '@angular/common';
 import { LabAppointmentsStore } from '../stores/lab-appointments.store';
 import { LabStatusBadgeComponent } from '../shared/lab-status-badge.component';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-lab-appointments',
   standalone: true,
   imports: [
     FormsModule, CommonModule, MatButtonModule, MatIconModule,
-    MatSelectModule, MatFormFieldModule, MatInputModule, LabStatusBadgeComponent
+    MatSelectModule, MatFormFieldModule, MatInputModule, LabStatusBadgeComponent, A11yModule
   ],
   template: `
     <div class="page">
@@ -23,7 +24,7 @@ import { LabStatusBadgeComponent } from '../shared/lab-status-badge.component';
         <div class="header-actions">
           <button mat-stroked-button (click)="loadToday()">Today</button>
           <button mat-stroked-button (click)="loadAll()">All</button>
-          <button mat-icon-button (click)="store.load()"><mat-icon>refresh</mat-icon></button>
+          <button mat-icon-button (click)="store.load()" aria-label="Refresh"><mat-icon>refresh</mat-icon></button>
         </div>
       </div>
 
@@ -56,8 +57,8 @@ import { LabStatusBadgeComponent } from '../shared/lab-status-badge.component';
       <!-- Cancel modal -->
       @if (cancelTarget()) {
         <div class="modal-backdrop" (click)="cancelTarget.set(null)">
-          <div class="modal-card" (click)="$event.stopPropagation()">
-            <h3>Cancel Appointment</h3>
+          <div class="modal-card" (click)="$event.stopPropagation()" (keydown.escape)="cancelTarget.set(null)" cdkTrapFocus cdkTrapFocusAutoCapture role="dialog" aria-modal="true" aria-labelledby="appt-cancel-title">
+            <h3 id="appt-cancel-title">Cancel Appointment</h3>
             <p>Reason (optional)</p>
             <textarea [(ngModel)]="cancelReason" rows="3" class="notes-input" placeholder="Enter reason..."></textarea>
             <div class="modal-actions">

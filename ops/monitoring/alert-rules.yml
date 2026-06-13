@@ -1,0 +1,117 @@
+groups:
+  - name: capitallab.infrastructure
+    interval: 30s
+    rules:
+
+      # API unavailable — no successful health scrapes for 2 minutes
+      - alert: ApiDown
+        expr: up{job="capitallab-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Capital Lab API is down"
+          description: "The API service at {{ $labels.instance }} has been unreachable for more than 2 minutes."
+
+      # Database unavailable
+      - alert: PostgresDown
+        expr: up{job="capitallab-postgres"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "The PostgreSQL service has been unreachable for more than 1 minute. All write operations are failing."
+
+      # Redis unavailable
+      - alert: RedisDown
+        expr: up{job="capitallab-redis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Redis is down"
+          description: "The Redis service has been unreachable for more than 1 minute. Sessions and caching are degraded."
+
+      # Storage unavailable — API reports storage health as 0
+      - alert: StorageUnavailable
+        expr: capitallab_storage_healthy == 0
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "File storage is unavailable"
+          description: "The storage subsystem has been unhealthy for more than 2 minutes. Report uploads/downloads are failing."
+
+  - name: capitallab.application
+    interval: 60s
+    rules:
+
+      # High HTTP 5xx error rate — >5% of requests returning 5xx over 5 minutes
+      - alert: HighErrorRate
+        expr: >
+          (
+            sum(rate(http_requests_total{job="capitallab-api", status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="capitallab-api"}[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "High API error rate (>5%)"
+          description: "{{ $value | humanizePercentage }} of requests are returning 5xx errors over the last 5 minutes."
+
+      # Critical error rate — >20%
+      - alert: CriticalErrorRate
+        expr: >
+          (
+            sum(rate(http_requests_total{job="capitallab-api", status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="capitallab-api"}[5m]))
+          ) > 0.20
+        for: 2m
+        labels:
+          severity: critical
+          team: backend
+        annotations:
+          summary: "Critical API error rate (>20%)"
+          description: "{{ $value | humanizePercentage }} of requests are returning 5xx errors. Immediate investigation required."
+
+      # Failed notification delivery — accumulated failures over 15 minutes
+      - alert: NotificationDeliveryFailing
+        expr: increase(capitallab_notifications_failed_total[15m]) > 10
+        for: 0m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Notification delivery failures detected"
+          description: "{{ $value }} notification delivery failures in the last 15 minutes (SMS/Email/WhatsApp/Push)."
+
+      # Background job failures — Hangfire jobs failing
+      - alert: BackgroundJobsFailing
+        expr: increase(capitallab_hangfire_jobs_failed_total[10m]) > 5
+        for: 0m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Background jobs are failing"
+          description: "{{ $value }} background jobs (Hangfire) failed in the last 10 minutes. Check the Hangfire dashboard."
+
+      # Background job queue backlog — jobs waiting too long
+      - alert: BackgroundJobQueueBacklog
+        expr: capitallab_hangfire_jobs_enqueued > 500
+        for: 10m
+        labels:
+          severity: warning
+          team: backend
+        annotations:
+          summary: "Background job queue backlog"
+          description: "{{ $value }} jobs are enqueued and waiting. Workers may be stuck or overloaded."

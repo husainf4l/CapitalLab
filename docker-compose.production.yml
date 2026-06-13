@@ -1,0 +1,116 @@
+name: capitallab-production
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: capitallab/api:production
+    restart: unless-stopped
+    ports:
+      - "5001:8080"
+    env_file:
+      - .env.production
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ConnectionStrings__DefaultConnection: >-
+        Host=postgres;Port=5432;Database=${POSTGRES_DB};
+        Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD};
+        Pooling=true;MinPoolSize=5;MaxPoolSize=100;
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD},abortConnect=false"
+      Jwt__Issuer: ${JWT_ISSUER}
+      Jwt__Audience: ${JWT_AUDIENCE}
+      Jwt__PrivateKeyBase64: ${JWT_PRIVATE_KEY_BASE64}
+      Jwt__PublicKeyBase64: ${JWT_PUBLIC_KEY_BASE64}
+      Encryption__Key: ${ENCRYPTION_KEY}
+      Storage__LocalRootPath: ${STORAGE_LOCAL_ROOT:-/app/uploads}
+      Storage__BaseUrl: ${STORAGE_BASE_URL}
+      Cors__AllowedOrigins__0: ${WEB_PUBLIC_URL}
+      Pdf__StoragePath: ${PDF_STORAGE_PATH:-/app/uploads/reports}
+      Email__SmtpHost: ${SMTP_HOST}
+      Email__Port: ${SMTP_PORT:-587}
+      Email__Username: ${SMTP_USERNAME}
+      Email__Password: ${SMTP_PASSWORD}
+      Sms__ApiKey: ${SMS_PROVIDER_API_KEY}
+      WhatsApp__ApiKey: ${WHATSAPP_PROVIDER_API_KEY}
+      Push__ApiKey: ${PUSH_PROVIDER_API_KEY}
+    volumes:
+      - api-uploads:/app/uploads
+      - api-logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - capitallab
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: capitallab/web:production
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - capitallab
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./ops/postgres/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - capitallab
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --save 60 1
+      --loglevel warning
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - capitallab
+
+volumes:
+  postgres-data:
+  redis-data:
+  api-uploads:
+  api-logs:
+
+networks:
+  capitallab:
+    driver: bridge

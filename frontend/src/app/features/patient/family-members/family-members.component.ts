@@ -1,59 +1,66 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FamilyMember } from '../../../core/models/patient.models';
-import { AppPageHeaderComponent } from '../../../shared/ui/app-page-header/app-page-header.component';
-import { AppEmptyStateComponent } from '../../../shared/ui/app-empty-state/app-empty-state.component';
 import { FamilyMembersStore } from '../stores/family-members.store';
 import { ToastService } from '../../../core/services/toast.service';
+import { A11yModule } from '@angular/cdk/a11y';
 
 @Component({
   selector: 'app-family-members',
   standalone: true,
   imports: [
-    RouterLink, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatIconModule, CommonModule,
-    AppPageHeaderComponent, AppEmptyStateComponent,
+    RouterLink, ReactiveFormsModule, MatButtonModule, MatIconModule, CommonModule, A11yModule,
   ],
   template: `
     <div class="family-page">
-      <app-page-header title="Family Members" subtitle="Manage family member profiles and view their results">
-        <button mat-flat-button color="primary" (click)="openAdd()">
-          <mat-icon>person_add</mat-icon> Add Member
-        </button>
-      </app-page-header>
 
+      <!-- Hero Strip -->
+      <div class="hero-strip">
+        <div class="hero-left">
+          <div class="hero-icon-circle">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="hero-text">
+            <h1 class="hero-title">Family Members</h1>
+            <p class="hero-subtitle">Manage profiles and view results for your family</p>
+          </div>
+        </div>
+        <button class="hero-add-btn" (click)="openAdd()">
+          <mat-icon style="font-size:18px;width:18px;height:18px;line-height:18px">person_add</mat-icon>
+          Add Member
+        </button>
+      </div>
+
+      <!-- Empty State -->
       @if (store.members().length === 0 && !store.isLoading()) {
-        <app-empty-state
-          icon="group"
-          title="No family members yet"
-          description="Add family members to book tests and view results on their behalf."
-        >
-          <button mat-flat-button color="primary" (click)="openAdd()">Add First Member</button>
-        </app-empty-state>
+        <div class="empty-state">
+          <div class="empty-icon-circle">
+            <mat-icon>group</mat-icon>
+          </div>
+          <h3 class="empty-title">No family members yet</h3>
+          <p class="empty-desc">Add your family members to book tests and track their health.</p>
+          <button class="empty-add-btn" (click)="openAdd()">Add First Member</button>
+        </div>
       } @else {
+        <!-- Members Grid -->
         <div class="members-grid">
           @for (member of store.members(); track member.id) {
             <div class="member-card">
-              <div class="member-avatar" [class]="'gender-' + member.gender">
+              <div class="member-avatar" [ngClass]="'gender-' + member.gender">
                 {{ member.firstName.charAt(0) }}
               </div>
-              <div class="member-info">
-                <h5>{{ member.fullName }}</h5>
-                <p>{{ member.relationship | titlecase }} · {{ member.gender | titlecase }}</p>
-                <p>{{ member.dateOfBirth | date:'mediumDate' }}</p>
-              </div>
+              <span class="relationship-badge">{{ member.relationship }}</span>
+              <p class="member-name">{{ member.fullName }}</p>
+              <p class="member-dob">{{ member.dateOfBirth | date:'d MMM yyyy' }}</p>
               <div class="member-actions">
-                <button mat-stroked-button (click)="openEdit(member)">
+                <button mat-stroked-button (click)="openEdit(member)" class="action-btn">
                   <mat-icon>edit</mat-icon> Edit
                 </button>
-                <button mat-stroked-button routerLink="/patient/results">
+                <button mat-stroked-button routerLink="/patient/results" class="action-btn">
                   <mat-icon>science</mat-icon> Results
                 </button>
                 <button mat-icon-button color="warn" (click)="deleteMember(member)" title="Remove">
@@ -65,55 +72,82 @@ import { ToastService } from '../../../core/services/toast.service';
         </div>
       }
 
-      <!-- Add / Edit modal -->
+      <!-- Add / Edit Modal -->
       @if (showModal()) {
         <div class="modal-overlay" (click)="closeModal()">
-          <div class="modal-card" (click)="$event.stopPropagation()">
+          <div
+            class="modal-card"
+            (click)="$event.stopPropagation()"
+            (keydown.escape)="closeModal()"
+            cdkTrapFocus
+            cdkTrapFocusAutoCapture
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="family-form-title"
+          >
             <div class="modal-header">
-              <h4>{{ editingMember() ? 'Edit Member' : 'Add Family Member' }}</h4>
-              <button mat-icon-button (click)="closeModal()"><mat-icon>close</mat-icon></button>
+              <h4 id="family-form-title" class="modal-title">
+                {{ editingMember() ? 'Edit Member' : 'Add Family Member' }}
+              </h4>
+              <button mat-icon-button (click)="closeModal()">
+                <mat-icon>close</mat-icon>
+              </button>
             </div>
-            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="add-form">
+
+            <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-form">
+              <!-- Row 1: First Name + Last Name -->
               <div class="form-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>First Name</mat-label>
-                  <input matInput formControlName="firstName" />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Last Name</mat-label>
-                  <input matInput formControlName="lastName" />
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">First Name</label>
+                  <input class="field-input" type="text" formControlName="firstName" placeholder="First name" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Last Name</label>
+                  <input class="field-input" type="text" formControlName="lastName" placeholder="Last name" />
+                </div>
               </div>
+
+              <!-- Row 2: Date of Birth + Gender -->
               <div class="form-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Date of Birth</mat-label>
-                  <input matInput type="date" formControlName="dateOfBirth" />
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>Gender</mat-label>
-                  <mat-select formControlName="gender">
-                    <mat-option value="male">Male</mat-option>
-                    <mat-option value="female">Female</mat-option>
-                  </mat-select>
-                </mat-form-field>
+                <div class="field-group">
+                  <label class="field-label">Date of Birth</label>
+                  <input class="field-input" type="date" formControlName="dateOfBirth" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label">Gender</label>
+                  <select class="field-input" formControlName="gender">
+                    <option value="" disabled>Select gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
               </div>
+
+              <!-- Row 3: Relationship + National ID -->
               <div class="form-row">
-                <mat-form-field appearance="outline">
-                  <mat-label>Relationship</mat-label>
-                  <mat-select formControlName="relationship">
+                <div class="field-group">
+                  <label class="field-label">Relationship</label>
+                  <select class="field-input" formControlName="relationship">
+                    <option value="" disabled>Select relationship</option>
                     @for (rel of relationships; track rel.value) {
-                      <mat-option [value]="rel.value">{{ rel.label }}</mat-option>
+                      <option [value]="rel.value">{{ rel.label }}</option>
                     }
-                  </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                  <mat-label>National ID (optional)</mat-label>
-                  <input matInput formControlName="nationalId" />
-                </mat-form-field>
+                  </select>
+                </div>
+                <div class="field-group">
+                  <label class="field-label">National ID <span class="optional">(optional)</span></label>
+                  <input class="field-input" type="text" formControlName="nationalId" placeholder="National ID" />
+                </div>
               </div>
-              <div class="form-actions">
-                <button mat-stroked-button type="button" (click)="closeModal()">Cancel</button>
-                <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || store.isSaving()">
+
+              <!-- Footer -->
+              <div class="modal-footer">
+                <button mat-stroked-button type="button" class="cancel-btn" (click)="closeModal()">Cancel</button>
+                <button
+                  class="submit-btn"
+                  type="submit"
+                  [disabled]="form.invalid || store.isSaving()"
+                >
                   {{ store.isSaving() ? 'Saving…' : (editingMember() ? 'Save Changes' : 'Add Member') }}
                 </button>
               </div>
@@ -124,35 +158,361 @@ import { ToastService } from '../../../core/services/toast.service';
     </div>
   `,
   styles: [`
-    @use '../../../../styles/variables' as *;
-    .members-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
-      @media (max-width: 992px) { grid-template-columns: repeat(2, 1fr); }
-      @media (max-width: 576px) { grid-template-columns: 1fr; }
+    .family-page {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
     }
-    .member-card {
-      background: white; border-radius: $border-radius; padding: 20px;
-      box-shadow: $shadow-sm; border: 1px solid $border-color;
-      display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
-    }
-    .member-avatar {
-      width: 60px; height: 60px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; font-weight: 700; color: white;
-      &.gender-male { background: $primary; }
-      &.gender-female { background: #e91e63; }
-    }
-    .member-info h5 { margin: 0 0 4px; }
-    .member-info p { margin: 0 0 2px; font-size: 0.8rem; color: $text-secondary; }
-    .member-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: center; }
 
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .modal-card { background: white; border-radius: $border-radius-lg; padding: 28px; width: 100%; max-width: 560px; box-shadow: $shadow-lg; max-height: 90vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; h4 { margin: 0; } }
-    .add-form { display: flex; flex-direction: column; gap: 4px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; @media (max-width: 480px) { grid-template-columns: 1fr; } }
-    mat-form-field { width: 100%; }
-    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+    /* ── Hero Strip ── */
+    .hero-strip {
+      background: linear-gradient(135deg, #1e9df1 0%, #1565c0 100%);
+      border-radius: 16px;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-icon-circle {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      mat-icon {
+        color: white;
+        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+      }
+    }
+
+    .hero-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-title {
+      margin: 0;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      margin: 0;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .hero-add-btn {
+      background: white;
+      color: #1565c0;
+      border-radius: 999px;
+      padding: 10px 22px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: opacity 0.2s;
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+      }
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    /* ── Members Grid ── */
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .member-card {
+      background: white;
+      border-radius: 16px;
+      padding: 22px;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 12px;
+      transition: all 0.2s;
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        border-color: #1e9df1;
+      }
+    }
+
+    .member-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      &.gender-male {
+        background: linear-gradient(135deg, #1e9df1, #1565c0);
+      }
+      &.gender-female {
+        background: linear-gradient(135deg, #ec4899, #be185d);
+      }
+      &.gender-other {
+        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      }
+    }
+
+    .relationship-badge {
+      background: #ede9fe;
+      color: #7c3aed;
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 999px;
+      text-transform: capitalize;
+    }
+
+    .member-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0f1419;
+      margin: 0;
+    }
+
+    .member-dob {
+      font-size: 0.8rem;
+      color: #72767a;
+      margin: 0;
+    }
+
+    .member-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: auto;
+    }
+
+    .action-btn {
+      font-size: 0.8rem;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-radius: 16px;
+      padding: 60px 32px;
+      border: 1px dashed #e2e8f0;
+      gap: 12px;
+    }
+
+    .empty-icon-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #f0f9ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mat-icon {
+        color: #94a3b8;
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+      }
+    }
+
+    .empty-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin: 0;
+      color: #0f1419;
+    }
+
+    .empty-desc {
+      font-size: 0.85rem;
+      color: #72767a;
+      margin: 0;
+    }
+
+    .empty-add-btn {
+      background: linear-gradient(135deg, #1e9df1, #1565c0);
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 24px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+      &:hover {
+        opacity: 0.9;
+      }
+    }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 20px;
+      padding: 28px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0f1419;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      @media (max-width: 480px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #72767a;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .optional {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .field-input {
+      padding: 10px 13px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      width: 100%;
+      box-sizing: border-box;
+      outline: none;
+      background: white;
+      font-family: inherit;
+      color: #0f1419;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      &:focus {
+        border-color: #1e9df1;
+        box-shadow: 0 0 0 3px rgba(30, 157, 241, 0.12);
+      }
+    }
+
+    select.field-input {
+      appearance: auto;
+      cursor: pointer;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .cancel-btn {
+      border-radius: 10px !important;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #1e9df1, #1565c0);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      height: 44px;
+      padding: 0 24px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s;
+      &:hover:not(:disabled) {
+        opacity: 0.9;
+      }
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
   `]
 })
 export class FamilyMembersComponent implements OnInit {

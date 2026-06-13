@@ -6,7 +6,127 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
-// Angular Material M3 theme
+// ── Design tokens ────────────────────────────────────────────────────────────
+:root {
+  --card: #f7f8f8;
+  --ring: #1da1f2;
+  --input: #f7f9fa;
+  --muted: #E5E5E6;
+  --accent: #E3ECF6;
+  --border: #e1eaef;
+  --bg-card: #ffffff;
+  --bg-surface: #f7f9fa;
+  --text-primary: #0f1419;
+  --text-secondary: #4b5563;
+  --text-muted: #72767a;
+  --radius: 1.3rem;
+  --chart-1: #1e9df1;
+  --chart-2: #00b87a;
+  --chart-3: #f7b928;
+  --chart-4: #17bf63;
+  --chart-5: #e0245e;
+
+  /* Extended palette tokens */
+  --color-teal: #0d9488;
+  --color-purple: #8b5cf6;
+  --color-indigo: #4f46e5;
+  --color-google-blue: #1a73e8;
+  --color-pink: #ec4899;
+  --color-emerald: #10b981;
+  --color-cyan: #06b6d4;
+  --color-amber: #f59e0b;
+  --color-slate: #64748b;
+  --color-green-600: #16a34a;
+  --color-green-500: #22c55e;
+  --color-orange: #f97316;
+  --color-red-600: #dc2626;
+
+  /* Semantic badge tokens */
+  --badge-success-bg: #dcfce7;
+  --badge-success-fg: #166534;
+  --badge-warning-bg: #fef3c7;
+  --badge-warning-fg: #92400e;
+  --badge-danger-bg: #fee2e2;
+  --badge-danger-fg: #991b1b;
+  --badge-info-bg: #dbeafe;
+  --badge-info-fg: #1e40af;
+  --badge-indigo-bg: #e0e7ff;
+  --badge-indigo-fg: #3730a3;
+  --badge-critical-bg: #7f1d1d;
+  --badge-critical-fg: #fef2f2;
+  --badge-teal-bg: #ccfbf1;
+  --badge-teal-fg: #115e59;
+  --badge-purple-bg: #ede9fe;
+  --badge-purple-fg: #5b21b6;
+  --popover: #ffffff;
+  --primary: #1e9df1;
+  --sidebar: #f7f8f8;
+  --font-mono: Menlo, monospace;
+  --font-sans: Open Sans, sans-serif;
+  --secondary: #0f1419;
+  --background: #ffffff;
+  --font-serif: Georgia, serif;
+  --foreground: #0f1419;
+  --destructive: #f4212e;
+  --shadow-blur: 0px;
+  --shadow-color: rgba(29, 161, 242, 0.15);
+  --sidebar-ring: #1da1f2;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --sidebar-accent: #E3ECF6;
+  --sidebar-border: #e1e8ed;
+  --card-foreground: #0f1419;
+  --shadow-offset-x: 0px;
+  --shadow-offset-y: 2px;
+  --sidebar-primary: #1e9df1;
+  --muted-foreground: #0f1419;
+  --accent-foreground: #1e9df1;
+  --popover-foreground: #0f1419;
+  --primary-foreground: #ffffff;
+  --sidebar-foreground: #0f1419;
+  --secondary-foreground: #ffffff;
+  --destructive-foreground: #ffffff;
+  --sidebar-accent-foreground: #1e9df1;
+  --sidebar-primary-foreground: #ffffff;
+}
+
+.dark {
+  --card: #17181c;
+  --ring: #1da1f2;
+  --input: #22303c;
+  --muted: #181818;
+  --accent: #061622;
+  --border: #242628;
+  --bg-card: #17181c;
+  --bg-surface: #101114;
+  --text-primary: #e7e9ea;
+  --text-secondary: #b6c0c9;
+  --text-muted: #72767a;
+  --popover: #000000;
+  --primary: #1c9cf0;
+  --sidebar: #17181c;
+  --secondary: #f0f3f4;
+  --background: #000000;
+  --foreground: #e7e9ea;
+  --destructive: #f4212e;
+  --shadow-color: rgba(29, 161, 242, 0.25);
+  --sidebar-ring: #1da1f2;
+  --sidebar-accent: #061622;
+  --sidebar-border: #38444d;
+  --card-foreground: #d9d9d9;
+  --sidebar-primary: #1da1f2;
+  --muted-foreground: #72767a;
+  --accent-foreground: #1c9cf0;
+  --popover-foreground: #e7e9ea;
+  --primary-foreground: #ffffff;
+  --sidebar-foreground: #d9d9d9;
+  --secondary-foreground: #0f1419;
+  --destructive-foreground: #ffffff;
+  --sidebar-accent-foreground: #1c9cf0;
+  --sidebar-primary-foreground: #ffffff;
+}
+
+// ── Angular Material M3 theme ─────────────────────────────────────────────────
 html {
   @include mat.theme((
     color: (

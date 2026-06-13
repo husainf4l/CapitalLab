@@ -15,14 +15,10 @@ const NAV_OVERVIEW: NavItem[] = [
   { label: 'Overview', icon: 'dashboard', route: '/owner', exact: true },
 ];
 const NAV_ANALYTICS: NavItem[] = [
-  { label: 'Revenue', icon: 'payments', route: '/owner/revenue' },
-  { label: 'Branches', icon: 'account_tree', route: '/owner/branches' },
   { label: 'Tests & Packages', icon: 'science', route: '/owner/tests' },
   { label: 'Patients', icon: 'people_alt', route: '/owner/patients' },
 ];
 const NAV_MANAGEMENT: NavItem[] = [
-  { label: 'Inventory', icon: 'inventory_2', route: '/owner/inventory' },
-  { label: 'Insurance', icon: 'health_and_safety', route: '/owner/insurance' },
   { label: 'Executive Report', icon: 'bar_chart', route: '/owner/executive' },
 ];
 
@@ -39,12 +35,8 @@ const NAV_MANAGEMENT: NavItem[] = [
         <aside class="app-sidebar" [class.collapsed]="collapsed()">
 
           <div class="sidebar-brand">
-            <div class="brand-icon"><mat-icon>biotech</mat-icon></div>
             @if (!collapsed()) {
-              <div class="brand-text">
-                <span class="brand-name">Capital Lab</span>
-                <span class="brand-tag">Enterprise</span>
-              </div>
+              <img src="/images/hero/logo.png" alt="Capital Lab" class="brand-logo">
             }
             <button class="collapse-btn" (click)="collapsed.set(!collapsed())"
                     [matTooltip]="collapsed() ? 'Expand' : 'Collapse'" matTooltipPosition="right">
@@ -101,11 +93,6 @@ const NAV_MANAGEMENT: NavItem[] = [
           </nav>
 
           <div class="sidebar-footer">
-            <a class="nav-item" routerLink="/admin"
-               [matTooltip]="collapsed() ? 'Operations' : ''" matTooltipPosition="right">
-              <mat-icon class="ni">manage_accounts</mat-icon>
-              @if (!collapsed()) { <span>Operations</span> }
-            </a>
             <button class="nav-item logout-btn" (click)="authService.logout()"
                     [matTooltip]="collapsed() ? 'Sign Out' : ''" matTooltipPosition="right">
               <mat-icon class="ni">logout</mat-icon>
@@ -122,12 +109,6 @@ const NAV_MANAGEMENT: NavItem[] = [
               <mat-icon>menu</mat-icon>
             </button>
 
-            <div class="search-bar">
-              <mat-icon>search</mat-icon>
-              <input placeholder="Search patients, tests, reports…" type="search" />
-              <kbd>⌘K</kbd>
-            </div>
-
             <div class="hdr-right">
               <button mat-icon-button class="hdr-btn" matTooltip="Notifications">
                 <mat-icon>notifications_none</mat-icon>
@@ -142,7 +123,6 @@ const NAV_MANAGEMENT: NavItem[] = [
               <mat-menu #qaMenu>
                 <button mat-menu-item><mat-icon>person_add</mat-icon>New Patient</button>
                 <button mat-menu-item><mat-icon>event</mat-icon>New Appointment</button>
-                <button mat-menu-item><mat-icon>receipt_long</mat-icon>New Invoice</button>
               </mat-menu>
 
               <div class="hdivider"></div>
@@ -211,15 +191,7 @@ const NAV_MANAGEMENT: NavItem[] = [
       display: flex; align-items: center; gap: $spacing-sm;
       margin-bottom: $spacing-xl; min-height: 48px;
     }
-    .brand-icon {
-      width: 40px; height: 40px; flex-shrink: 0;
-      background: var(--primary); border-radius: $border-radius;
-      display: flex; align-items: center; justify-content: center;
-      mat-icon { color: var(--primary-foreground); font-size: 22px; }
-    }
-    .brand-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-    .brand-name { font-size: $font-size-md; font-weight: $font-weight-bold; color: var(--foreground); line-height: 1.2; }
-    .brand-tag { font-size: 0.65rem; font-weight: $font-weight-semibold; color: var(--primary); letter-spacing: 0.08em; text-transform: uppercase; }
+    .brand-logo { height: 36px; width: auto; object-fit: contain; }
     .collapse-btn {
       background: none; border: none; cursor: pointer; padding: 4px;
       color: var(--muted-foreground); border-radius: $border-radius-sm;
@@ -289,23 +261,6 @@ const NAV_MANAGEMENT: NavItem[] = [
     }
 
     .mobile-menu { display: none !important; @media (max-width: $breakpoint-lg) { display: inline-flex !important; } }
-
-    .search-bar {
-      flex: 1; max-width: 420px; display: flex; align-items: center; gap: $spacing-sm;
-      background: var(--card); border: 1px solid var(--border); border-radius: $border-radius-full;
-      padding: 7px 14px;
-      mat-icon { font-size: 18px; color: var(--muted-foreground); flex-shrink: 0; }
-      input {
-        flex: 1; border: none; background: transparent; outline: none;
-        font-size: $font-size-sm; color: var(--foreground); font-family: $font-family;
-        &::placeholder { color: var(--muted-foreground); }
-      }
-      kbd {
-        font-size: 0.65rem; color: var(--muted-foreground); background: var(--border);
-        border-radius: 4px; padding: 2px 6px; flex-shrink: 0; font-family: $font-family;
-        @media (max-width: $breakpoint-md) { display: none; }
-      }
-    }
 
     .hdr-right { display: flex; align-items: center; gap: 2px; margin-left: auto; }
     .hdr-btn {
@@ -377,8 +332,8 @@ export class OwnerLayoutComponent {
 
   readonly mobileNav: NavItem[] = [
     { label: 'Home', icon: 'dashboard', route: '/owner', exact: true },
-    { label: 'Revenue', icon: 'payments', route: '/owner/revenue' },
-    { label: 'Branches', icon: 'account_tree', route: '/owner/branches' },
+    { label: 'Tests', icon: 'science', route: '/owner/tests' },
+    { label: 'Patients', icon: 'people_alt', route: '/owner/patients' },
     { label: 'More', icon: 'more_horiz', route: '/owner/executive' },
   ];
 

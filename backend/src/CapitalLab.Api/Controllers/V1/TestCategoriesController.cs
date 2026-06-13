@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
+[Microsoft.AspNetCore.Mvc.Route("api/v{version:apiVersion}/test-categories")]
 public class TestCategoriesController(IMediator mediator) : BaseController(mediator)
 {
     [HttpGet]

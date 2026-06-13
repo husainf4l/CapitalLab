@@ -1,14 +1,16 @@
 using System.Reflection;
 using CapitalLab.Application.Common.Interfaces;
 using CapitalLab.Domain.Common;
-using CapitalLab.Domain.Entities.Billing;
+using CapitalLab.Domain.Entities.Audit;
 using CapitalLab.Domain.Entities.Catalog;
-using CapitalLab.Domain.Entities.Insurance;
-using CapitalLab.Domain.Entities.Inventory;
+using CapitalLab.Domain.Entities.Content;
 using CapitalLab.Domain.Entities.Laboratory;
-using CapitalLab.Domain.Entities.Organization;
+using CapitalLab.Domain.Entities.Mobile;
+using CapitalLab.Domain.Entities.Notifications;
 using CapitalLab.Domain.Entities.Operations;
+using CapitalLab.Domain.Entities.Organization;
 using CapitalLab.Domain.Entities.People;
+using CapitalLab.Domain.Entities.Settings;
 using CapitalLab.Infrastructure.Identity;
 using CapitalLab.Infrastructure.Persistence.Interceptors;
 using MediatR;
@@ -49,31 +51,34 @@ public sealed class ApplicationDbContext(
     public DbSet<TestOrderItem> TestOrderItems => Set<TestOrderItem>();
 
     // Laboratory
-    public DbSet<Sample> Samples => Set<Sample>();
-    public DbSet<SampleItem> SampleItems => Set<SampleItem>();
-    public DbSet<QualityControlRecord> QualityControlRecords => Set<QualityControlRecord>();
     public DbSet<TestResult> TestResults => Set<TestResult>();
     public DbSet<TestResultHistory> TestResultHistory => Set<TestResultHistory>();
-    public DbSet<CriticalResultRule> CriticalResultRules => Set<CriticalResultRule>();
-    public DbSet<CriticalResultAlert> CriticalResultAlerts => Set<CriticalResultAlert>();
-    public DbSet<DoctorReview> DoctorReviews => Set<DoctorReview>();
     public DbSet<Report> Reports => Set<Report>();
     public DbSet<ReportItem> ReportItems => Set<ReportItem>();
 
-    // Inventory
-    public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
-    public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
-    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
-    public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
+    // Phase F — Notifications
+    public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<NotificationTemplate> NotificationTemplates => Set<NotificationTemplate>();
+    public DbSet<NotificationLog> NotificationLogs => Set<NotificationLog>();
 
-    // Billing
-    public DbSet<Invoice> Invoices => Set<Invoice>();
-    public DbSet<InvoiceItem> InvoiceItems => Set<InvoiceItem>();
-    public DbSet<Payment> Payments => Set<Payment>();
+    // Phase F — Audit
+    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
-    // Insurance
-    public DbSet<InsuranceProvider> InsuranceProviders => Set<InsuranceProvider>();
-    public DbSet<InsuranceClaim> InsuranceClaims => Set<InsuranceClaim>();
+    // Phase F — Mobile
+    public DbSet<DeviceToken> DeviceTokens => Set<DeviceToken>();
+
+    // Phase F — Settings
+    public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+
+    // Content CMS
+    public DbSet<ContentCategory> ContentCategories => Set<ContentCategory>();
+    public DbSet<ContentAuthor> ContentAuthors => Set<ContentAuthor>();
+    public DbSet<ContentTag> ContentTags => Set<ContentTag>();
+    public DbSet<ContentPost> ContentPosts => Set<ContentPost>();
+    public DbSet<ContentPostTag> ContentPostTags => Set<ContentPostTag>();
+    public DbSet<ContentEvent> ContentEvents => Set<ContentEvent>();
+    public DbSet<ContentNewsletterSubscriber> ContentNewsletterSubscribers => Set<ContentNewsletterSubscriber>();
+    public DbSet<ContentFaqItem> ContentFaqItems => Set<ContentFaqItem>();
 
     public new DatabaseFacade Database => base.Database;
 
@@ -81,10 +86,8 @@ public sealed class ApplicationDbContext(
     {
         base.OnModelCreating(builder);
 
-        // Apply all IEntityTypeConfiguration<T> implementations found in this assembly
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-        // Re-map Identity tables to the identity schema
         builder.Entity<AppUser>().ToTable("users", "identity");
         builder.Entity<AppRole>().ToTable("roles", "identity");
         builder.Entity<Microsoft.AspNetCore.Identity.IdentityUserRole<Guid>>()

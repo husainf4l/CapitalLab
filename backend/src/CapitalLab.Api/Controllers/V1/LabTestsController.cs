@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CapitalLab.Api.Controllers.V1;
 
+[Microsoft.AspNetCore.Mvc.Route("api/v{version:apiVersion}/lab-tests")]
 public class LabTestsController(IMediator mediator) : BaseController(mediator)
 {
     [HttpGet]
@@ -65,6 +66,22 @@ public class LabTestsController(IMediator mediator) : BaseController(mediator)
     {
         await Mediator.Send(new DeleteLabTestCommand(id), ct);
         return NoContentResponse();
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] string? q, CancellationToken ct)
+    {
+        var pagination = new CapitalLab.Contracts.Common.PaginationRequest { Page = 1, PageSize = 20, Search = q };
+        var result = await Mediator.Send(new GetLabTestsQuery(pagination, IsActive: true), ct);
+        return OkResponse(result.Value!.Items);
+    }
+
+    [HttpGet("popular")]
+    public async Task<IActionResult> Popular([FromQuery] int count = 8, CancellationToken ct = default)
+    {
+        var pagination = new CapitalLab.Contracts.Common.PaginationRequest { Page = 1, PageSize = count };
+        var result = await Mediator.Send(new GetLabTestsQuery(pagination, IsActive: true), ct);
+        return OkResponse(result.Value!.Items);
     }
 
     [HttpPatch("{id:guid}/activate")]

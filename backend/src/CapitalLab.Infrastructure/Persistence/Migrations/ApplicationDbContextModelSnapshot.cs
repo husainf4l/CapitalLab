@@ -22,323 +22,75 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Billing.Invoice", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Audit.AuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("BalanceAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("balance_amount");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Currency")
+                    b.Property<string>("Action")
                         .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("action");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
+                    b.Property<string>("AdditionalData")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("additional_data");
 
-                    b.Property<Guid?>("DeletedBy")
+                    b.Property<Guid>("EntityId")
                         .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
+                        .HasColumnName("entity_id");
 
-                    b.Property<decimal>("DiscountAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("discount_amount");
-
-                    b.Property<DateTime?>("DueAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("due_at");
-
-                    b.Property<string>("InvoiceNumber")
+                    b.Property<string>("EntityType")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("invoice_number");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("entity_type");
 
-                    b.Property<DateTime?>("IssuedAt")
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("character varying(45)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<string>("NewValues")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("new_values");
+
+                    b.Property<DateTime>("OccurredAt")
                         .HasColumnType("timestamptz")
-                        .HasColumnName("issued_at");
+                        .HasColumnName("occurred_at");
 
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
+                    b.Property<string>("OldValues")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("old_values");
 
-                    b.Property<decimal>("PaidAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("paid_amount");
+                    b.Property<long>("RowVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
 
-                    b.Property<Guid>("PatientId")
+                    b.Property<string>("UserEmail")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("user_email");
+
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uuid")
-                        .HasColumnName("patient_id");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<decimal>("SubtotalAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("subtotal_amount");
-
-                    b.Property<decimal>("TaxAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("tax_amount");
-
-                    b.Property<Guid?>("TestOrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("test_order_id");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("total_amount");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_invoices");
+                        .HasName("pk_audit_logs");
 
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_invoices_branch_id");
+                    b.HasIndex("EntityType")
+                        .HasDatabaseName("ix_audit_logs_entity_type");
 
-                    b.HasIndex("InvoiceNumber")
-                        .IsUnique()
-                        .HasDatabaseName("ix_invoices_number");
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("ix_audit_logs_occurred_at");
 
-                    b.HasIndex("PatientId")
-                        .HasDatabaseName("ix_invoices_patient_id");
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_audit_logs_user_id");
 
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_invoices_status");
-
-                    b.HasIndex("TestOrderId")
-                        .HasDatabaseName("ix_invoices_test_order_id");
-
-                    b.ToTable("invoices", "billing");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Billing.InvoiceItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("description");
-
-                    b.Property<decimal>("DiscountAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("discount_amount");
-
-                    b.Property<Guid>("InvoiceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("invoice_id");
-
-                    b.Property<string>("ItemType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("item_type");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<Guid?>("ReferenceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("reference_id");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<decimal>("TotalPrice")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("total_price");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("unit_price");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_invoice_items");
-
-                    b.HasIndex("InvoiceId")
-                        .HasDatabaseName("ix_invoice_items_invoice_id");
-
-                    b.ToTable("invoice_items", "billing");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Billing.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<decimal>("Amount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("amount");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<Guid>("InvoiceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("invoice_id");
-
-                    b.Property<string>("Method")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("method");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
-
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("paid_at");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("patient_id");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TransactionReference")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("transaction_reference");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_payments");
-
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_payments_branch_id");
-
-                    b.HasIndex("InvoiceId")
-                        .HasDatabaseName("ix_payments_invoice_id");
-
-                    b.HasIndex("PatientId")
-                        .HasDatabaseName("ix_payments_patient_id");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_payments_status");
-
-                    b.ToTable("payments", "billing");
+                    b.ToTable("audit_logs", "audit");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Catalog.HealthPackage", b =>
@@ -670,31 +422,96 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.ToTable("test_categories", "catalog");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Insurance.InsuranceClaim", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentAuthor", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<decimal>("ApprovedAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("approved_amount");
+                    b.Property<string>("Bio")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("bio");
 
-                    b.Property<DateTime?>("ApprovedAt")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
-                        .HasColumnName("approved_at");
+                        .HasColumnName("created_at");
 
-                    b.Property<decimal>("ClaimAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("claim_amount");
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
 
-                    b.Property<string>("ClaimNumber")
+                    b.Property<string>("Credentials")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("credentials");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("FullName")
                         .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("claim_number");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("full_name");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("JobTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("job_title");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("slug");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_authors");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_content_authors_is_active");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("uq_content_authors_slug");
+
+                    b.ToTable("authors", "content");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
@@ -712,35 +529,26 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
-                    b.Property<Guid>("InvoiceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("invoice_id");
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
 
-                    b.Property<DateTime?>("PaidAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("paid_at");
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
 
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("patient_id");
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name_ar");
 
-                    b.Property<Guid>("ProviderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("provider_id");
-
-                    b.Property<decimal>("RejectedAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("rejected_amount");
-
-                    b.Property<DateTime?>("RejectedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("rejected_at");
-
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("rejection_reason");
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name_en");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
@@ -748,15 +556,15 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.Property<string>("Status")
+                    b.Property<string>("Slug")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("slug");
 
-                    b.Property<DateTime?>("SubmittedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("submitted_at");
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamptz")
@@ -767,43 +575,228 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
-                        .HasName("pk_insurance_claims");
+                        .HasName("pk_categories");
 
-                    b.HasIndex("ClaimNumber")
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_content_categories_is_active");
+
+                    b.HasIndex("Slug")
                         .IsUnique()
-                        .HasDatabaseName("ix_insurance_claims_number");
+                        .HasDatabaseName("ix_content_categories_slug");
 
-                    b.HasIndex("InvoiceId")
-                        .HasDatabaseName("ix_insurance_claims_invoice_id");
-
-                    b.HasIndex("PatientId")
-                        .HasDatabaseName("ix_insurance_claims_patient_id");
-
-                    b.HasIndex("ProviderId")
-                        .HasDatabaseName("ix_insurance_claims_provider_id");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_insurance_claims_status");
-
-                    b.ToTable("insurance_claims", "insurance");
+                    b.ToTable("categories", "content");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Insurance.InsuranceProvider", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cover_image_url");
 
-                    b.Property<string>("ContactPerson")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("DescriptionAr")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)")
+                        .HasColumnName("description_ar");
+
+                    b.Property<string>("DescriptionEn")
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)")
+                        .HasColumnName("description_en");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("end_date");
+
+                    b.Property<DateTime>("EventDate")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("event_date");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_published");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("location");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("meta_description");
+
+                    b.Property<string>("MetaTitle")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
-                        .HasColumnName("contact_person");
+                        .HasColumnName("meta_title");
+
+                    b.Property<string>("RegistrationUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("registration_url");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("TitleAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title_ar");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title_en");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("view_count");
+
+                    b.HasKey("Id")
+                        .HasName("pk_events");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_content_events_slug");
+
+                    b.HasIndex("EventDate", "IsPublished")
+                        .HasDatabaseName("ix_content_events_date_published");
+
+                    b.ToTable("events", "content");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentFaqItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AnswerAr")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("answer_ar");
+
+                    b.Property<string>("AnswerEn")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("answer_en");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("QuestionAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("question_ar");
+
+                    b.Property<string>("QuestionEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("question_en");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_faq_items");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("ix_content_faq_is_active");
+
+                    b.HasIndex("IsActive", "SortOrder")
+                        .HasDatabaseName("ix_content_faq_active_sort");
+
+                    b.ToTable("faq_items", "content");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentNewsletterSubscriber", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
@@ -822,30 +815,42 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnName("deleted_by");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
                         .HasColumnName("email");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<bool>("IsConfirmed")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnName("is_confirmed");
 
-                    b.Property<string>("Name")
+                    b.Property<bool>("IsUnsubscribed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_unsubscribed");
+
+                    b.Property<string>("Language")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Phone")
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("phone");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasDefaultValue("en")
+                        .HasColumnName("language");
 
                     b.Property<uint>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
+
+                    b.Property<string>("UnsubscribeToken")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("unsubscribe_token");
+
+                    b.Property<DateTime?>("UnsubscribedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("unsubscribed_at");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamptz")
@@ -856,49 +861,44 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
-                        .HasName("pk_insurance_providers");
+                        .HasName("pk_newsletter_subscribers");
 
-                    b.HasIndex("Code")
+                    b.HasIndex("Email")
                         .IsUnique()
-                        .HasDatabaseName("ix_insurance_providers_code");
+                        .HasDatabaseName("uq_content_newsletter_email");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("ix_insurance_providers_active");
+                    b.HasIndex("IsUnsubscribed")
+                        .HasDatabaseName("ix_content_newsletter_unsub");
 
-                    b.ToTable("insurance_providers", "insurance");
+                    b.HasIndex("UnsubscribeToken")
+                        .HasDatabaseName("ix_content_newsletter_token");
+
+                    b.ToTable("newsletter_subscribers", "content");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.InventoryItem", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentPost", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("BatchNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("batch_number");
-
-                    b.Property<Guid>("BranchId")
+                    b.Property<Guid?>("AuthorId")
                         .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
+                        .HasColumnName("author_id");
 
-                    b.Property<string>("Category")
+                    b.Property<Guid?>("CategoryId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("ContentAr")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("category");
+                        .HasColumnType("text")
+                        .HasColumnName("content_ar");
 
-                    b.Property<string>("Code")
+                    b.Property<string>("ContentEn")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
-
-                    b.Property<decimal>("CostPrice")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("cost_price");
+                        .HasColumnType("text")
+                        .HasColumnName("content_en");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamptz")
@@ -908,11 +908,6 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("created_by");
 
-                    b.Property<decimal>("CurrentStock")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("current_stock");
-
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamptz")
                         .HasColumnName("deleted_at");
@@ -921,28 +916,188 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("deleted_by");
 
-                    b.Property<DateOnly?>("ExpiryDate")
-                        .HasColumnType("date")
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("timestamptz")
                         .HasColumnName("expiry_date");
 
-                    b.Property<bool>("IsActive")
+                    b.Property<string>("FeaturedImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("featured_image_url");
+
+                    b.Property<bool>("IsFeatured")
                         .HasColumnType("boolean")
-                        .HasColumnName("is_active");
+                        .HasColumnName("is_featured");
 
-                    b.Property<decimal>("MaximumStock")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("maximum_stock");
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_published");
 
-                    b.Property<decimal>("MinimumStock")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("minimum_stock");
+                    b.Property<string>("Keywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("keywords");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("meta_description");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("meta_title");
+
+                    b.Property<DateTime?>("PublishAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("publish_at");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("published_at");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("SummaryAr")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("summary_ar");
+
+                    b.Property<string>("SummaryEn")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("summary_en");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("thumbnail_url");
+
+                    b.Property<string>("TitleAr")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title_ar");
+
+                    b.Property<string>("TitleEn")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title_en");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("view_count");
+
+                    b.HasKey("Id")
+                        .HasName("pk_posts");
+
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("ix_posts_author_id");
+
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("ix_posts_category_id");
+
+                    b.HasIndex("PublishAt")
+                        .HasDatabaseName("ix_content_posts_publish_at");
+
+                    b.HasIndex("PublishedAt")
+                        .HasDatabaseName("ix_content_posts_published_at");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_content_posts_slug");
+
+                    b.HasIndex("IsFeatured", "IsPublished")
+                        .HasDatabaseName("ix_content_posts_featured_published");
+
+                    b.HasIndex("Type", "IsPublished")
+                        .HasDatabaseName("ix_content_posts_type_published");
+
+                    b.ToTable("posts", "content");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentPostTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("PostId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("post_id");
+
+                    b.Property<long>("RowVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("tag_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_post_tags");
+
+                    b.HasIndex("TagId")
+                        .HasDatabaseName("ix_post_tags_tag_id");
+
+                    b.HasIndex("PostId", "TagId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_content_post_tags_post_tag");
+
+                    b.ToTable("post_tags", "content");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentTag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<uint>("RowVersion")
@@ -951,16 +1106,11 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnType("xid")
                         .HasColumnName("xmin");
 
-                    b.Property<string>("SupplierName")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("supplier_name");
-
-                    b.Property<string>("Unit")
+                    b.Property<string>("Slug")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("unit");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("slug");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamptz")
@@ -971,509 +1121,13 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id")
-                        .HasName("pk_inventory_items");
+                        .HasName("pk_tags");
 
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_inventory_items_branch_id");
-
-                    b.HasIndex("Category")
-                        .HasDatabaseName("ix_inventory_items_category");
-
-                    b.HasIndex("ExpiryDate")
-                        .HasDatabaseName("ix_inventory_items_expiry");
-
-                    b.HasIndex("BranchId", "Code")
+                    b.HasIndex("Slug")
                         .IsUnique()
-                        .HasDatabaseName("ix_inventory_items_branch_code");
+                        .HasDatabaseName("ix_content_tags_slug");
 
-                    b.ToTable("inventory_items", "inventory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.InventoryTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("inventory_item_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("reason");
-
-                    b.Property<string>("ReferenceNumber")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("reference_number");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<decimal>("TotalCost")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("total_cost");
-
-                    b.Property<string>("TransactionType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("transaction_type");
-
-                    b.Property<decimal>("UnitCost")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("unit_cost");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_inventory_transactions");
-
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_inventory_transactions_branch_id");
-
-                    b.HasIndex("InventoryItemId")
-                        .HasDatabaseName("ix_inventory_transactions_item_id");
-
-                    b.HasIndex("TransactionType")
-                        .HasDatabaseName("ix_inventory_transactions_type");
-
-                    b.ToTable("inventory_transactions", "inventory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.PurchaseOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Currency")
-                        .IsRequired()
-                        .HasMaxLength(3)
-                        .HasColumnType("character varying(3)")
-                        .HasColumnName("currency");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("order_number");
-
-                    b.Property<DateTime?>("OrderedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("ordered_at");
-
-                    b.Property<DateTime?>("ReceivedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("received_at");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<string>("SupplierName")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("supplier_name");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("total_amount");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_purchase_orders");
-
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_purchase_orders_branch_id");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique()
-                        .HasDatabaseName("ix_purchase_orders_number");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_purchase_orders_status");
-
-                    b.ToTable("purchase_orders", "inventory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.PurchaseOrderItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<Guid>("InventoryItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("inventory_item_id");
-
-                    b.Property<Guid>("PurchaseOrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("purchase_order_id");
-
-                    b.Property<decimal>("Quantity")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("quantity");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<decimal>("TotalCost")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("total_cost");
-
-                    b.Property<decimal>("UnitCost")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("numeric(18,3)")
-                        .HasColumnName("unit_cost");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_purchase_order_items");
-
-                    b.HasIndex("InventoryItemId")
-                        .HasDatabaseName("ix_purchase_order_items_item_id");
-
-                    b.HasIndex("PurchaseOrderId")
-                        .HasDatabaseName("ix_purchase_order_items_po_id");
-
-                    b.ToTable("purchase_order_items", "inventory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.CriticalResultAlert", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime?>("AcknowledgedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("acknowledged_at");
-
-                    b.Property<Guid?>("AcknowledgedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("acknowledged_by");
-
-                    b.Property<bool>("IsAcknowledged")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_acknowledged");
-
-                    b.Property<long>("RowVersion")
-                        .HasColumnType("bigint")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("TestResultId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("test_result_id");
-
-                    b.Property<string>("TriggerReason")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("trigger_reason");
-
-                    b.Property<DateTime>("TriggeredAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("triggered_at");
-
-                    b.HasKey("Id")
-                        .HasName("pk_critical_result_alerts");
-
-                    b.HasIndex("IsAcknowledged")
-                        .HasDatabaseName("ix_critical_result_alerts_is_acknowledged");
-
-                    b.HasIndex("TestResultId")
-                        .HasDatabaseName("ix_critical_result_alerts_test_result_id");
-
-                    b.ToTable("critical_result_alerts", "laboratory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.CriticalResultRule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<bool>("IsEnabled")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_enabled");
-
-                    b.Property<Guid>("LabTestId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("lab_test_id");
-
-                    b.Property<decimal?>("MaxCriticalValue")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)")
-                        .HasColumnName("max_critical_value");
-
-                    b.Property<decimal?>("MinCriticalValue")
-                        .HasPrecision(18, 4)
-                        .HasColumnType("numeric(18,4)")
-                        .HasColumnName("min_critical_value");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_critical_result_rules");
-
-                    b.HasIndex("LabTestId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_critical_result_rules_lab_test_id");
-
-                    b.ToTable("critical_result_rules", "laboratory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.DoctorReview", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<Guid>("DoctorId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("doctor_id");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("notes");
-
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("reviewed_at");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<Guid>("SampleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("sample_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_doctor_reviews");
-
-                    b.HasIndex("DoctorId")
-                        .HasDatabaseName("ix_doctor_reviews_doctor_id");
-
-                    b.HasIndex("SampleId")
-                        .HasDatabaseName("ix_doctor_reviews_sample_id");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_doctor_reviews_status");
-
-                    b.ToTable("doctor_reviews", "laboratory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.QualityControlRecord", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CheckedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("checked_at");
-
-                    b.Property<Guid?>("CheckedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("checked_by");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
-
-                    b.Property<string>("Result")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("result");
-
-                    b.Property<long>("RowVersion")
-                        .HasColumnType("bigint")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("SampleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("sample_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_quality_control_records");
-
-                    b.HasIndex("SampleId")
-                        .HasDatabaseName("ix_quality_control_records_sample_id");
-
-                    b.ToTable("quality_control_records", "laboratory");
+                    b.ToTable("tags", "content");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.Report", b =>
@@ -1634,191 +1288,6 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_report_items_report_id");
 
                     b.ToTable("report_items", "laboratory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.Sample", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Barcode")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("barcode");
-
-                    b.Property<string>("BarcodeImagePath")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("barcode_image_path");
-
-                    b.Property<Guid>("BranchId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("branch_id");
-
-                    b.Property<Guid?>("CollectedByStaffId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("collected_by_staff_id");
-
-                    b.Property<DateTime?>("CollectionDateTime")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("collection_date_time");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("created_at");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("deleted_by");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("notes");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("patient_id");
-
-                    b.Property<DateTime?>("ProcessingCompletedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("processing_completed_at");
-
-                    b.Property<DateTime?>("ProcessingStartedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("processing_started_at");
-
-                    b.Property<string>("QRCode")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("qr_code");
-
-                    b.Property<string>("QRCodeImagePath")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("qr_code_image_path");
-
-                    b.Property<DateTime?>("ReceivedDateTime")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("received_date_time");
-
-                    b.Property<string>("RejectionReason")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("rejection_reason");
-
-                    b.Property<uint>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.Property<string>("SampleNumber")
-                        .IsRequired()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
-                        .HasColumnName("sample_number");
-
-                    b.Property<string>("SampleType")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("sample_type");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("TestOrderId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("test_order_id");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamptz")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid?>("UpdatedBy")
-                        .HasColumnType("uuid")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id")
-                        .HasName("pk_samples");
-
-                    b.HasIndex("Barcode")
-                        .IsUnique()
-                        .HasDatabaseName("ix_samples_barcode");
-
-                    b.HasIndex("BranchId")
-                        .HasDatabaseName("ix_samples_branch_id");
-
-                    b.HasIndex("PatientId")
-                        .HasDatabaseName("ix_samples_patient_id");
-
-                    b.HasIndex("SampleNumber")
-                        .IsUnique()
-                        .HasDatabaseName("ix_samples_sample_number");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_samples_status");
-
-                    b.HasIndex("TestOrderId")
-                        .HasDatabaseName("ix_samples_test_order_id");
-
-                    b.ToTable("samples", "laboratory");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.SampleItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("LabTestId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("lab_test_id");
-
-                    b.Property<long>("RowVersion")
-                        .HasColumnType("bigint")
-                        .HasColumnName("row_version");
-
-                    b.Property<Guid>("SampleId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("sample_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasColumnName("status");
-
-                    b.Property<Guid>("TestOrderItemId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("test_order_item_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_sample_items");
-
-                    b.HasIndex("LabTestId")
-                        .HasDatabaseName("ix_sample_items_lab_test_id");
-
-                    b.HasIndex("SampleId")
-                        .HasDatabaseName("ix_sample_items_sample_id");
-
-                    b.HasIndex("TestOrderItemId")
-                        .HasDatabaseName("ix_sample_items_test_order_item_id");
-
-                    b.ToTable("sample_items", "laboratory");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.TestResult", b =>
@@ -1986,6 +1455,327 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_test_result_history_test_result_id");
 
                     b.ToTable("test_result_history", "laboratory");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Mobile.DeviceToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("DeviceId")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("device_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTime?>("LastActiveAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("last_active_at");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("platform");
+
+                    b.Property<string>("PushToken")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("push_token");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_device_tokens");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_device_tokens_user_id");
+
+                    b.HasIndex("UserId", "DeviceId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_device_tokens_user_id_device_id");
+
+                    b.ToTable("device_tokens", "identity");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Notifications.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("FailureReason")
+                        .HasColumnType("text")
+                        .HasColumnName("failure_reason");
+
+                    b.Property<DateTime?>("LastAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_attempt_at");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("message");
+
+                    b.Property<DateTime?>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
+                    b.Property<string>("PayloadJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("payload_json");
+
+                    b.Property<DateTime?>("ReadAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("read_at");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTime?>("ScheduledAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("scheduled_at");
+
+                    b.Property<DateTime?>("SentAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notifications");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_notifications_user_id");
+
+                    b.HasIndex("UserId", "Status")
+                        .HasDatabaseName("ix_notifications_user_id_status");
+
+                    b.ToTable("notifications", "notifications");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Notifications.NotificationLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("NotificationId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("notification_id");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("Response")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("response");
+
+                    b.Property<long>("RowVersion")
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_logs");
+
+                    b.HasIndex("NotificationId")
+                        .HasDatabaseName("ix_notification_logs_notification_id");
+
+                    b.ToTable("notification_logs", "notifications");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Notifications.NotificationTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("body");
+
+                    b.Property<string>("BodyAr")
+                        .HasColumnType("text")
+                        .HasColumnName("body_ar");
+
+                    b.Property<string>("Channel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("channel");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("subject");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_templates");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_notification_templates_code");
+
+                    b.ToTable("notification_templates", "notifications");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Operations.Appointment", b =>
@@ -3054,6 +2844,81 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.ToTable("staff_profiles", "people");
                 });
 
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Settings.SystemSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("category");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("deleted_by");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_public");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("key");
+
+                    b.Property<uint>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamptz")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_system_settings");
+
+                    b.HasIndex("Category")
+                        .HasDatabaseName("ix_system_settings_category");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_system_settings_key");
+
+                    b.ToTable("system_settings", "settings");
+                });
+
             modelBuilder.Entity("CapitalLab.Infrastructure.Identity.AppRole", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3348,18 +3213,6 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.ToTable("user_tokens", "identity");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Billing.InvoiceItem", b =>
-                {
-                    b.HasOne("CapitalLab.Domain.Entities.Billing.Invoice", "Invoice")
-                        .WithMany("Items")
-                        .HasForeignKey("InvoiceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_invoice_items_invoices_invoice_id");
-
-                    b.Navigation("Invoice");
-                });
-
             modelBuilder.Entity("CapitalLab.Domain.Entities.Catalog.LabTest", b =>
                 {
                     b.HasOne("CapitalLab.Domain.Entities.Catalog.TestCategory", "Category")
@@ -3393,40 +3246,44 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.Navigation("Package");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.PurchaseOrderItem", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentPost", b =>
                 {
-                    b.HasOne("CapitalLab.Domain.Entities.Inventory.PurchaseOrder", "PurchaseOrder")
-                        .WithMany("Items")
-                        .HasForeignKey("PurchaseOrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_purchase_order_items_purchase_orders_purchase_order_id");
+                    b.HasOne("CapitalLab.Domain.Entities.Content.ContentAuthor", "Author")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_posts_authors_author_id");
 
-                    b.Navigation("PurchaseOrder");
+                    b.HasOne("CapitalLab.Domain.Entities.Content.ContentCategory", "Category")
+                        .WithMany("Posts")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_posts_categories_category_id");
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.CriticalResultAlert", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentPostTag", b =>
                 {
-                    b.HasOne("CapitalLab.Domain.Entities.Laboratory.TestResult", "TestResult")
-                        .WithMany()
-                        .HasForeignKey("TestResultId")
+                    b.HasOne("CapitalLab.Domain.Entities.Content.ContentPost", "Post")
+                        .WithMany("PostTags")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_critical_result_alerts_test_results_test_result_id");
+                        .HasConstraintName("fk_post_tags_posts_post_id");
 
-                    b.Navigation("TestResult");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.QualityControlRecord", b =>
-                {
-                    b.HasOne("CapitalLab.Domain.Entities.Laboratory.Sample", "Sample")
-                        .WithMany()
-                        .HasForeignKey("SampleId")
+                    b.HasOne("CapitalLab.Domain.Entities.Content.ContentTag", "Tag")
+                        .WithMany("PostTags")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_quality_control_records_samples_sample_id");
+                        .HasConstraintName("fk_post_tags_content_tags_tag_id");
 
-                    b.Navigation("Sample");
+                    b.Navigation("Post");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.ReportItem", b =>
@@ -3441,30 +3298,6 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.SampleItem", b =>
-                {
-                    b.HasOne("CapitalLab.Domain.Entities.Laboratory.Sample", "Sample")
-                        .WithMany("Items")
-                        .HasForeignKey("SampleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_sample_items_samples_sample_id");
-
-                    b.Navigation("Sample");
-                });
-
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.TestResult", b =>
-                {
-                    b.HasOne("CapitalLab.Domain.Entities.Laboratory.Sample", "Sample")
-                        .WithMany()
-                        .HasForeignKey("SampleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_test_results_samples_sample_id");
-
-                    b.Navigation("Sample");
-                });
-
             modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.TestResultHistory", b =>
                 {
                     b.HasOne("CapitalLab.Domain.Entities.Laboratory.TestResult", "TestResult")
@@ -3475,6 +3308,18 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_test_result_history_test_results_test_result_id");
 
                     b.Navigation("TestResult");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Notifications.NotificationLog", b =>
+                {
+                    b.HasOne("CapitalLab.Domain.Entities.Notifications.Notification", "Notification")
+                        .WithMany("Logs")
+                        .HasForeignKey("NotificationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_logs_notifications_notification_id");
+
+                    b.Navigation("Notification");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Operations.Appointment", b =>
@@ -3702,11 +3547,6 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Billing.Invoice", b =>
-                {
-                    b.Navigation("Items");
-                });
-
             modelBuilder.Entity("CapitalLab.Domain.Entities.Catalog.HealthPackage", b =>
                 {
                     b.Navigation("PackageTests");
@@ -3722,9 +3562,24 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.Navigation("LabTests");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Inventory.PurchaseOrder", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentAuthor", b =>
                 {
-                    b.Navigation("Items");
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentCategory", b =>
+                {
+                    b.Navigation("Posts");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentPost", b =>
+                {
+                    b.Navigation("PostTags");
+                });
+
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Content.ContentTag", b =>
+                {
+                    b.Navigation("PostTags");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.Report", b =>
@@ -3732,9 +3587,9 @@ namespace CapitalLab.Infrastructure.Persistence.Migrations
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("CapitalLab.Domain.Entities.Laboratory.Sample", b =>
+            modelBuilder.Entity("CapitalLab.Domain.Entities.Notifications.Notification", b =>
                 {
-                    b.Navigation("Items");
+                    b.Navigation("Logs");
                 });
 
             modelBuilder.Entity("CapitalLab.Domain.Entities.Operations.Appointment", b =>

@@ -5,6 +5,7 @@ namespace CapitalLab.Contracts.Laboratory;
 // ── Requests ─────────────────────────────────────────────────────────────────
 public record CreateResultRequest(
     Guid SampleId,
+    Guid PatientId,
     Guid LabTestId,
     ResultType ResultType,
     decimal? ResultValue,

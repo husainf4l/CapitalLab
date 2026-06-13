@@ -24,16 +24,15 @@ import { AuthService } from '../../core/services/auth.service';
 
           <!-- Logo -->
           <a routerLink="/" class="logo">
-            <div class="logo-icon">
-              <mat-icon>biotech</mat-icon>
-            </div>
-            <span class="logo-text">Capital<span class="logo-accent">Lab</span></span>
+            <img src="/images/hero/logo.png" alt="Capital Lab" class="nav-logo">
           </a>
 
           <!-- Desktop links — centered -->
           <nav class="desktop-nav">
             <a routerLink="/"        routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Home</a>
-            <a routerLink="/branches" routerLinkActive="active">Branches</a>
+            <a routerLink="/news"    routerLinkActive="active">News</a>
+            <a routerLink="/blog"    routerLinkActive="active">Blog</a>
+            <a routerLink="/events"  routerLinkActive="active">Events</a>
             <a routerLink="/about"   routerLinkActive="active">About</a>
             <a routerLink="/contact" routerLinkActive="active">Contact</a>
           </nav>
@@ -60,7 +59,9 @@ import { AuthService } from '../../core/services/auth.service';
         @if (mobileMenuOpen()) {
           <nav class="mobile-drawer">
             <a routerLink="/"         routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="mobileMenuOpen.set(false)">Home</a>
-            <a routerLink="/branches" routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Branches</a>
+            <a routerLink="/news"     routerLinkActive="active" (click)="mobileMenuOpen.set(false)">News</a>
+            <a routerLink="/blog"     routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Blog</a>
+            <a routerLink="/events"   routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Events</a>
             <a routerLink="/about"    routerLinkActive="active" (click)="mobileMenuOpen.set(false)">About</a>
             <a routerLink="/contact"  routerLinkActive="active" (click)="mobileMenuOpen.set(false)">Contact</a>
             <div class="drawer-footer">
@@ -90,10 +91,7 @@ import { AuthService } from '../../core/services/auth.service';
           <!-- Brand column -->
           <div class="footer-brand">
             <a routerLink="/" class="footer-logo">
-              <div class="footer-logo-icon">
-                <mat-icon>biotech</mat-icon>
-              </div>
-              <span>Capital<span>Lab</span></span>
+              <img src="/images/hero/logo.png" alt="Capital Lab" class="footer-logo-img">
             </a>
             <p class="footer-tagline">
               Advanced medical diagnostics trusted by over 100,000 patients across the region.
@@ -131,7 +129,6 @@ import { AuthService } from '../../core/services/auth.service';
             <h6>Company</h6>
             <a routerLink="/about">About Us</a>
             <a routerLink="/contact">Contact</a>
-            <a routerLink="/branches">Our Branches</a>
             <a routerLink="/about">Careers</a>
             <a routerLink="/about">Press Room</a>
           </div>
@@ -141,7 +138,6 @@ import { AuthService } from '../../core/services/auth.service';
             <h6>Services</h6>
             <a routerLink="/tests">Lab Tests</a>
             <a routerLink="/packages">Health Packages</a>
-            <a routerLink="/health-programs">Health Programs</a>
             <a routerLink="/patient/home-collection">Home Collection</a>
             <a routerLink="/tests">Corporate Testing</a>
           </div>
@@ -242,39 +238,16 @@ import { AuthService } from '../../core/services/auth.service';
     .logo {
       display: flex;
       align-items: center;
-      gap: 9px;
       text-decoration: none;
       flex-shrink: 0;
       margin-right: 4px;
     }
 
-    .logo-icon {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, $primary 0%, #4f8ef7 100%);
-      border-radius: 11px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      box-shadow: 0 3px 10px rgba($primary, 0.28);
-      flex-shrink: 0;
-
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
-      }
+    .nav-logo {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
     }
-
-    .logo-text {
-      font-size: 1.1rem;
-      font-weight: 800;
-      color: #0f172a;
-      letter-spacing: -0.4px;
-    }
-
-    .logo-accent { color: $primary; }
 
     // ─── Desktop nav — centered ───────────────────────────────────────────────
     .desktop-nav {
@@ -495,27 +468,14 @@ import { AuthService } from '../../core/services/auth.service';
     .footer-logo {
       display: flex;
       align-items: center;
-      gap: 10px;
       text-decoration: none;
       margin-bottom: 16px;
+    }
 
-      .footer-logo-icon {
-        width: 36px;
-        height: 36px;
-        background: linear-gradient(135deg, $primary, #4f8ef7);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        mat-icon { font-size: 20px; width: 20px; height: 20px; color: white; }
-      }
-
-      span {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: white;
-        span { color: #60a5fa; }
-      }
+    .footer-logo-img {
+      height: 40px;
+      width: auto;
+      object-fit: contain;
     }
 
     .footer-tagline {

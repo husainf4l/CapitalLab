@@ -23,7 +23,7 @@ import { Patient } from '../../../core/models/patient.models';
           </div>
         </div>
         @if (showActions()) {
-          <button mat-icon-button (click)="viewTimeline.emit(patient().id)">
+          <button mat-icon-button (click)="viewTimeline.emit(patient().id)" aria-label="View patient timeline">
             <mat-icon>timeline</mat-icon>
           </button>
         }
